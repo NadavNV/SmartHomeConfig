@@ -32,11 +32,11 @@ pipeline {
                     '''
                 sh "python3 SmartHomeBackend/Test/test.py"
             }
-            post {
-                always {
-                    sh "docker rm -f test-container"
-                }
-            }
+            // post {
+            //     always {
+            //         sh "docker rm -f test-container"
+            //     }
+            // }
         }
         stage('deploy') {
             steps {
