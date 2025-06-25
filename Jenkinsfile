@@ -11,8 +11,10 @@ pipeline{
             }
         }
         stage("build image"){
+            steps{
             echo "Building the app image"
             sh "docker build-f SmartHomeBackend/Dockerfile -t ${env.IMAGE_NAME}:${env.BUILD_NUMBER} ."
+            }
         }
         stage('test') {
             steps {
@@ -47,4 +49,4 @@ pipeline{
             sh "docker rmi -f ${env.IMAGE_NAME}:${env.BUILD_NUMBER}"
         }
     }
-    }
+}
