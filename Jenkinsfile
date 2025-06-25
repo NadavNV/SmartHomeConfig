@@ -1,19 +1,19 @@
-pipeline{
+ppipeline {
     agent any
     environment {
         IMAGE_NAME = "smarthome_backend"
     }
-    stages{
-        stage("clone backend repo"){
-            steps{
+    stages {
+        stage("clone backend repo") {
+            steps {
                 sh "git clone https://github.com/NadavNV/SmartHomeBackend"
-                echo "Backend repo was cloned" 
+                echo "Backend repo was cloned"
             }
         }
-        stage("build image"){
-            steps{
-            echo "Building the app image"
-            sh "docker build -f SmartHomeBackend/Dockerfile -t ${env.IMAGE_NAME}:${env.BUILD_NUMBER} ."
+        stage("build image") {
+            steps {
+                echo "Building the app image"
+                sh "docker build -f SmartHomeBackend/Dockerfile -t ${env.IMAGE_NAME}:${env.BUILD_NUMBER} ."
             }
         }
         stage('test') {
@@ -32,13 +32,9 @@ pipeline{
         stage('deploy') {
             steps {
                 echo "******deploying a new version******"
-                // withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                //     sh """
-                //         echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-                //         docker tag ${env.IMAGE_NAME}:${env.BUILD_NUMBER} $DOCKER_USER/movies_api:latest
-                //         docker push $DOCKER_USER/movies_api:latest
-                //     """
-                }
+                // withCredentials(...) {
+                //     ...
+                // }
             }
         }
     }
