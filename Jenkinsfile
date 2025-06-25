@@ -1,7 +1,7 @@
 pipeline{
     agent any
     environment {
-        IMAGE_NAME = "SmartHome-Backend"
+        IMAGE_NAME = "smarthome_backend"
     }
     stages{
         stage("clone backend repo"){
