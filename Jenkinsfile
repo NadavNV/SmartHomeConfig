@@ -10,6 +10,16 @@ pipeline {
                 echo "Backend repo was cloned"
             }
         }
+        stage('create .env file') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'mongo-creds', usernameVariable: 'MONGO_USER', passwordVariable: 'MONGO_PASS')]) {
+                    sh '''
+                        echo "MONGO_USER=$MONGO_USER" > SmartHomeBackend/.env
+                        echo "MONGO_PASS=$MONGO_PASS" >> SmartHomeBackend/.env
+                    '''
+                }
+            }
+        }
         stage("build image") {
             steps {
                 echo "Building the app image"
@@ -20,7 +30,7 @@ pipeline {
             steps {
                 echo "******testing the app******"
                 sh "docker run -d -p 5200:5200 --name test-container ${env.IMAGE_NAME}:${env.BUILD_NUMBER}"
-                sh "sleep 60"
+                sh "sleep 5"
                 sh "python3 SmartHomeBackend/Test/test.py"
             }
             // post {
