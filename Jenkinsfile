@@ -20,14 +20,14 @@ pipeline {
             steps {
                 echo "******testing the app******"
                 sh "docker run -d -p 5200:5200 --name test-container ${env.IMAGE_NAME}:${env.BUILD_NUMBER}"
-                sh "sleep 5"
+                sh "sleep 10"
                 sh "python3 SmartHomeBackend/Test/test.py"
             }
-            // post {
-            //     always {
-            //         sh "docker rm -f test-container"
-            //     }
-            // }
+            post {
+                always {
+                    sh "docker rm -f test-container"
+                }
+            }
         }
         stage('deploy') {
             steps {
@@ -39,10 +39,10 @@ pipeline {
         }
     }
 
-    // post {
-    //     always {
-    //         cleanWs()
-    //         sh "docker rmi -f ${env.IMAGE_NAME}:${env.BUILD_NUMBER}"
-    //     }
-    // }
+    post {
+        always {
+            cleanWs()
+            sh "docker rmi -f ${env.IMAGE_NAME}:${env.BUILD_NUMBER}"
+        }
+    }
 }
