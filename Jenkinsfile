@@ -29,7 +29,7 @@ pipeline {
         stage('test') {
             steps {
                 echo "******testing the app******"
-                sh "docker run -d -p 5200:5200 --name test-container ${env.IMAGE_NAME}:${env.BUILD_NUMBER}"
+                sh "docker run -d -p 5200:5200 --env-file SmartHomeBackend/.env --name test-container ${env.IMAGE_NAME}:${env.BUILD_NUMBER}"
                 sh "sleep 5"
                 sh "python3 SmartHomeBackend/Test/test.py"
             }
