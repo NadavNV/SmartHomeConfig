@@ -1,4 +1,4 @@
-ppipeline {
+pipeline {
     agent any
     environment {
         IMAGE_NAME = "smarthome_backend"
