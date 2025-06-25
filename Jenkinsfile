@@ -25,7 +25,7 @@ pipeline {
             }
             post {
                 always {
-                    sh "docker rm -f test-container"
+                    // sh "docker rm -f test-container"
                 }
             }
         }
@@ -41,8 +41,8 @@ pipeline {
 
     post {
         always {
-            cleanWs()
-            sh "docker rmi -f ${env.IMAGE_NAME}:${env.BUILD_NUMBER}"
+            // cleanWs()
+            // sh "docker rmi -f ${env.IMAGE_NAME}:${env.BUILD_NUMBER}"
         }
     }
 }
