@@ -45,8 +45,8 @@ pipeline {
         withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
             sh """
                 echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-                docker tag ${env.IMAGE_NAME}:${env.BUILD_NUMBER} $DOCKER_USER/${env.IMAGE_NAME}:${env.BUILD_NUMBER}
-                docker push $DOCKER_USER/${env.IMAGE_NAME}:${env.BUILD_NUMBER}
+                docker tag ${env.IMAGE_NAME}:${env.BUILD_NUMBER} $DOCKER_USER/${env.IMAGE_NAME}:V${env.BUILD_NUMBER}
+                docker push $DOCKER_USER/${env.IMAGE_NAME}:V${env.BUILD_NUMBER}
                 docker logout
             """
         }
