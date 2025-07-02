@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: SmartHomeBackend-service
+  namespace: SmartHome
+spec:
+  selector:
+    app: SmartHomeBackend
+  ports:
+  - port: 5200
+    targetPort: 5200

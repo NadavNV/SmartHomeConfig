@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: SmartHomeSimulator
+  namespace: SmartHome
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: SmartHomeSimulator
+  template:
+    metadata:
+      labels:
+        app: SmartHomeSimulator
+    spec:
+      containers:
+        - name: SmartHomeSimulator-container
+          image: yardenziv/smarthome_simulator:latest
+          resources:
+            limits:
+              cpu: 300m
+              memory: 200Mi
+            requests:
+              cpu: 200m
+              memory: 100Mi
