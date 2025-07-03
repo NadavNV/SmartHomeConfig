@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: SmartHomeBackend-deploy
-  namespace: SmartHome
+  name: smart-home-backend-deploy
+  namespace: smart-home
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: SmartHomeBackend
+      app: smart-home-backend
   template:
     metadata:
       labels:
-        app: SmartHomeBackend
+        app: smart-home-backend
     spec:
       containers:
-        - name: SmartHomeBackend-container
+        - name: smart-home-backend-container
           image: yardenziv/smarthome_backend:latest
           resources:
             limits:
@@ -58,12 +58,12 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: SmartHomeBackend-svc
-  namespace: SmartHome
+  name: smart-home-backend-svc
+  namespace: smart-home
 spec:
   # ClusterIP by default
   selector:
-    app: SmartHomeBackend
+    app: smart-home-backend
   ports:
     - port: 5200
       targetPort: 5200

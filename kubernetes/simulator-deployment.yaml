@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: SmartHomeSimulator-deploy
-  namespace: SmartHome
+  name: smart-home-simulator-deploy
+  namespace: smart-home
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: SmartHomeSimulator
+      app: smart-home-simulator
   template:
     metadata:
       labels:
-        app: SmartHomeSimulator
+        app: smart-home-simulator
     spec:
       containers:
-        - name: SmartHomeSimulator-container
+        - name: smart-home-simulator-container
           image: yardenziv/smarthome_simulator:latest
           resources:
             limits:
@@ -25,7 +25,7 @@ spec:
               memory: 100Mi
           env:
             - name: API_URL
-              value: http://SmartHomeBackend-svc.SmartHome:5200
+              value: http://smart-home-backend-svc.smart-home:5200
       livenessProbe:
         exec:
           command:
