@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: smart-home-dashboard-container
-          image: yardenziv/smarthome_dashboardend:latest
+          image: nadavnv/smart-home-dashboardend:latest
           resources:
             limits:
               cpu: 300m
@@ -32,23 +32,23 @@ spec:
                 configMapKeyRef:
                   name: smart-home-cm
                   key: API_URL
-      livenessProbe:
-        exec:
-          command:
-            - ping
-            - http://localhost:3001
-        initialDelaySeconds: 20
-        periodSeconds: 5
-      readinessProbe:
-        exec:
-          command:
-            - curl
-            - http://localhost:3001
-            - "|"
-            - grep
-            - "Data retrievd"
-        initialDelaySeconds: 20
-        periodSeconds: 5
+          livenessProbe:
+            exec:
+              command:
+                - ping
+                - http://localhost:3001
+            initialDelaySeconds: 20
+            periodSeconds: 5
+          readinessProbe:
+            exec:
+              command:
+                - curl
+                - http://localhost:3001
+                - "|"
+                - grep
+                - "Data retrievd"
+            initialDelaySeconds: 20
+            periodSeconds: 5
   strategy:
     type: RollingUpdate
     rollingUpdate:

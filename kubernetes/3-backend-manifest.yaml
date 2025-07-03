@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: smart-home-backend-container
-          image: yardenziv/smarthome_backend:latest
+          image: nadavnv/smart-home-backend:latest
           resources:
             limits:
               cpu: 300m
@@ -37,18 +37,18 @@ spec:
                 secretKeyRef:
                   key: mongo-password
                   name: mongo-secrets
-      livenessProbe:
-        httpGet:
-          path: /healthy
-          port: 5200
-        initialDelaySeconds: 20
-        periodSeconds: 5
-      readinessProbe:
-        httpGet:
-          path: /ready
-          port: 5200
-        initialDelaySeconds: 20
-        periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /healthy
+              port: 5200
+            initialDelaySeconds: 20
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 5200
+            initialDelaySeconds: 20
+            periodSeconds: 5
   strategy:
     type: RollingUpdate
     rollingUpdate:

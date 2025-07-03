@@ -30,23 +30,23 @@ spec:
                 configMapKeyRef:
                   name: smart-home-cm
                   key: API_URL
-      livenessProbe:
-        exec:
-          command:
-            - cat
-            - status
-            - "|"
-            - grep
-            - "healthy"
-        initialDelaySeconds: 20
-        periodSeconds: 5
-      readinessProbe:
-        exec:
-          command:
-            - cat
-            - status
-            - "|"
-            - grep
-            - "ready"
-        initialDelaySeconds: 20
-        periodSeconds: 5
+          livenessProbe:
+            exec:
+              command:
+                - cat
+                - status
+                - "|"
+                - grep
+                - "healthy"
+            initialDelaySeconds: 20
+            periodSeconds: 5
+          readinessProbe:
+            exec:
+              command:
+                - cat
+                - status
+                - "|"
+                - grep
+                - "ready"
+            initialDelaySeconds: 20
+            periodSeconds: 5
