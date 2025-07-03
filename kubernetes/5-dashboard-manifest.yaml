@@ -62,9 +62,10 @@ metadata:
   name: smart-home-dashboard-svc
   namespace: smart-home
 spec:
-  # ClusterIP by default
+  type: NodePort
   selector:
     app: smart-home-dashboard
   ports:
     - port: 3001
       targetPort: 3001
+      nodePort: 30001
