@@ -36,6 +36,18 @@ spec:
                 secretKeyRef:
                   key: mongo-password
                   name: mongo-secrets
+      livenessProbe:
+        httpGet:
+          path: /healthy
+          port: 5200
+        initialDelaySeconds: 20
+        periodSeconds: 5
+      readinessProbe:
+        httpGet:
+          path: /ready
+          port: 5200
+        initialDelaySeconds: 20
+        periodSeconds: 5
   strategy:
     type: RollingUpdate
     rollingUpdate:

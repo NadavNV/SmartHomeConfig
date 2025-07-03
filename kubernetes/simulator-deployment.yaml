@@ -26,3 +26,23 @@ spec:
           env:
             - name: API_URL
               value: http://SmartHomeBackend-svc.SmartHome:5200
+      livenessProbe:
+        exec:
+          command:
+            - cat
+            - status
+            - "|"
+            - grep
+            - "healthy"
+        initialDelaySeconds: 20
+        periodSeconds: 5
+      readinessProbe:
+        exec:
+          command:
+            - cat
+            - status
+            - "|"
+            - grep
+            - "ready"
+        initialDelaySeconds: 20
+        periodSeconds: 5

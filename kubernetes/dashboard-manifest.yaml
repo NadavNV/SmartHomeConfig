@@ -28,6 +28,23 @@ spec:
           env:
             - name: VITE_API_URL
               value: http://SmartHomeBackend-svc.SmartHome:5200
+      livenessProbe:
+        exec:
+          command:
+            - ping
+            - http://localhost:3001
+        initialDelaySeconds: 20
+        periodSeconds: 5
+      readinessProbe:
+        exec:
+          command:
+            - curl
+            - http://localhost:3001
+            - "|"
+            - grep
+            - "Data retrievd"
+        initialDelaySeconds: 20
+        periodSeconds: 5
   strategy:
     type: RollingUpdate
     rollingUpdate:
