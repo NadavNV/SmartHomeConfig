@@ -24,5 +24,5 @@ spec:
               cpu: 200m
               memory: 100Mi
           env:
-          - name: API_URL
-            value: http://SmartHomeBackend-svc.SmartHome:5200
+            - name: API_URL
+              value: http://SmartHomeBackend-svc.SmartHome:5200
