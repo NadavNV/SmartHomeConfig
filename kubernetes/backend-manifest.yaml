@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: SmartHomeBackend-deploy
+  namespace: SmartHome
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: SmartHomeBackend
+  template:
+    metadata:
+      labels:
+        app: SmartHomeBackend
+    spec:
+      containers:
+        - name: SmartHomeBackend-container
+          image: yardenziv/smarthome_backend:latest
+          resources:
+            limits:
+              cpu: 300m
+              memory: 200Mi
+            requests:
+              cpu: 200m
+              memory: 100Mi
+          ports:
+            - containerPort: 5200
+          env:
+            - name: MONGO_USER
+              valueFrom:
+                secretKeyRef:
+                  key: mongo-username
+                  name: mongo-secrets
+            - name: MONGO_PASS
+              valueFrom:
+                secretKeyRef:
+                  key: mongo-password
+                  name: mongo-secrets
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+---
+# Backend service
+apiVersion: v1
+kind: Service
+metadata:
+  name: SmartHomeBackend-svc
+  namespace: SmartHome
+spec:
+  # ClusterIP by default
+  selector:
+    app: SmartHomeBackend
+  ports:
+    - port: 5200
+      targetPort: 5200
