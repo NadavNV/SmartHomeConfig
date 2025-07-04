@@ -30,12 +30,12 @@ spec:
             - name: MONGO_USER
               valueFrom:
                 secretKeyRef:
-                  key: mongo-username
+                  key: MONGO_USER
                   name: mongo-secrets
             - name: MONGO_PASS
               valueFrom:
                 secretKeyRef:
-                  key: mongo-password
+                  key: MONGO_PASS
                   name: mongo-secrets
           livenessProbe:
             httpGet:
