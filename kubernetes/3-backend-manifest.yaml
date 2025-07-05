@@ -10,7 +10,6 @@ spec:
       app: smart-home-backend
   template:
     metadata:
-      name: smart-home-backend-pod
       labels:
         app: smart-home-backend
     spec:

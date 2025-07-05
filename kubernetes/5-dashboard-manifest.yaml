@@ -10,7 +10,6 @@ spec:
       app: smart-home-dashboard
   template:
     metadata:
-      name: smart-home-dashboard-pod
       labels:
         app: smart-home-dashboard
     spec:

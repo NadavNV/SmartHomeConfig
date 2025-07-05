@@ -10,7 +10,6 @@ spec:
       app: smart-home-simulator
   template:
     metadata:
-      name: smart-home-simulator-pod
       labels:
         app: smart-home-simulator
     spec:
@@ -28,7 +27,7 @@ spec:
             - name: API_URL
               valueFrom:
                 configMapKeyRef:
-                  name: smart-home-cm
+                  name: smart-home-backend-cm
                   key: API_URL
           livenessProbe:
             exec:
