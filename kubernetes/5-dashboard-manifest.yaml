@@ -4,7 +4,7 @@ metadata:
   name: smart-home-dashboard-deploy
   namespace: smart-home
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: smart-home-dashboard
