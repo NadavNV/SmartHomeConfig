@@ -33,19 +33,19 @@ spec:
                   name: smart-home-cm
                   key: API_URL
           livenessProbe:
-            exec:
-              command:
-                - ping
-                - http://localhost:3001
-            initialDelaySeconds: 20
+            httpGet:
+              path: /
+              port: 3001
+            initialDelaySeconds: 5
             periodSeconds: 5
           readinessProbe:
             exec:
               command:
+                # Verify that the frontend is connected to the backend
                 - /bin/sh
                 - -c
-                - curl http://localhost:3001 | grep "Data retrievd" || curl http://localhost:3001 | grep "Loading"
-            initialDelaySeconds: 20
+                - curl -sf http://smart-home-backend-svc:5200/ready
+            initialDelaySeconds: 5
             periodSeconds: 5
   strategy:
     type: RollingUpdate
