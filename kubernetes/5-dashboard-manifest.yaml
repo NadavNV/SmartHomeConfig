@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: smart-home-dashboard-container
-          image: nadavnv/smart-home-dashboardend:latest
+          image: nadavnv/smart-home-dashboard:latest
           resources:
             limits:
               cpu: 300m
@@ -42,17 +42,9 @@ spec:
           readinessProbe:
             exec:
               command:
-                - curl
-                - http://localhost:3001
-                - "|"
-                - grep
-                - "Data retrievd"
-                - "||"
-                - curl
-                - http://localhost:3001
-                - "|"
-                - grep
-                - "Loading"
+                - /bin/sh
+                - -c
+                - curl http://localhost:3001 | grep "Data retrievd" || curl http://localhost:3001 | grep "Loading"
             initialDelaySeconds: 20
             periodSeconds: 5
   strategy:
