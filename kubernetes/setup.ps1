@@ -23,6 +23,19 @@ if (-not $minikubeIp) {
     exit 1
 }
 
+Write-Output "Waiting for all pods in 'smart-home' namespace to be ready..."
+$podsReady = kubectl wait --namespace smart-home --for=condition=ready pod --all --timeout=120s 2>&1
+
+if ($LASTEXITCODE -ne 0) {
+    Write-Warning "Timeout or error waiting for pods readiness:"
+    Write-Output $podsReady
+    exit 1
+}
+else {
+    Write-Output "All pods in 'smart-home' are ready."
+}
+
+
 # Update hosts file
 $hostsContent = Get-Content -Path $hostsPath
 $filteredContent = $hostsContent | Where-Object { $_ -notmatch "$hostname" }

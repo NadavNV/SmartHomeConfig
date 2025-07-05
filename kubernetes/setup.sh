@@ -14,6 +14,15 @@ minikube addons enable ingress
 echo "Applying Kubernetes manifests..."
 kubectl apply -f .
 
+echo "Waiting for all pods in 'smart-home' namespace to be ready..."
+if ! kubectl wait --namespace smart-home --for=condition=ready pod --all --timeout=120s; then
+  echo "Timeout or error waiting for pods to become ready."
+  exit 1
+else
+  echo "All pods in 'smart-home' are ready."
+fi
+
+
 MINIKUBE_IP=$(minikube ip 2>/dev/null)
 if [ -z "$MINIKUBE_IP" ]; then
   echo "Failed to get Minikube IP. Is Minikube running?"
@@ -40,7 +49,7 @@ while true; do
 
   if [ "$ELAPSED" -ge "$TIMEOUT" ]; then
     echo "Timeout waiting for ingress. Exiting."
-    break
+    exit 1
   fi
 
   sleep 5
