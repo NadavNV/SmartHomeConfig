@@ -15,12 +15,16 @@ echo "Applying Kubernetes manifests..."
 kubectl apply -f .
 
 echo "Waiting for all pods in 'smart-home' namespace to be ready..."
-if ! kubectl wait --namespace smart-home --for=condition=ready pod --all --timeout=120s; then
-  echo "Timeout or error waiting for pods to become ready."
+podsReady=$(kubectl wait --namespace smart-home --for=condition=ready pod --all --timeout=120s 2>&1)
+
+if [ $? -ne 0 ]; then
+  echo "Timeout or error waiting for pods to become ready:"
+  echo "$podsReady"
   exit 1
 else
   echo "All pods in 'smart-home' are ready."
 fi
+
 
 
 MINIKUBE_IP=$(minikube ip 2>/dev/null)
