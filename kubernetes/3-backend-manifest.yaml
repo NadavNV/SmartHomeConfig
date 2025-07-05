@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: smart-home-backend-container
-          image: nadavnv/smart-home-backend:latest
+          image: yardenziv/smarthome_backend:latest
           resources:
             limits:
               cpu: 300m
