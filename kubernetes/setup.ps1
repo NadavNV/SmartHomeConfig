@@ -1,18 +1,14 @@
-# Variables
 $hostname = "smart-home-dashboard.local"
 $hostsPath = "$env:SystemRoot\System32\drivers\etc\hosts"
 $timeoutSeconds = 120
 $startTime = Get-Date
 
-# Start Minikube
 Write-Host "Starting Minikube..."
 minikube start
 
-# Enable ingress addon
 Write-Host "Enabling ingress addon..."
 minikube addons enable ingress
 
-# Apply YAML manifests in current directory
 Write-Host "Applying Kubernetes manifests..."
 kubectl apply -f .
 
@@ -36,14 +32,13 @@ else {
 }
 
 
-# Update hosts file
+# Update hosts file to include the host name used by the ingress
 $hostsContent = Get-Content -Path $hostsPath
 $filteredContent = $hostsContent | Where-Object { $_ -notmatch "$hostname" }
 $newEntry = "$minikubeIp `t $hostname"
 Set-Content -Path $hostsPath -Value ($filteredContent + $newEntry) -Force
 Write-Host "Updated hosts file: $newEntry"
 
-# Wait for ingress to become available
 Write-Host "Waiting for ingress to be ready..."
 
 while ($true) {
@@ -62,7 +57,7 @@ while ($true) {
     $elapsed = (Get-Date) - $startTime
     if ($elapsed.TotalSeconds -gt $timeoutSeconds) {
         Write-Warning "Timeout waiting for ingress. Exiting."
-        break
+        exit 1
     }
 
     Start-Sleep -Seconds 5

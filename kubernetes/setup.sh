@@ -29,12 +29,11 @@ if [ -z "$MINIKUBE_IP" ]; then
   exit 1
 fi
 
-# Update hosts file
+# Update hosts file to include the host name used by the ingress
 sudo sed -i.bak "/[[:space:]]$HOSTNAME$/d" $HOSTS_FILE
 echo -e "$MINIKUBE_IP\t$HOSTNAME" | sudo tee -a $HOSTS_FILE > /dev/null
 echo "Updated hosts file: $MINIKUBE_IP    $HOSTNAME"
 
-# Wait for ingress readiness
 echo "Waiting for ingress to be ready..."
 
 while true; do
