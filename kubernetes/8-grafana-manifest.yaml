@@ -61,4 +61,3 @@ spec:
   ports:
     - port: 3000
       targetPort: 3000
-      nodePort: 33000
