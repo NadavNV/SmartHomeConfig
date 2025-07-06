@@ -85,32 +85,33 @@ pipeline {
                 sh "docker run -d -p 5200:5200 --network test-net --env-file SmartHomeBackend/.env --name test-container --hostname test-container ${env.IMAGE_NAME}:${env.BUILD_NUMBER}"
                 sh "sleep 10"
                 script {
-    def backendIp = sh(
-                script: '''
-                    MAX_RETRIES=10
-                    RETRY_DELAY=2
-                    DEFAULT_IP="172.19.0.3"
-                    IP=""
-                    for i in $(seq 1 $MAX_RETRIES); do
-                        IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' test-container 2>/dev/null)
-                        if [[ -n "$IP" ]]; then
+                    def backendIp = sh(
+                        script: '''
+                            MAX_RETRIES=10
+                            RETRY_DELAY=2
+                            DEFAULT_IP="172.19.0.3"
+                            IP=""
+                            for i in $(seq 1 $MAX_RETRIES); do
+                                IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' test-container 2>/dev/null)
+                                if [[ -n "$IP" ]]; then
+                                    break
+                                else
+                                    >&2 echo "Waiting for test-container IP... attempt $i"
+                                    sleep $RETRY_DELAY
+                                fi
+                            done
+                            if [[ -z "$IP" ]]; then
+                                IP="$DEFAULT_IP"
+                            fi
                             echo "$IP"
-                            break
-                        else
-                            echo "Waiting for test-container IP... attempt $i"
-                            sleep $RETRY_DELAY
-                        fi
-                    done
-                    if [[ -z "$IP" ]]; then
-                        echo "$DEFAULT_IP"
-                    fi
-                ''',
-                    returnStdout: true
-                ).trim()
+                        ''',
+                        returnStdout: true
+                    ).trim()
 
-                echo "Backend IP: ${backendIp}"
-                env.BACKEND_URL = "http://${backendIp}:5200"
+                    echo "Backend IP: ${backendIp}"
+                    env.BACKEND_URL = "http://${backendIp}:5200"
                 }
+
                 sh "docker run -d --network test-net --name simulator-container -e API_URL=http://test-container:5200 ${env.SIM_IMAGE_NAME}:${env.BUILD_NUMBER}"
                 sh "docker run -d -p 3001:3001 --network test-net --name frontend-container --hostname frontend-container ${env.FRONT_IMAGE_NAME}:${env.BUILD_NUMBER}"
                 sh "sleep 20"
