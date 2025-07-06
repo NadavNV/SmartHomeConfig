@@ -4,20 +4,12 @@ HOSTNAME="smart-home-dashboard.local"
 HOSTS_FILE="/etc/hosts"
 TIMEOUT=120
 START_TIME=$(date +%s)
-KUBE_STATE_METRICS_URL="https://raw.githubusercontent.com/kubernetes/kube-state-metrics/v2.12.0/examples/standard/combined-deploy.yaml"
-KUBE_SATE_METRICS_MANIFEST="kube-state-metrics.yaml"
 
 echo "Starting Minikube..."
 minikube start
 
 echo "Enabling ingress addon..."
 minikube addons enable ingress
-
-echo "Downloading kube-state-metrics..."
-curl -LO $KUBE_STATE_METRICS_URL
-
-echo "Replacing namespace from kube-system to smart-home..."
-sed -i 's/namespace: kube-system/namespace: smart-home/g' $KUBE_SATE_METRICS_MANIFEST
 
 echo "Applying Kubernetes manifests..."
 kubectl apply -f .

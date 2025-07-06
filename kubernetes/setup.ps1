@@ -2,21 +2,12 @@ $hostname = "smart-home-dashboard.local"
 $hostsPath = "$env:SystemRoot\System32\drivers\etc\hosts"
 $timeoutSeconds = 120
 $startTime = Get-Date
-$kubeStateMetricsUrl = "https://raw.githubusercontent.com/kubernetes/kube-state-metrics/v2.12.0/examples/standard/combined-deploy.yaml"
-$kubeStateMetricsManifest = "kube-state-metrics.yaml"
 
 Write-Host "Starting Minikube..."
 minikube start
 
 Write-Host "Enabling ingress addon..."
 minikube addons enable ingress
-
-Write-Host "Downloading kube-state-metrics..."
-Invoke-WebRequest -Uri $kubeStateMetricsUrl -OutFile $kubeStateMetricsManifest
-
-Write-Host "Replacing namespace from kube-system to smart-home..."
-(Get-Content $kubeStateMetricsManifest) -replace "namespace: kube-system", "namespace: smart-home" |
-Set-Content $kubeStateMetricsManifest
 
 Write-Host "Applying Kubernetes manifests..."
 kubectl apply -f .
