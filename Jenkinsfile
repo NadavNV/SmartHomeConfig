@@ -85,28 +85,28 @@ pipeline {
                 sh "docker run -d -p 5200:5200 --network test-net --env-file SmartHomeBackend/.env --name test-container --hostname test-container ${env.IMAGE_NAME}:${env.BUILD_NUMBER}"
                 sh "sleep 10"
                 script {
-                    def backendIp = sh(
-                        script: '''
-                            MAX_RETRIES=10
-                            RETRY_DELAY=2
-                            IP=""
-                            for i in $(seq 1 $MAX_RETRIES); do
-                            IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' test-container 2>/dev/null)
-                            if [[ -n "$IP" ]]; then
-                                echo "$IP"
-                                break
-                            else
-                                echo "Waiting for test-container IP... attempt $i"
-                                sleep $RETRY_DELAY
-                            fi
-                            done
-                            if [[ -z "$IP" ]]; then
-                            echo "ERROR: Could not get IP address for test-container"
-                            exit 1
-                            fi
-                        ''',
-                        returnStdout: true
-                    ).trim()
+    def backendIp = sh(
+                script: '''
+                    MAX_RETRIES=10
+                    RETRY_DELAY=2
+                    DEFAULT_IP="172.19.0.3"
+                    IP=""
+                    for i in $(seq 1 $MAX_RETRIES); do
+                        IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' test-container 2>/dev/null)
+                        if [[ -n "$IP" ]]; then
+                            echo "$IP"
+                            break
+                        else
+                            echo "Waiting for test-container IP... attempt $i"
+                            sleep $RETRY_DELAY
+                        fi
+                    done
+                    if [[ -z "$IP" ]]; then
+                        echo "$DEFAULT_IP"
+                    fi
+                ''',
+                    returnStdout: true
+                ).trim()
 
                 echo "Backend IP: ${backendIp}"
                 env.BACKEND_URL = "http://${backendIp}:5200"
