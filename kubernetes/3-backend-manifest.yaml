@@ -24,7 +24,7 @@ spec:
               cpu: 200m
               memory: 100Mi
           ports:
-            - containerPort: 80
+            - containerPort: 8000
           env:
             - name: MONGO_USER
               valueFrom:
@@ -39,13 +39,13 @@ spec:
           livenessProbe:
             httpGet:
               path: /healthy
-              port: 80
+              port: 8000
             initialDelaySeconds: 10
             periodSeconds: 5
           readinessProbe:
             httpGet:
               path: /ready
-              port: 80
+              port: 8000
             initialDelaySeconds: 10
             periodSeconds: 5
         - name: smart-home-backend-nginx-container
