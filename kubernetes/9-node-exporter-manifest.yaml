@@ -1,0 +1,63 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: smart-home-node-exporter-sa
+  namespace: smart-home
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: smart-home-node-exporter
+  namespace: smart-home
+spec:
+  selector:
+    matchLabels:
+      app: smart-home-node-exporter
+  template:
+    metadata:
+      labels:
+        app: smart-home-node-exporter
+    spec:
+      serviceAccountName: smart-home-node-exporter-sa
+      containers:
+        - name: smart-home-node-exporter-container
+          image: prom/node-exporter:latest
+          ports:
+            - containerPort: 9100
+          resources:
+            limits:
+              memory: "50Mi"
+              cpu: "100m"
+          volumeMounts:
+            - name: proc
+              mountPath: /host/proc
+              readOnly: true
+            - name: sys
+              mountPath: /host/sys
+              readOnly: true
+            - name: root
+              mountPath: /rootfs
+              readOnly: true
+      volumes:
+        - name: proc
+          hostPath:
+            path: /proc
+        - name: sys
+          hostPath:
+            path: /sys
+        - name: root
+          hostPath:
+            path: /
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: smart-home-node-exporter-svc
+  namespace: smart-home
+spec:
+  selector:
+    app: smart-home-node-exporter
+  ports:
+    - name: http
+      port: 9100
+      targetPort: 9100
