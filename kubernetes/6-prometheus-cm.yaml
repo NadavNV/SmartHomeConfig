@@ -12,3 +12,17 @@ data:
       - job_name: 'flask-backend'
         static_configs:
           - targets: ['smart-home-backend-svc.smart-home.svc.cluster.local:5200']
+      - job_name: 'node-exporter'
+        kubernetes_sd_configs:
+          - role: endpoints
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_namespace, __meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+            action: keep
+            regex: smart-home;node-exporter;http
+      - job_name: 'kube-state-metrics'
+        kubernetes_sd_configs:
+          - role: endpoints
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_namespace, __meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+            action: keep
+            regex: smart-home;kube-state-metrics;http
