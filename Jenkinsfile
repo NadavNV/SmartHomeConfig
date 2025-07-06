@@ -81,7 +81,13 @@ pipeline {
             steps {
                 echo "******testing the app******"
                 sh "docker network create test-net || true"
-                sh "docker run -d --network test-net --name mqtt-broker eclipse-mosquitto"
+                sh """
+                    docker run -d \
+                    --network test-net \
+                    --name mqtt-broker \
+                    -v "$WORKSPACE/mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf" \
+                    eclipse-mosquitto
+                """
                 sh "sleep 10"
                 sh "docker run -d -p 5200:5200 --network test-net --env-file SmartHomeBackend/.env --name test-container --hostname test-container ${env.IMAGE_NAME}:${env.BUILD_NUMBER}"
                 sh "sleep 10"
