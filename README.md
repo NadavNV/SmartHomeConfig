@@ -26,20 +26,20 @@ As well as monitoring and CI/CD (in this repository).
 
 - To run the up on your machine from the pre-built images:
 
-  1. [Install minikube](https://minikube.sigs.k8s.io/docs/start/?arch=%2Fwindows%2Fx86-64%2Fstable%2F.exe+download)
-  2. Start minikube: `minikube start`
-  3. Clone this repo and apply the kubernetes manifests. On Windows, run PowerShell as administrator:
-     ```powershell
-     git clone https://github.com/NadavNV/SmartHomeConfig.git
-     cd kubernetes
-     .\setup.ps1
-     ```
-     On Linux/MacOS:
-     ```bash
-     git clone https://github.com/NadavNV/SmartHomeConfig.git
-     cd kubernetes
-     sudo ./setup.sh
-     ```
-  4. Access the dashboard on your browser at `smart-home-dashboard.local`
+  - [Install minikube](https://minikube.sigs.k8s.io/docs/start/?arch=%2Fwindows%2Fx86-64%2Fstable%2F.exe+download)
+  - Start minikube: `minikube start`
+  - Clone this repo and apply the kubernetes manifests. On Windows, run PowerShell as administrator:
+    ```powershell
+    git clone https://github.com/NadavNV/SmartHomeConfig.git
+    cd kubernetes
+    .\setup.ps1
+    ```
+    On Linux/MacOS:
+    ```bash
+    git clone https://github.com/NadavNV/SmartHomeConfig.git
+    cd kubernetes
+    sudo ./setup.sh
+    ```
+  - Access the dashboard on your browser at `smart-home-dashboard.local`
 
 - To run the different microservices locally, please refer to their individual README files.
