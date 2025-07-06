@@ -1,5 +1,7 @@
 FROM grafana/grafana:latest
 
+USER root
+
 COPY dashboards /var/lib/grafana/dashboards
 COPY provisioning /etc/grafana/provisioning
 COPY create-viewer.sh /etc/grafana/create-viewer.sh
