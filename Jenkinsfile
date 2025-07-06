@@ -89,7 +89,13 @@ pipeline {
                     eclipse-mosquitto
                 """
                 sh "sleep 10"
-                sh "docker run -d -p 5200:5200 --network test-net --env-file SmartHomeBackend/.env --name test-container --hostname test-container ${env.IMAGE_NAME}:${env.BUILD_NUMBER}"
+                sh "docker run -d -p 5200:5200 --network test-net \
+                --env-file SmartHomeBackend/.env \
+                --name test-container \
+                --hostname test-container \
+                -e BROKER_URL=mqtt-broker \
+                -e BROKER_PORT=1883 \
+                 ${env.IMAGE_NAME}:${env.BUILD_NUMBER}"
                 sh "sleep 10"
                 script {
                     def backendIp = sh(
