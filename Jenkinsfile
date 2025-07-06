@@ -128,15 +128,15 @@ pipeline {
                 """
 
             }
-            post {
-                always {
+            // post {
+            //     always {
             // sh "docker rm -f test-container || true"
             // sh "docker rm -f simulator-container || true"
             // sh "docker rm -f frontend-container || true"
             // sh "docker rm -f mqtt-broker || true"
             // sh "docker network rm test-net || true"
-                }
-            }
+            //     }
+            // }
         }
         stage('deploy') {
     steps {
