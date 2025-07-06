@@ -14,8 +14,8 @@ spec:
         app: smart-home-backend
     spec:
       containers:
-        - name: smart-home-backend-container
-          image: yardenziv/smarthome_backend:latest
+        - name: smart-home-backend-flask-container
+          image: yardenziv/smarthome_backend_flask:latest
           resources:
             limits:
               cpu: 300m
@@ -24,7 +24,7 @@ spec:
               cpu: 200m
               memory: 100Mi
           ports:
-            - containerPort: 5200
+            - containerPort: 80
           env:
             - name: MONGO_USER
               valueFrom:
@@ -36,6 +36,29 @@ spec:
                 secretKeyRef:
                   key: MONGO_PASS
                   name: mongo-secrets
+          livenessProbe:
+            httpGet:
+              path: /healthy
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 5
+        - name: smart-home-backend-nginx-container
+          image: yardenziv/smarthome_backend_nginx:latest
+          resources:
+            limits:
+              cpu: 300m
+              memory: 200Mi
+            requests:
+              cpu: 200m
+              memory: 100Mi
+          ports:
+            - containerPort: 5200
           livenessProbe:
             httpGet:
               path: /healthy

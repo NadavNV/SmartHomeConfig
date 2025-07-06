@@ -35,7 +35,6 @@ spec:
                 - /bin/sh
                 - -c
                 - cat status | grep healthy
-
             initialDelaySeconds: 5
             periodSeconds: 5
           readinessProbe:
@@ -46,3 +45,8 @@ spec:
                 - cat status | grep ready
             initialDelaySeconds: 10
             periodSeconds: 5
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
