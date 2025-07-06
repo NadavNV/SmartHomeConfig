@@ -114,16 +114,17 @@ pipeline {
                 sh "docker run -d --network test-net --name simulator-container -e API_URL=http://test-container:5200 ${env.SIM_IMAGE_NAME}:${env.BUILD_NUMBER}"
                 sh "docker run -d -p 3001:3001 --network test-net --name frontend-container --hostname frontend-container ${env.FRONT_IMAGE_NAME}:${env.BUILD_NUMBER}"
                 sh "sleep 20"
-                sh '''
+                sh """
                     docker run --rm \
                     --network test-net \
                     -v "${env.WORKSPACE}:/app" \
                     -w /app \
                     -e FRONTEND_URL=http://frontend-container:3001 \
-                    -e BACKEND_URL=$BACKEND_URL \
+                    -e BACKEND_URL=${BACKEND_URL} \
                     yardenziv/smarthome-test-runner:latest \
                     SmartHomeBackend/Test/test.py
-                '''
+                """
+
             }
             post {
                 always {
