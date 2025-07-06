@@ -117,7 +117,7 @@ pipeline {
                 sh '''
                     docker run --rm \
                     --network test-net \
-                    -v /home/jenkins/.jenkins/workspace/smarthome_test:/app \
+                    -v "${env.WORKSPACE}:/app" \
                     -w /app \
                     -e FRONTEND_URL=http://frontend-container:3001 \
                     -e BACKEND_URL=$BACKEND_URL \
