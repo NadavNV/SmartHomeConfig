@@ -12,15 +12,16 @@ As well as monitoring and CI/CD (in this repository).
 
 ## Technologies Used
 
-| Layer                | Technology              |
-| -------------------- | ----------------------- |
-| **API**              | Python3 • Flask         |
-| **Database**         | MongoDB hosted on Atlas |
-| **Frontend**         | React • Vite • nginx    |
-| **Containerization** | Docker • Docker Hub     |
-| **Orchestration**    | Kubernetes • minikube   |
-| **Observability**    | Prometheus • Grafana    |
-| **CI/CD**            | Jenkins                 |
+| Layer                 | Technology                          |
+| --------------------- | ----------------------------------- |
+| **API**               | Python3 • Flask • paho-mqtt • nginx |
+| **Database**          | MongoDB hosted on Atlas             |
+| **Device Simulation** | Python3 • paho-mqtt                 |
+| **Frontend**          | React • Vite • nginx                |
+| **Containerization**  | Docker • Docker Hub                 |
+| **Orchestration**     | Kubernetes • minikube               |
+| **Observability**     | Prometheus • Grafana                |
+| **CI/CD**             | Jenkins                             |
 
 ## Usage
 
