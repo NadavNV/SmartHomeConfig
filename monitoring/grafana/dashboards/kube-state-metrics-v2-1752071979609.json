@@ -47,7 +47,7 @@
     },
     {
       "datasource": {
-        "uid": "$datasource"
+        "uid": "PD576CF4ABCD8CCAA"
       },
       "fieldConfig": {
         "defaults": {
@@ -111,7 +111,7 @@
       "targets": [
         {
           "datasource": {
-            "uid": "$datasource"
+            "uid": "PD576CF4ABCD8CCAA"
           },
           "expr": "sum(kube_pod_info{node=~\"$node\"}) / sum(kube_node_status_allocatable{resource=\"pods\",node=~\"$node\"})",
           "format": "time_series",
@@ -126,7 +126,7 @@
     },
     {
       "datasource": {
-        "uid": "$datasource"
+        "uid": "PD576CF4ABCD8CCAA"
       },
       "fieldConfig": {
         "defaults": {
@@ -190,7 +190,7 @@
       "targets": [
         {
           "datasource": {
-            "uid": "$datasource"
+            "uid": "PD576CF4ABCD8CCAA"
           },
           "expr": "sum(kube_pod_container_resource_requests{resource=\"cpu\",node=~\"$node\"})/ sum(kube_node_status_allocatable{node=~\"$node\",resource=\"cpu\"})",
           "format": "time_series",
@@ -203,7 +203,7 @@
     },
     {
       "datasource": {
-        "uid": "$datasource"
+        "uid": "PD576CF4ABCD8CCAA"
       },
       "fieldConfig": {
         "defaults": {
@@ -267,7 +267,7 @@
       "targets": [
         {
           "datasource": {
-            "uid": "$datasource"
+            "uid": "PD576CF4ABCD8CCAA"
           },
           "expr": "sum(kube_pod_container_resource_requests{resource=\"memory\",node=~\"$node\"}) / sum(kube_node_status_allocatable{node=~\"$node\",resource=\"memory\"})",
           "format": "time_series",
@@ -280,7 +280,7 @@
     },
     {
       "datasource": {
-        "uid": "$datasource"
+        "uid": "PD576CF4ABCD8CCAA"
       },
       "fieldConfig": {
         "defaults": {
@@ -362,7 +362,7 @@
       "targets": [
         {
           "datasource": {
-            "uid": "$datasource"
+            "uid": "PD576CF4ABCD8CCAA"
           },
           "expr": "sum(kube_node_status_allocatable{resource=\"pods\",node=~\"$node\"})",
           "format": "time_series",
@@ -372,7 +372,7 @@
         },
         {
           "datasource": {
-            "uid": "$datasource"
+            "uid": "PD576CF4ABCD8CCAA"
           },
           "expr": "sum(kube_pod_info{node=~\"$node\"})",
           "format": "time_series",
@@ -386,7 +386,7 @@
     },
     {
       "datasource": {
-        "uid": "$datasource"
+        "uid": "PD576CF4ABCD8CCAA"
       },
       "fieldConfig": {
         "defaults": {
@@ -468,7 +468,7 @@
       "targets": [
         {
           "datasource": {
-            "uid": "$datasource"
+            "uid": "PD576CF4ABCD8CCAA"
           },
           "expr": "sum(kube_node_status_capacity{node=~\"$node\",resource=\"cpu\"})",
           "format": "time_series",
@@ -478,7 +478,7 @@
         },
         {
           "datasource": {
-            "uid": "$datasource"
+            "uid": "PD576CF4ABCD8CCAA"
           },
           "expr": "sum(kube_node_status_allocatable{node=~\"$node\",resource=\"cpu\"})",
           "format": "time_series",
@@ -488,7 +488,7 @@
         },
         {
           "datasource": {
-            "uid": "$datasource"
+            "uid": "PD576CF4ABCD8CCAA"
           },
           "expr": "sum(kube_pod_container_resource_requests{resource=\"cpu\",node=~\"$node\"})",
           "format": "time_series",
@@ -498,7 +498,7 @@
         },
         {
           "datasource": {
-            "uid": "$datasource"
+            "uid": "PD576CF4ABCD8CCAA"
           },
           "expr": "sum(kube_pod_container_resource_limits{resource=\"cpu\",node=~\"$node\"})",
           "format": "time_series",
@@ -512,7 +512,7 @@
     },
     {
       "datasource": {
-        "uid": "$datasource"
+        "uid": "PD576CF4ABCD8CCAA"
       },
       "fieldConfig": {
         "defaults": {
@@ -594,7 +594,7 @@
       "targets": [
         {
           "datasource": {
-            "uid": "$datasource"
+            "uid": "PD576CF4ABCD8CCAA"
           },
           "expr": "sum(kube_node_status_allocatable{node=~\"$node\",resource=\"memory\"})",
           "format": "time_series",
@@ -604,7 +604,7 @@
         },
         {
           "datasource": {
-            "uid": "$datasource"
+            "uid": "PD576CF4ABCD8CCAA"
           },
           "expr": "sum(kube_node_status_capacity{node=~\"$node\",resource=\"memory\"})",
           "format": "time_series",
@@ -614,7 +614,7 @@
         },
         {
           "datasource": {
-            "uid": "$datasource"
+            "uid": "PD576CF4ABCD8CCAA"
           },
           "expr": "sum(kube_pod_container_resource_requests{resource=\"memory\",node=~\"$node\"})",
           "format": "time_series",
@@ -624,7 +624,7 @@
         },
         {
           "datasource": {
-            "uid": "$datasource"
+            "uid": "PD576CF4ABCD8CCAA"
           },
           "expr": "sum(kube_pod_container_resource_limits{resource=\"memory\",node=~\"$node\"})",
           "format": "time_series",
@@ -648,7 +648,7 @@
       "panels": [
         {
           "datasource": {
-            "uid": "$datasource"
+            "uid": "PD576CF4ABCD8CCAA"
           },
           "fieldConfig": {
             "defaults": {
@@ -698,9 +698,9 @@
           "targets": [
             {
               "datasource": {
-                "uid": "$datasource"
+                "uid": "PD576CF4ABCD8CCAA"
               },
-              "expr": "sum(kube_node_info{cluster=~\"$cluster\"})",
+              "expr": "sum(kube_node_info)",
               "format": "time_series",
               "instant": true,
               "interval": "",
@@ -714,7 +714,7 @@
         },
         {
           "datasource": {
-            "uid": "$datasource"
+            "uid": "PD576CF4ABCD8CCAA"
           },
           "fieldConfig": {
             "defaults": {
@@ -764,9 +764,9 @@
           "targets": [
             {
               "datasource": {
-                "uid": "$datasource"
+                "uid": "PD576CF4ABCD8CCAA"
               },
-              "expr": "sum(kube_node_spec_unschedulable{cluster=~\"$cluster\"})",
+              "expr": "sum(kube_node_spec_unschedulable)",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
@@ -779,7 +779,7 @@
         },
         {
           "datasource": {
-            "uid": "$datasource"
+            "uid": "PD576CF4ABCD8CCAA"
           },
           "fieldConfig": {
             "defaults": {
@@ -801,9 +801,9 @@
           "targets": [
             {
               "datasource": {
-                "uid": "$datasource"
+                "uid": "PD576CF4ABCD8CCAA"
               },
-              "expr": "kube_node_status_condition{cluster=~\"$cluster\",condition=\"Ready\",status=\"false\"}==1",
+              "expr": "kube_node_status_condition{condition=\"Ready\",status=\"false\"}==1",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
@@ -816,7 +816,7 @@
         },
         {
           "datasource": {
-            "uid": "$datasource"
+            "uid": "PD576CF4ABCD8CCAA"
           },
           "fieldConfig": {
             "defaults": {
@@ -838,9 +838,9 @@
           "targets": [
             {
               "datasource": {
-                "uid": "$datasource"
+                "uid": "PD576CF4ABCD8CCAA"
               },
-              "expr": "kube_node_status_condition{condition=\"DiskPressure\",cluster=~\"$cluster\",status=\"true\"}==1",
+              "expr": "kube_node_status_condition{condition=\"DiskPressure\",status=\"true\"}==1",
               "format": "time_series",
               "instant": false,
               "interval": "",
@@ -850,9 +850,9 @@
             },
             {
               "datasource": {
-                "uid": "$datasource"
+                "uid": "PD576CF4ABCD8CCAA"
               },
-              "expr": "kube_node_status_condition{condition=\"MemoryPressure\",node=~\"$node\",cluster=~\"$cluster\",status=\"true\"}==1",
+              "expr": "kube_node_status_condition{condition=\"MemoryPressure\",node=~\"$node\",status=\"true\"}==1",
               "format": "time_series",
               "intervalFactor": 1,
               "legendFormat": "{{node}} {{condition}}",
@@ -860,9 +860,9 @@
             },
             {
               "datasource": {
-                "uid": "$datasource"
+                "uid": "PD576CF4ABCD8CCAA"
               },
-              "expr": "kube_node_status_condition{condition=~\"PIDPressure\",node=~\"$node\",cluster=~\"$cluster\",status=\"true\"}==1",
+              "expr": "kube_node_status_condition{condition=~\"PIDPressure\",node=~\"$node\",status=\"true\"}==1",
               "format": "time_series",
               "intervalFactor": 1,
               "legendFormat": "{{node}} {{condition}}",
@@ -898,7 +898,7 @@
                 "type": "prometheus",
                 "uid": "PD576CF4ABCD8CCAA"
               },
-              "expr": "sum(kube_node_info{cluster=~\"$cluster\"})",
+              "expr": "sum(kube_node_info)",
               "interval": "",
               "legendFormat": "",
               "refId": "A"
@@ -923,7 +923,7 @@
       "panels": [
         {
           "datasource": {
-            "uid": "$datasource"
+            "uid": "PD576CF4ABCD8CCAA"
           },
           "fieldConfig": {
             "defaults": {
@@ -942,9 +942,9 @@
           "targets": [
             {
               "datasource": {
-                "uid": "$datasource"
+                "uid": "PD576CF4ABCD8CCAA"
               },
-              "expr": "kube_deployment_status_replicas{namespace=~\"$namespace\",cluster=~\"$cluster\"}",
+              "expr": "kube_deployment_status_replicas{namespace=~\"$namespace\"}",
               "format": "time_series",
               "instant": true,
               "interval": "",
@@ -958,7 +958,7 @@
         },
         {
           "datasource": {
-            "uid": "$datasource"
+            "uid": "PD576CF4ABCD8CCAA"
           },
           "fieldConfig": {
             "defaults": {
@@ -1008,9 +1008,9 @@
           "targets": [
             {
               "datasource": {
-                "uid": "$datasource"
+                "uid": "PD576CF4ABCD8CCAA"
               },
-              "expr": "sum(kube_deployment_status_replicas{namespace=~\"$namespace\",cluster=~\"$cluster\"})",
+              "expr": "sum(kube_deployment_status_replicas{namespace=~\"$namespace\"})",
               "format": "time_series",
               "intervalFactor": 1,
               "refId": "A"
@@ -1021,7 +1021,7 @@
         },
         {
           "datasource": {
-            "uid": "$datasource"
+            "uid": "PD576CF4ABCD8CCAA"
           },
           "fieldConfig": {
             "defaults": {
@@ -1071,9 +1071,9 @@
           "targets": [
             {
               "datasource": {
-                "uid": "$datasource"
+                "uid": "PD576CF4ABCD8CCAA"
               },
-              "expr": "sum(kube_deployment_status_replicas_updated{namespace=~\"$namespace\",cluster=~\"$cluster\"})",
+              "expr": "sum(kube_deployment_status_replicas_updated{namespace=~\"$namespace\"})",
               "format": "time_series",
               "intervalFactor": 1,
               "refId": "A"
@@ -1084,7 +1084,7 @@
         },
         {
           "datasource": {
-            "uid": "$datasource"
+            "uid": "PD576CF4ABCD8CCAA"
           },
           "fieldConfig": {
             "defaults": {
@@ -1134,9 +1134,9 @@
           "targets": [
             {
               "datasource": {
-                "uid": "$datasource"
+                "uid": "PD576CF4ABCD8CCAA"
               },
-              "expr": "sum(kube_deployment_status_replicas_unavailable{namespace=~\"$namespace\",cluster=~\"$cluster\"})",
+              "expr": "sum(kube_deployment_status_replicas_unavailable{namespace=~\"$namespace\"})",
               "format": "time_series",
               "intervalFactor": 1,
               "refId": "A"
@@ -1161,7 +1161,7 @@
       "panels": [
         {
           "datasource": {
-            "uid": "$datasource"
+            "uid": "PD576CF4ABCD8CCAA"
           },
           "fieldConfig": {
             "defaults": {},
@@ -1178,9 +1178,9 @@
           "targets": [
             {
               "datasource": {
-                "uid": "$datasource"
+                "uid": "PD576CF4ABCD8CCAA"
               },
-              "expr": "kube_statefulset_status_replicas_ready{namespace=~\"$namespace\",cluster=~\"$cluster\"}",
+              "expr": "kube_statefulset_status_replicas_ready{namespace=~\"$namespace\"}",
               "format": "time_series",
               "instant": true,
               "interval": "",
@@ -1194,7 +1194,7 @@
         },
         {
           "datasource": {
-            "uid": "$datasource"
+            "uid": "PD576CF4ABCD8CCAA"
           },
           "fieldConfig": {
             "defaults": {},
@@ -1212,9 +1212,9 @@
           "targets": [
             {
               "datasource": {
-                "uid": "$datasource"
+                "uid": "PD576CF4ABCD8CCAA"
               },
-              "expr": "kube_statefulset_status_replicas_ready{namespace=~\"$namespace\",cluster=~\"$cluster\"}/kube_statefulset_status_replicas{namespace=~\"$namespace\",cluster=~\"$cluster\"}*100",
+              "expr": "kube_statefulset_status_replicas_ready{namespace=~\"$namespace\"}/kube_statefulset_status_replicas{namespace=~\"$namespace\"}*100",
               "format": "time_series",
               "instant": false,
               "intervalFactor": 1,
@@ -1241,7 +1241,7 @@
       "panels": [
         {
           "datasource": {
-            "uid": "$datasource"
+            "uid": "PD576CF4ABCD8CCAA"
           },
           "fieldConfig": {
             "defaults": {
@@ -1261,9 +1261,9 @@
           "targets": [
             {
               "datasource": {
-                "uid": "$datasource"
+                "uid": "PD576CF4ABCD8CCAA"
               },
-              "expr": "changes(kube_pod_container_status_restarts_total{namespace=~\"$namespace\",cluster=~\"$cluster\"}[30m])\u003e1",
+              "expr": "changes(kube_pod_container_status_restarts_total{namespace=~\"$namespace\"}[30m])\u003e1",
               "format": "time_series",
               "instant": true,
               "interval": "",
@@ -1277,7 +1277,7 @@
         },
         {
           "datasource": {
-            "uid": "$datasource"
+            "uid": "PD576CF4ABCD8CCAA"
           },
           "fieldConfig": {
             "defaults": {
@@ -1297,9 +1297,9 @@
           "targets": [
             {
               "datasource": {
-                "uid": "$datasource"
+                "uid": "PD576CF4ABCD8CCAA"
               },
-              "expr": "kube_pod_status_reason{cluster=~\"$cluster\",namespace=~\"$namespace\", reason=\"Evicted\"}==1",
+              "expr": "kube_pod_status_reason{namespace=~\"$namespace\", reason=\"Evicted\"}==1",
               "format": "time_series",
               "instant": false,
               "interval": "",
@@ -1313,7 +1313,7 @@
         },
         {
           "datasource": {
-            "uid": "$datasource"
+            "uid": "PD576CF4ABCD8CCAA"
           },
           "fieldConfig": {
             "defaults": {
@@ -1363,9 +1363,9 @@
           "targets": [
             {
               "datasource": {
-                "uid": "$datasource"
+                "uid": "PD576CF4ABCD8CCAA"
               },
-              "expr": "sum(kube_pod_status_phase{cluster=~\"$cluster\",namespace=~\"$namespace\", phase=\"Running\"})",
+              "expr": "sum(kube_pod_status_phase{namespace=~\"$namespace\", phase=\"Running\"})",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
@@ -1377,7 +1377,7 @@
         },
         {
           "datasource": {
-            "uid": "$datasource"
+            "uid": "PD576CF4ABCD8CCAA"
           },
           "fieldConfig": {
             "defaults": {
@@ -1427,9 +1427,9 @@
           "targets": [
             {
               "datasource": {
-                "uid": "$datasource"
+                "uid": "PD576CF4ABCD8CCAA"
               },
-              "expr": "sum(kube_pod_status_phase{cluster=~\"$cluster\",namespace=~\"$namespace\", phase=\"Succeeded\"})",
+              "expr": "sum(kube_pod_status_phase{namespace=~\"$namespace\", phase=\"Succeeded\"})",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
@@ -1441,7 +1441,7 @@
         },
         {
           "datasource": {
-            "uid": "$datasource"
+            "uid": "PD576CF4ABCD8CCAA"
           },
           "fieldConfig": {
             "defaults": {
@@ -1491,9 +1491,9 @@
           "targets": [
             {
               "datasource": {
-                "uid": "$datasource"
+                "uid": "PD576CF4ABCD8CCAA"
               },
-              "expr": "sum(kube_pod_status_phase{cluster=~\"$cluster\",namespace=~\"$namespace\", phase=\"Failed\"})",
+              "expr": "sum(kube_pod_status_phase{namespace=~\"$namespace\", phase=\"Failed\"})",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
@@ -1505,7 +1505,7 @@
         },
         {
           "datasource": {
-            "uid": "$datasource"
+            "uid": "PD576CF4ABCD8CCAA"
           },
           "fieldConfig": {
             "defaults": {
@@ -1555,9 +1555,9 @@
           "targets": [
             {
               "datasource": {
-                "uid": "$datasource"
+                "uid": "PD576CF4ABCD8CCAA"
               },
-              "expr": "sum(kube_pod_status_phase{cluster=~\"$cluster\",namespace=~\"$namespace\", phase=\"Pending\"})",
+              "expr": "sum(kube_pod_status_phase{namespace=~\"$namespace\", phase=\"Pending\"})",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
@@ -1569,7 +1569,7 @@
         },
         {
           "datasource": {
-            "uid": "$datasource"
+            "uid": "PD576CF4ABCD8CCAA"
           },
           "fieldConfig": {
             "defaults": {
@@ -1619,9 +1619,9 @@
           "targets": [
             {
               "datasource": {
-                "uid": "$datasource"
+                "uid": "PD576CF4ABCD8CCAA"
               },
-              "expr": "sum(kube_pod_status_phase{cluster=~\"$cluster\",namespace=~\"$namespace\", phase=\"Unknown\"})",
+              "expr": "sum(kube_pod_status_phase{namespace=~\"$namespace\", phase=\"Unknown\"})",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
@@ -1647,7 +1647,7 @@
       "panels": [
         {
           "datasource": {
-            "uid": "$datasource"
+            "uid": "PD576CF4ABCD8CCAA"
           },
           "fieldConfig": {
             "defaults": {
@@ -1697,9 +1697,9 @@
           "targets": [
             {
               "datasource": {
-                "uid": "$datasource"
+                "uid": "PD576CF4ABCD8CCAA"
               },
-              "expr": "sum(kube_pod_container_status_running{namespace=~\"$namespace\",cluster=~\"$cluster\"})",
+              "expr": "sum(kube_pod_container_status_running{namespace=~\"$namespace\"})",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
@@ -1712,7 +1712,7 @@
         },
         {
           "datasource": {
-            "uid": "$datasource"
+            "uid": "PD576CF4ABCD8CCAA"
           },
           "fieldConfig": {
             "defaults": {
@@ -1762,9 +1762,9 @@
           "targets": [
             {
               "datasource": {
-                "uid": "$datasource"
+                "uid": "PD576CF4ABCD8CCAA"
               },
-              "expr": "sum(kube_pod_container_status_waiting{namespace=~\"$namespace\",cluster=~\"$cluster\"})",
+              "expr": "sum(kube_pod_container_status_waiting{namespace=~\"$namespace\"})",
               "format": "time_series",
               "intervalFactor": 1,
               "refId": "A"
@@ -1775,7 +1775,7 @@
         },
         {
           "datasource": {
-            "uid": "$datasource"
+            "uid": "PD576CF4ABCD8CCAA"
           },
           "fieldConfig": {
             "defaults": {
@@ -1825,9 +1825,9 @@
           "targets": [
             {
               "datasource": {
-                "uid": "$datasource"
+                "uid": "PD576CF4ABCD8CCAA"
               },
-              "expr": "sum(kube_pod_container_status_terminated{namespace=~\"$namespace\",cluster=~\"$cluster\"})",
+              "expr": "sum(kube_pod_container_status_terminated{namespace=~\"$namespace\"})",
               "format": "time_series",
               "intervalFactor": 1,
               "refId": "A"
@@ -1838,7 +1838,7 @@
         },
         {
           "datasource": {
-            "uid": "$datasource"
+            "uid": "PD576CF4ABCD8CCAA"
           },
           "fieldConfig": {
             "defaults": {
@@ -1888,9 +1888,9 @@
           "targets": [
             {
               "datasource": {
-                "uid": "$datasource"
+                "uid": "PD576CF4ABCD8CCAA"
               },
-              "expr": "sum(changes(kube_pod_container_status_restarts_total{namespace=~\"$namespace\",cluster=~\"$cluster\"}[30m]))",
+              "expr": "sum(changes(kube_pod_container_status_restarts_total{namespace=~\"$namespace\"}[30m]))",
               "format": "time_series",
               "intervalFactor": 1,
               "refId": "A"
@@ -1901,7 +1901,7 @@
         },
         {
           "datasource": {
-            "uid": "$datasource"
+            "uid": "PD576CF4ABCD8CCAA"
           },
           "fieldConfig": {
             "defaults": {
@@ -1951,9 +1951,9 @@
           "targets": [
             {
               "datasource": {
-                "uid": "$datasource"
+                "uid": "PD576CF4ABCD8CCAA"
               },
-              "expr": "sum(kube_pod_container_resource_requests_cpu_cores{namespace=~\"$namespace\",cluster=~\"$cluster\"})",
+              "expr": "sum(kube_pod_container_resource_requests_cpu_cores{namespace=~\"$namespace\"})",
               "format": "time_series",
               "intervalFactor": 1,
               "refId": "A"
@@ -1964,7 +1964,7 @@
         },
         {
           "datasource": {
-            "uid": "$datasource"
+            "uid": "PD576CF4ABCD8CCAA"
           },
           "fieldConfig": {
             "defaults": {
@@ -2014,9 +2014,9 @@
           "targets": [
             {
               "datasource": {
-                "uid": "$datasource"
+                "uid": "PD576CF4ABCD8CCAA"
               },
-              "expr": "sum(kube_pod_container_resource_requests_memory_bytes{namespace=~\"$namespace\" ,cluster=~\"$cluster\"})",
+              "expr": "sum(kube_pod_container_resource_requests_memory_bytes{namespace=~\"$namespace\"})",
               "format": "time_series",
               "intervalFactor": 1,
               "refId": "A"
@@ -2067,7 +2067,7 @@
                 "type": "prometheus",
                 "uid": "PD576CF4ABCD8CCAA"
               },
-              "expr": "kube_hpa_status_current_replicas{cluster=~\"$cluster\",namespace=~\"$namespace\"}",
+              "expr": "kube_hpa_status_current_replicas{namespace=~\"$namespace\"}",
               "instant": false,
               "interval": "",
               "legendFormat": "current_{{hpa}}",
@@ -2078,7 +2078,7 @@
                 "type": "prometheus",
                 "uid": "PD576CF4ABCD8CCAA"
               },
-              "expr": "kube_hpa_spec_max_replicas{cluster=~\"$cluster\",namespace=~\"$namespace\"}",
+              "expr": "kube_hpa_spec_max_replicas{namespace=~\"$namespace\"}",
               "instant": false,
               "interval": "",
               "legendFormat": "max_{{hpa}}",
@@ -2089,7 +2089,7 @@
                 "type": "prometheus",
                 "uid": "PD576CF4ABCD8CCAA"
               },
-              "expr": "kube_hpa_spec_min_replicas{cluster=~\"$cluster\",namespace=~\"$namespace\"}",
+              "expr": "kube_hpa_spec_min_replicas{namespace=~\"$namespace\"}",
               "instant": false,
               "interval": "",
               "legendFormat": "min_{{hpa}}",
@@ -2125,7 +2125,7 @@
                 "type": "prometheus",
                 "uid": "PD576CF4ABCD8CCAA"
               },
-              "expr": "sum(kube_hpa_status_current_replicas{hpa=~\".*\"})",
+              "expr": "sum(kube_hpa_status_current_replicas{hpa=~\".*\", namespace=~\"$namespace\"})",
               "instant": false,
               "interval": "",
               "legendFormat": "kube_hpa_status_current_replicas",
@@ -2161,7 +2161,7 @@
                 "type": "prometheus",
                 "uid": "PD576CF4ABCD8CCAA"
               },
-              "expr": "kube_hpa_status_current_replicas{hpa=~\".*\"} == kube_hpa_spec_max_replicas{hpa=~\".*\"}",
+              "expr": "kube_hpa_status_current_replicas{hpa=~\".*\", namespace=~\"$namespace\"} == kube_hpa_spec_max_replicas{hpa=~\".*\", namespace=~\"$namespace\"}",
               "instant": false,
               "interval": "",
               "legendFormat": "{{hpa}}",
@@ -2197,7 +2197,7 @@
                 "type": "prometheus",
                 "uid": "PD576CF4ABCD8CCAA"
               },
-              "expr": "kube_hpa_status_current_replicas{hpa=~\".*\"} == kube_hpa_spec_min_replicas{hpa=~\".*\"}",
+              "expr": "kube_hpa_status_current_replicas{hpa=~\".*\", namespace=~\"$namespace\"} == kube_hpa_spec_min_replicas{hpa=~\".*\", namespace=~\"$namespace\"}",
               "instant": false,
               "interval": "",
               "legendFormat": "{{hpa}}",
@@ -2223,7 +2223,7 @@
       "panels": [
         {
           "datasource": {
-            "uid": "$datasource"
+            "uid": "PD576CF4ABCD8CCAA"
           },
           "fieldConfig": {
             "defaults": {
@@ -2273,9 +2273,9 @@
           "targets": [
             {
               "datasource": {
-                "uid": "$datasource"
+                "uid": "PD576CF4ABCD8CCAA"
               },
-              "expr": "sum(kube_job_status_succeeded{namespace=~\"$namespace\",cluster=~\"$cluster\"})",
+              "expr": "sum(kube_job_status_succeeded{namespace=~\"$namespace\"})",
               "format": "time_series",
               "intervalFactor": 1,
               "refId": "A"
@@ -2286,7 +2286,7 @@
         },
         {
           "datasource": {
-            "uid": "$datasource"
+            "uid": "PD576CF4ABCD8CCAA"
           },
           "description": "",
           "fieldConfig": {
@@ -2307,9 +2307,9 @@
           "targets": [
             {
               "datasource": {
-                "uid": "$datasource"
+                "uid": "PD576CF4ABCD8CCAA"
               },
-              "expr": "(time()-kube_job_status_completion_time{namespace=~\"$namespace\",cluster=~\"$cluster\"})/60/60/24\u003e1",
+              "expr": "(time()-kube_job_status_completion_time{namespace=~\"$namespace\"})/60/60/24\u003e1",
               "format": "time_series",
               "instant": true,
               "interval": "",
@@ -2324,7 +2324,7 @@
         },
         {
           "datasource": {
-            "uid": "$datasource"
+            "uid": "PD576CF4ABCD8CCAA"
           },
           "description": "",
           "fieldConfig": {
@@ -2345,9 +2345,9 @@
           "targets": [
             {
               "datasource": {
-                "uid": "$datasource"
+                "uid": "PD576CF4ABCD8CCAA"
               },
-              "expr": "kube_job_status_failed{namespace=~\"$namespace\",cluster=~\"$cluster\"}\u003e1",
+              "expr": "kube_job_status_failed{namespace=~\"$namespace\"}\u003e1",
               "format": "time_series",
               "instant": true,
               "interval": "",
@@ -2362,7 +2362,7 @@
         },
         {
           "datasource": {
-            "uid": "$datasource"
+            "uid": "PD576CF4ABCD8CCAA"
           },
           "fieldConfig": {
             "defaults": {
@@ -2412,9 +2412,9 @@
           "targets": [
             {
               "datasource": {
-                "uid": "$datasource"
+                "uid": "PD576CF4ABCD8CCAA"
               },
-              "expr": "sum(kube_job_status_active{namespace=~\"$namespace\",cluster=~\"$cluster\"})",
+              "expr": "sum(kube_job_status_active{namespace=~\"$namespace\"})",
               "format": "time_series",
               "intervalFactor": 1,
               "refId": "A"
@@ -2425,7 +2425,7 @@
         },
         {
           "datasource": {
-            "uid": "$datasource"
+            "uid": "PD576CF4ABCD8CCAA"
           },
           "fieldConfig": {
             "defaults": {
@@ -2475,9 +2475,9 @@
           "targets": [
             {
               "datasource": {
-                "uid": "$datasource"
+                "uid": "PD576CF4ABCD8CCAA"
               },
-              "expr": "sum(kube_job_status_failed{namespace=~\"$namespace\",cluster=~\"$cluster\"})",
+              "expr": "sum(kube_job_status_failed{namespace=~\"$namespace\"})",
               "format": "time_series",
               "intervalFactor": 1,
               "refId": "A"
@@ -2502,7 +2502,7 @@
       "panels": [
         {
           "datasource": {
-            "uid": "$datasource"
+            "uid": "PD576CF4ABCD8CCAA"
           },
           "fieldConfig": {
             "defaults": {
@@ -2552,9 +2552,9 @@
           "targets": [
             {
               "datasource": {
-                "uid": "$datasource"
+                "uid": "PD576CF4ABCD8CCAA"
               },
-              "expr": "sum(kube_persistentvolumeclaim_status_phase{phase=\"Bound\"}==1)",
+              "expr": "sum(kube_persistentvolumeclaim_status_phase{phase=\"Bound\", namespace=~\"$namespace\"}==1)",
               "format": "time_series",
               "intervalFactor": 1,
               "legendFormat": "{{persistentvolumeclaim=}}",
@@ -2566,7 +2566,7 @@
         },
         {
           "datasource": {
-            "uid": "$datasource"
+            "uid": "PD576CF4ABCD8CCAA"
           },
           "fieldConfig": {
             "defaults": {
@@ -2616,9 +2616,9 @@
           "targets": [
             {
               "datasource": {
-                "uid": "$datasource"
+                "uid": "PD576CF4ABCD8CCAA"
               },
-              "expr": "sum(kube_persistentvolumeclaim_status_phase{phase!=\"Bound\"}==1)",
+              "expr": "sum(kube_persistentvolumeclaim_status_phase{phase!=\"Bound\", namespace=~\"$namespace\"}==1)",
               "format": "time_series",
               "intervalFactor": 1,
               "legendFormat": "{{persistentvolumeclaim=}}",
@@ -2630,7 +2630,7 @@
         },
         {
           "datasource": {
-            "uid": "$datasource"
+            "uid": "PD576CF4ABCD8CCAA"
           },
           "fieldConfig": {
             "defaults": {},
@@ -2648,9 +2648,9 @@
           "targets": [
             {
               "datasource": {
-                "uid": "$datasource"
+                "uid": "PD576CF4ABCD8CCAA"
               },
-              "expr": "kube_persistentvolumeclaim_resource_requests_storage_bytes/1024/1024/1024",
+              "expr": "kube_persistentvolumeclaim_resource_requests_storage_bytes{namespace=~\"$namespace\"}/1024/1024/1024",
               "format": "time_series",
               "instant": true,
               "intervalFactor": 1,
@@ -2678,11 +2678,11 @@
           "value": ""
         },
         "datasource": "$datasource",
-        "definition": "label_values(kube_node_info{cluster=~\"$cluster\"}, node)",
+        "definition": "label_values(kube_node_info, node)",
         "includeAll": true,
         "name": "node",
         "options": [],
-        "query": "label_values(kube_node_info{cluster=~\"$cluster\"}, node)",
+        "query": "label_values(kube_node_info, node)",
         "refresh": 1,
         "regex": "",
         "type": "query"
@@ -2697,7 +2697,7 @@
         "includeAll": true,
         "name": "namespace",
         "options": [],
-        "query": "label_values(kube_namespace_created{cluster=~\"$cluster\"}, namespace)",
+        "query": "label_values(kube_namespace_created, namespace)",
         "refresh": 1,
         "regex": "",
         "type": "query"

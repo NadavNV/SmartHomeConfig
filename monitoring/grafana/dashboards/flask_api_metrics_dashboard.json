@@ -84,7 +84,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "PD576CF4ABCD8CCAA"
       },
       "fieldConfig": {
         "defaults": {
@@ -148,7 +148,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "PD576CF4ABCD8CCAA"
       },
       "fieldConfig": {
         "defaults": {
@@ -207,7 +207,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "PD576CF4ABCD8CCAA"
       },
       "fieldConfig": {
         "defaults": {
