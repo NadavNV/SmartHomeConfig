@@ -103,7 +103,7 @@ pipeline {
             steps {
                 echo "Building the Grafana image"
                 dir("${env.WORKSPACE}"){
-                sh "docker build -t ${env.GRAFANA_IMAGE_NAME}:${env.BUILD_NUMBER} -f SmartHomeConfig/monitoring/grafana/Dockerfile SmartHomeConfig/monitoring/grafana"
+                sh "docker build -t ${env.GRAFANA_IMAGE_NAME}:${env.BUILD_NUMBER} -f monitoring/grafana/Dockerfile monitoring/grafana"
                 }
             }
         }
@@ -254,7 +254,7 @@ pipeline {
 
     post {
         always {
-            // cleanWs()
+            cleanWs()
             sh '''
             for id in $(docker images -q smarthome_backend_flask | sort -u); do
             docker rmi -f $id || true
