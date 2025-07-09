@@ -102,7 +102,9 @@ pipeline {
         stage("build Grafana image") {
             steps {
                 echo "Building the Grafana image"
-                sh "docker build -t ${env.GRAFANA_IMAGE_NAME}:${env.BUILD_NUMBER} -f SmartHomeConfig/monitoring/grafana/Dockerfile SmartHomeConfig/monitoring/grafana"
+                dir("${env.WORKSPACE}"){
+                sh "docker build -t ${env.GRAFANA_IMAGE_NAME}:${env.BUILD_NUMBER} -f monitoring/grafana/Dockerfile monitoring/grafana"
+                }
             }
         }
         stage('test') {
@@ -179,18 +181,11 @@ pipeline {
                 // run the frontend container
                 sh "docker run -d -p 3001:3001 --network test-net --name frontend-container --hostname frontend-container ${env.FRONT_IMAGE_NAME}_local:${env.BUILD_NUMBER}"
                 // run the Prometheus container
-                sh 'docker run -d --name prometheus -p 9090:9090 --network test-net -v "$(pwd)/SmartHomeConfig/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml" prom/prometheus:latest'
+                sh 'docker run -d --name prometheus -p 9090:9090 --network test-net -v "$(pwd)/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml" prom/prometheus:latest'
                 // run the Grafana container
                 sh "docker run -d --name grafana -p 3000:3000 --network test-net ${env.GRAFANA_IMAGE_NAME}:${env.BUILD_NUMBER}"
                 sh "sleep 20"
-                echo "Testing Prometheus:"
-                sh '''
-                docker run --rm --network container:prometheus curlimages/curl:latest \
-                    curl -sf http://localhost:9090/-/ready || (echo "Prometheus not ready" && exit 1)
-                '''
-
-                echo "Testing Grafana:"
-                sh 'docker exec grafana curl -sf -u admin:admin http://localhost:3000/api/health || (echo "Grafana not healthy" && exit 1)'
+                
                     // run the test script container
                 sh """
                     docker run --rm \

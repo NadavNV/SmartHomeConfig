@@ -39,8 +39,9 @@ As well as monitoring and CI/CD (in this repository).
     ```bash
     git clone https://github.com/NadavNV/SmartHomeConfig.git
     cd SmartHomeConfig/kubernetes
+    sudo swapoff -a
     chmod +x setup.sh
-    sudo ./setup.sh
+    ./setup.sh
     ```
   - Access the dashboard on your browser at `smart-home-dashboard.local`
   - To view the monitoring through grafana run `minikube service -n smart-home smart-home-grafana-svc` and log in using username: `viewer`, password: `viewer`.
