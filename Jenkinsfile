@@ -254,7 +254,7 @@ pipeline {
 
     post {
         always {
-            cleanWs()
+            // cleanWs()
             sh '''
             for id in $(docker images -q smarthome_backend_flask | sort -u); do
             docker rmi -f $id || true
