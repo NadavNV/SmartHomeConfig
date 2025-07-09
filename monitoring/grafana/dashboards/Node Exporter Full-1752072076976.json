@@ -3377,7 +3377,7 @@
             "type": "prometheus",
             "uid": "PD576CF4ABCD8CCAA"
           },
-          "description": "How often tasks experience CPU, memory, or I/O delays. “Some” indicates partial slowdown; “Full” indicates all tasks are stalled. Based on Linux PSI metrics:\nhttps://docs.kernel.org/accounting/psi.html",
+          "description": "How often tasks experience CPU, memory, or I/O delays. Some indicates partial slowdown; Full indicates all tasks are stalled. Based on Linux PSI metrics:\nhttps://docs.kernel.org/accounting/psi.html",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -3675,7 +3675,7 @@
               "expr": "node_memory_Committed_AS_bytes{instance=\"$node\",job=\"$job\"}",
               "format": "time_series",
               "intervalFactor": 1,
-              "legendFormat": "Committed_AS – Memory promised to processes (not necessarily used)",
+              "legendFormat": "Committed_AS  Memory promised to processes (not necessarily used)",
               "range": true,
               "refId": "A",
               "step": 240
@@ -3784,7 +3784,7 @@
               "expr": "node_memory_Writeback_bytes{instance=\"$node\",job=\"$job\"}",
               "format": "time_series",
               "intervalFactor": 1,
-              "legendFormat": "Writeback – Memory currently being flushed to disk",
+              "legendFormat": "Writeback  Memory currently being flushed to disk",
               "range": true,
               "refId": "A",
               "step": 240
@@ -3794,7 +3794,7 @@
               "expr": "node_memory_WritebackTmp_bytes{instance=\"$node\",job=\"$job\"}",
               "format": "time_series",
               "intervalFactor": 1,
-              "legendFormat": "WritebackTmp – FUSE temporary writeback buffers",
+              "legendFormat": "WritebackTmp  FUSE temporary writeback buffers",
               "range": true,
               "refId": "B",
               "step": 240
@@ -3804,7 +3804,7 @@
               "expr": "node_memory_Dirty_bytes{instance=\"$node\",job=\"$job\"}",
               "format": "time_series",
               "intervalFactor": 1,
-              "legendFormat": "Dirty – Memory marked dirty (pending write to disk)",
+              "legendFormat": "Dirty  Memory marked dirty (pending write to disk)",
               "range": true,
               "refId": "C",
               "step": 240
@@ -3815,7 +3815,7 @@
               "format": "time_series",
               "hide": false,
               "intervalFactor": 1,
-              "legendFormat": "NFS Unstable – Pages sent to NFS server, awaiting storage commit",
+              "legendFormat": "NFS Unstable  Pages sent to NFS server, awaiting storage commit",
               "range": true,
               "refId": "D",
               "step": 240
@@ -3914,7 +3914,7 @@
               "expr": "node_memory_SUnreclaim_bytes{instance=\"$node\",job=\"$job\"}",
               "format": "time_series",
               "intervalFactor": 1,
-              "legendFormat": "SUnreclaim – Non-reclaimable slab memory (kernel objects)",
+              "legendFormat": "SUnreclaim  Non-reclaimable slab memory (kernel objects)",
               "range": true,
               "refId": "A",
               "step": 240
@@ -3924,7 +3924,7 @@
               "expr": "node_memory_SReclaimable_bytes{instance=\"$node\",job=\"$job\"}",
               "format": "time_series",
               "intervalFactor": 1,
-              "legendFormat": "SReclaimable – Potentially reclaimable slab memory (e.g., inode cache)",
+              "legendFormat": "SReclaimable  Potentially reclaimable slab memory (e.g., inode cache)",
               "range": true,
               "refId": "B",
               "step": 240
@@ -4024,7 +4024,7 @@
               "expr": "node_memory_Mapped_bytes{instance=\"$node\",job=\"$job\"}",
               "format": "time_series",
               "intervalFactor": 1,
-              "legendFormat": "Mapped – Memory mapped from files (e.g., libraries, mmap)",
+              "legendFormat": "Mapped  Memory mapped from files (e.g., libraries, mmap)",
               "range": true,
               "refId": "A",
               "step": 240
@@ -4034,7 +4034,7 @@
               "expr": "node_memory_Shmem_bytes{instance=\"$node\",job=\"$job\"}",
               "format": "time_series",
               "intervalFactor": 1,
-              "legendFormat": "Shmem – Shared memory used by processes and tmpfs",
+              "legendFormat": "Shmem  Shared memory used by processes and tmpfs",
               "range": true,
               "refId": "B",
               "step": 240
@@ -4045,7 +4045,7 @@
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
-              "legendFormat": "ShmemHugePages – Shared memory (shmem/tmpfs) allocated with HugePages",
+              "legendFormat": "ShmemHugePages  Shared memory (shmem/tmpfs) allocated with HugePages",
               "range": true,
               "refId": "C",
               "step": 240
@@ -4056,7 +4056,7 @@
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
-              "legendFormat": "PMD Mapped – Shmem/tmpfs backed by Transparent HugePages (PMD)",
+              "legendFormat": "PMD Mapped  Shmem/tmpfs backed by Transparent HugePages (PMD)",
               "range": true,
               "refId": "D",
               "step": 240
@@ -4187,7 +4187,7 @@
               "expr": "(node_memory_Inactive_bytes{instance=\"$node\",job=\"$job\"}) \n/ \n(node_memory_MemTotal_bytes{instance=\"$node\",job=\"$job\"})",
               "format": "time_series",
               "intervalFactor": 1,
-              "legendFormat": "Inactive – Less recently used memory, more likely to be reclaimed",
+              "legendFormat": "Inactive  Less recently used memory, more likely to be reclaimed",
               "range": true,
               "refId": "A",
               "step": 240
@@ -4197,7 +4197,7 @@
               "expr": "(node_memory_Active_bytes{instance=\"$node\",job=\"$job\"}) \n/ \n(node_memory_MemTotal_bytes{instance=\"$node\",job=\"$job\"})\n",
               "format": "time_series",
               "intervalFactor": 1,
-              "legendFormat": "Active – Recently used memory, retained unless under pressure",
+              "legendFormat": "Active  Recently used memory, retained unless under pressure",
               "range": true,
               "refId": "B",
               "step": 240
@@ -4309,7 +4309,7 @@
               "format": "time_series",
               "hide": false,
               "intervalFactor": 1,
-              "legendFormat": "Inactive_anon – Anonymous memory on inactive LRU (incl. tmpfs & swap cache)",
+              "legendFormat": "Inactive_anon  Anonymous memory on inactive LRU (incl. tmpfs & swap cache)",
               "range": true,
               "refId": "B",
               "step": 240
@@ -4331,7 +4331,7 @@
               "format": "time_series",
               "hide": false,
               "intervalFactor": 1,
-              "legendFormat": "Active_anon – Anonymous memory on active LRU (incl. tmpfs & swap cache)",
+              "legendFormat": "Active_anon  Anonymous memory on active LRU (incl. tmpfs & swap cache)",
               "range": true,
               "refId": "D",
               "step": 240
@@ -4431,7 +4431,7 @@
               "expr": "node_memory_KernelStack_bytes{instance=\"$node\",job=\"$job\"}",
               "format": "time_series",
               "intervalFactor": 1,
-              "legendFormat": "KernelStack – Kernel stack memory (per-thread, non-reclaimable)",
+              "legendFormat": "KernelStack  Kernel stack memory (per-thread, non-reclaimable)",
               "range": true,
               "refId": "A",
               "step": 240
@@ -4442,7 +4442,7 @@
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
-              "legendFormat": "PerCPU – Dynamically allocated per-CPU memory (used by kernel modules)",
+              "legendFormat": "PerCPU  Dynamically allocated per-CPU memory (used by kernel modules)",
               "range": true,
               "refId": "B",
               "step": 240
@@ -4454,7 +4454,7 @@
               "hide": false,
               "interval": "",
               "intervalFactor": 1,
-              "legendFormat": "Bounce Memory – I/O buffer for DMA-limited devices",
+              "legendFormat": "Bounce Memory  I/O buffer for DMA-limited devices",
               "range": true,
               "refId": "C",
               "step": 240
@@ -4584,7 +4584,7 @@
               "format": "time_series",
               "hide": false,
               "intervalFactor": 1,
-              "legendFormat": "Vmalloc Free Chunk – Largest available block in vmalloc area",
+              "legendFormat": "Vmalloc Free Chunk  Largest available block in vmalloc area",
               "range": true,
               "refId": "A",
               "step": 240
@@ -4595,7 +4595,7 @@
               "format": "time_series",
               "hide": false,
               "intervalFactor": 1,
-              "legendFormat": "Vmalloc Total – Total size of the vmalloc memory area",
+              "legendFormat": "Vmalloc Total  Total size of the vmalloc memory area",
               "range": true,
               "refId": "B",
               "step": 240
@@ -4606,7 +4606,7 @@
               "format": "time_series",
               "hide": false,
               "intervalFactor": 1,
-              "legendFormat": "Vmalloc Used – Portion of vmalloc area currently in use",
+              "legendFormat": "Vmalloc Used  Portion of vmalloc area currently in use",
               "range": true,
               "refId": "C",
               "step": 240
@@ -4705,7 +4705,7 @@
               "expr": "node_memory_AnonHugePages_bytes{instance=\"$node\",job=\"$job\"}",
               "format": "time_series",
               "intervalFactor": 1,
-              "legendFormat": "AnonHugePages – Anonymous memory using HugePages",
+              "legendFormat": "AnonHugePages  Anonymous memory using HugePages",
               "range": true,
               "refId": "A",
               "step": 240
@@ -4715,7 +4715,7 @@
               "expr": "node_memory_AnonPages_bytes{instance=\"$node\",job=\"$job\"}",
               "format": "time_series",
               "intervalFactor": 1,
-              "legendFormat": "AnonPages – Anonymous memory (non-file-backed)",
+              "legendFormat": "AnonPages  Anonymous memory (non-file-backed)",
               "range": true,
               "refId": "B",
               "step": 240
@@ -4831,7 +4831,7 @@
               "expr": "node_memory_Unevictable_bytes{instance=\"$node\",job=\"$job\"}",
               "format": "time_series",
               "intervalFactor": 1,
-              "legendFormat": "Unevictable – Kernel-pinned memory (not swappable)",
+              "legendFormat": "Unevictable  Kernel-pinned memory (not swappable)",
               "range": true,
               "refId": "A",
               "step": 240
@@ -4841,7 +4841,7 @@
               "expr": "node_memory_Mlocked_bytes{instance=\"$node\",job=\"$job\"}",
               "format": "time_series",
               "intervalFactor": 1,
-              "legendFormat": "Mlocked – Application-locked memory via mlock()",
+              "legendFormat": "Mlocked  Application-locked memory via mlock()",
               "range": true,
               "refId": "B",
               "step": 240
@@ -5215,7 +5215,7 @@
               "expr": "node_memory_DirectMap1G_bytes{instance=\"$node\",job=\"$job\"}",
               "format": "time_series",
               "intervalFactor": 1,
-              "legendFormat": "DirectMap 1G – Memory mapped with 1GB pages",
+              "legendFormat": "DirectMap 1G  Memory mapped with 1GB pages",
               "range": true,
               "refId": "A",
               "step": 240
@@ -5226,7 +5226,7 @@
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
-              "legendFormat": "DirectMap 2M – Memory mapped with 2MB pages",
+              "legendFormat": "DirectMap 2M  Memory mapped with 2MB pages",
               "range": true,
               "refId": "B",
               "step": 240
@@ -5237,7 +5237,7 @@
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
-              "legendFormat": "DirectMap 4K – Memory mapped with 4KB pages",
+              "legendFormat": "DirectMap 4K  Memory mapped with 4KB pages",
               "range": true,
               "refId": "C",
               "step": 240
@@ -5336,7 +5336,7 @@
               "expr": "node_memory_HugePages_Free{instance=\"$node\",job=\"$job\"} * node_memory_Hugepagesize_bytes{instance=\"$node\",job=\"$job\"}",
               "format": "time_series",
               "intervalFactor": 1,
-              "legendFormat": "HugePages Used – Currently allocated",
+              "legendFormat": "HugePages Used  Currently allocated",
               "range": true,
               "refId": "A",
               "step": 240
@@ -5346,7 +5346,7 @@
               "expr": "node_memory_HugePages_Rsvd{instance=\"$node\",job=\"$job\"} * node_memory_Hugepagesize_bytes{instance=\"$node\",job=\"$job\"}",
               "format": "time_series",
               "intervalFactor": 1,
-              "legendFormat": "HugePages Reserved – Promised but unused",
+              "legendFormat": "HugePages Reserved  Promised but unused",
               "range": true,
               "refId": "B",
               "step": 240
@@ -5356,7 +5356,7 @@
               "expr": "node_memory_HugePages_Surp{instance=\"$node\",job=\"$job\"} * node_memory_Hugepagesize_bytes{instance=\"$node\",job=\"$job\"}",
               "format": "time_series",
               "intervalFactor": 1,
-              "legendFormat": "HugePages Surplus – Dynamic pool extension",
+              "legendFormat": "HugePages Surplus  Dynamic pool extension",
               "range": true,
               "refId": "C",
               "step": 240
@@ -5367,7 +5367,7 @@
               "format": "time_series",
               "hide": false,
               "intervalFactor": 1,
-              "legendFormat": "HugePages Total – Reserved memory",
+              "legendFormat": "HugePages Total  Reserved memory",
               "range": true,
               "refId": "D",
               "step": 240
@@ -9359,7 +9359,7 @@
                 "axisBorderShow": false,
                 "axisCenteredZero": false,
                 "axisColorMode": "text",
-                "axisLabel": "read (–) / write (+)",
+                "axisLabel": "read () / write (+)",
                 "axisPlacement": "auto",
                 "barAlignment": 0,
                 "barWidthFactor": 0.6,
@@ -9493,7 +9493,7 @@
                 "axisBorderShow": false,
                 "axisCenteredZero": false,
                 "axisColorMode": "text",
-                "axisLabel": "read (–) / write (+)",
+                "axisLabel": "read () / write (+)",
                 "axisPlacement": "auto",
                 "barAlignment": 0,
                 "barWidthFactor": 0.6,
@@ -9631,7 +9631,7 @@
                 "axisBorderShow": false,
                 "axisCenteredZero": false,
                 "axisColorMode": "text",
-                "axisLabel": "read (–) / write (+)",
+                "axisLabel": "read () / write (+)",
                 "axisPlacement": "auto",
                 "barAlignment": 0,
                 "barWidthFactor": 0.6,
@@ -9884,7 +9884,7 @@
                 "axisBorderShow": false,
                 "axisCenteredZero": false,
                 "axisColorMode": "text",
-                "axisLabel": "read (–) / write (+)",
+                "axisLabel": "read () / write (+)",
                 "axisPlacement": "auto",
                 "barAlignment": 0,
                 "barWidthFactor": 0.6,
@@ -16074,3 +16074,4 @@
   "uid": "rYdddlPWk",
   "version": 1
 }
+
