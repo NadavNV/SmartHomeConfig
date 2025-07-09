@@ -39,6 +39,7 @@ As well as monitoring and CI/CD (in this repository).
     ```bash
     git clone https://github.com/NadavNV/SmartHomeConfig.git
     cd SmartHomeConfig/kubernetes
+    chmod +x setup.sh
     sudo ./setup.sh
     ```
   - Access the dashboard on your browser at `smart-home-dashboard.local`
