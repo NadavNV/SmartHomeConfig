@@ -35,7 +35,7 @@ As well as monitoring and CI/CD (in this repository).
     cd kubernetes
     .\setup.ps1
     ```
-    On Linux/MacOS:
+    On Linux:
     ```bash
     git clone https://github.com/NadavNV/SmartHomeConfig.git
     cd kubernetes
