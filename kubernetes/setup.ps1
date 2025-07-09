@@ -1,44 +1,68 @@
+$NAMESPACE = "smart-home"
+$TIMEOUT = 120
+
 Write-Host "Starting Minikube..."
-minikube start
+minikube start --driver=docker --memory=4096 --cpus=2
 
 Write-Host "Enabling ingress addon..."
 minikube addons enable ingress
 
-# Write-Host "Opening tunnel to ingress controller..."
-# Start-Process powershell -ArgumentList "-NoExit", "-Command", "minikube tunnel"
+Write-Host "Opening tunnel to ingress controller..."
+Start-Process powershell -WindowStyle Hidden -ArgumentList "-NoExit", "-Command", "minikube tunnel *> minikube-tunnel.log"
 
-Write-Host "Waiting for ingress-nginx controller and webhook to be ready..."
+Write-Host "Applying LoadBalancer and Ingress..."
+kubectl apply -f 00-namespace.yaml
+kubectl apply -f 01-dashboard-svc.yaml
 
-$ingressReady = kubectl wait --namespace ingress-nginx --for=condition=available deployment ingress-nginx-controller --timeout=120s 2>&1
+Write-Host "Waiting for Minikube tunnel to assign LoadBalancer IP..."
 
-if ($LASTEXITCODE -ne 0) {
-    Write-Warning "Ingress controller not ready: $ingressReady"
+$success = $false
+for ($i = 0; $i -lt 30; $i++) {
+    $services = kubectl get svc --all-namespaces
+    if ($services -match "LoadBalancer") {
+        Write-Host "Minikube tunnel is active."
+        $success = $true
+        break
+    }
+    Start-Sleep -Seconds 2
+}
+
+if (-not $success) {
+    Write-Error "Tunnel did not become active. Exiting."
     exit 1
 }
 
-Write-Host "Ingress controller is ready. Applying manifests..."
+Write-Host "Applying backend Kubernetes manifests in order..."
+kubectl apply -f 02-mongo-secrets.yaml
+kubectl apply -f 03-backend-cm.yaml
+kubectl apply -f 04-backend-manifest.yaml
+
+Write-Host "Waiting for all backend pods in '$NAMESPACE' to be ready..."
+$podsReady = kubectl wait --namespace $NAMESPACE --for=condition=ready pod --all --timeout="${TIMEOUT}s" 2>&1
+if ($LASTEXITCODE -ne 0) {
+    Write-Warning "Timeout or error waiting for pods to become ready:"
+    Write-Output $podsReady
+    exit 1
+}
+else {
+    Write-Host "All backend pods are ready. Proceeding..."
+}
+
+Write-Host "Applying all manifests in the current directory..."
 kubectl apply -f .
 
-# Get Minikube IP
-$minikubeIp = minikube ip 2>$null
-if (-not $minikubeIp) {
-    Write-Error "Failed to get Minikube IP. Is Minikube running?"
-    exit 1
-}
-
-Write-Output "Waiting for all pods in 'smart-home' namespace to be ready..."
-$podsReady = kubectl wait --namespace smart-home --for=condition=ready pod --all --timeout=120s 2>&1
-
+Write-Host "Waiting for the rest of the pods in '$NAMESPACE' to be ready..."
+$podsReady = kubectl wait --namespace $NAMESPACE --for=condition=ready pod --all --timeout="${TIMEOUT}s" 2>&1
 if ($LASTEXITCODE -ne 0) {
     Write-Warning "Timeout or error waiting for pods readiness:"
     Write-Output $podsReady
     exit 1
 }
 else {
-    Write-Output "All pods in 'smart-home' are ready."
+    Write-Host "All pods in '$NAMESPACE' are ready."
 }
 
-$externalIp = kubectl get svc smart-home-dashboard-svc -n smart-home -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
+$externalIp = kubectl get svc smart-home-dashboard-svc -n $NAMESPACE -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
 if ([string]::IsNullOrEmpty($externalIp)) {
     Write-Host "LoadBalancer external IP not assigned yet"
 }
@@ -46,4 +70,4 @@ else {
     Write-Host "External IP: $externalIp"
 }
 
-Write-Host "*** Done! ***"
+Write-Host "`n*** Done! ***`n"
