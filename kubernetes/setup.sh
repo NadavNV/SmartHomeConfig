@@ -1,9 +1,7 @@
 #!/bin/bash
 
-HOSTNAME="smart-home-dashboard.local"
-HOSTS_FILE="/etc/hosts"
+NAMESPACE="smart-home"
 TIMEOUT=120
-START_TIME=$(date +%s)
 
 echo "Starting Minikube..."
 minikube start --driver=docker --memory=4096 --cpus=2
@@ -15,7 +13,8 @@ echo "Opening tunnel to ingress controller..."
 nohup minikube tunnel > minikube-tunnel.log 2>&1 &
 
 echo "Applying LoadBalancer and Ingress..."
-kubectl apply -f 00-dashboard-svc.yaml
+kubectl apply -f 00-namespace.yaml
+kubectl apply -f 01-dashboard-svc.yaml
 
 echo "Waiting for Minikube tunnel to assign LoadBalancer IP..."
 
@@ -35,10 +34,26 @@ if ! kubectl get svc --all-namespaces | grep -q 'LoadBalancer'; then
     exit 1
 fi
 
-echo "Applying Kubernetes manifests..."
+echo "Applying backend Kubernetes manifests in order..."
+
+kubectl apply -f 02-mongo-secrets.yaml
+kubectl apply -f 03-backend-cm.yaml
+kubectl apply -f 04-backend-manifest.yaml
+
+echo "Waiting for all pods in namespace '$NAMESPACE' to be ready..."
+podsReady=$(kubectl wait --namespace $NAMESPACE --for=condition=ready pod --all --timeout=120s 2>&1)
+
+if [ $? -ne 0 ]; then
+  echo "Timeout or error waiting for pods to become ready:"
+  echo "$podsReady"
+  exit 1
+else
+  echo "All backend pods are ready. proceeding.."
+fi
+
 kubectl apply -f .
 
-echo "Waiting for all pods in 'smart-home' namespace to be ready..."
+echo "Waiting for the rest of the pods in namespace '$NAMESPACE' to be ready..."
 podsReady=$(kubectl wait --namespace smart-home --for=condition=ready pod --all --timeout=120s 2>&1)
 
 if [ $? -ne 0 ]; then
@@ -57,4 +72,4 @@ else
   echo "External IP: $EXTERNAL_IP"
 fi
 
-echo "\n*** Done! ***\n"
+echo -e "\n*** Done! ***\n"
