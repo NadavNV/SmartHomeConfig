@@ -4,7 +4,7 @@ NAMESPACE="smart-home"
 TIMEOUT=120
 
 echo "Starting Minikube..."
-minikube start --driver=docker --memory=4096 --cpus=2
+minikube start --driver=docker --memory=3072 --cpus=2
 
 echo "Enabling ingress addon..."
 minikube addons enable ingress

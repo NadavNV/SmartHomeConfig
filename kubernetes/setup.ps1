@@ -2,7 +2,7 @@ $NAMESPACE = "smart-home"
 $TIMEOUT = 120
 
 Write-Host "Starting Minikube..."
-minikube start --driver=docker --memory=4096 --cpus=2
+minikube start --driver=docker --memory=3072 --cpus=2
 
 Write-Host "Enabling ingress addon..."
 minikube addons enable ingress
