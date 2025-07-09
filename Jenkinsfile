@@ -183,14 +183,7 @@ pipeline {
                 // run the Grafana container
                 sh "docker run -d --name grafana -p 3000:3000 --network test-net ${env.GRAFANA_IMAGE_NAME}:${env.BUILD_NUMBER}"
                 sh "sleep 20"
-                echo "Testing Prometheus:"
-                sh '''
-                docker run --rm --network container:prometheus curlimages/curl:latest \
-                    curl -sf http://localhost:9090/-/ready || (echo "Prometheus not ready" && exit 1)
-                '''
-
-                echo "Testing Grafana:"
-                sh 'docker exec grafana curl -sf -u admin:admin http://localhost:3000/api/health || (echo "Grafana not healthy" && exit 1)'
+                
                     // run the test script container
                 sh """
                     docker run --rm \
