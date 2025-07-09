@@ -102,7 +102,9 @@ pipeline {
         stage("build Grafana image") {
             steps {
                 echo "Building the Grafana image"
-                sh "docker build -t ${env.GRAFANA_IMAGE_NAME}:${env.BUILD_NUMBER} -f ${WORKSPACE}/SmartHomeConfig/monitoring/grafana/Dockerfile ${WORKSPACE}/SmartHomeConfig/monitoring/grafana"
+                dir("${env.WORKSPACE}"){
+                sh "docker build -t ${env.GRAFANA_IMAGE_NAME}:${env.BUILD_NUMBER} -f SmartHomeConfig/monitoring/grafana/Dockerfile SmartHomeConfig/monitoring/grafana"
+                }
             }
         }
         stage('test') {
