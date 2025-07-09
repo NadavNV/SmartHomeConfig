@@ -2704,12 +2704,12 @@
       },
       {
         "current": {
-          "text": "Prometheus-Cluster",
-          "value": "Prometheus-Cluster"
+          "text": "Prometheus_Cluster",
+          "value": "Prometheus_Cluster"
         },
         "hide": 2,
         "name": "datasource",
-        "query": "Prometheus-Cluster",
+        "query": "Prometheus_Cluster",
         "skipUrlSync": true,
         "type": "constant"
       }
@@ -2737,4 +2737,3 @@
   "uid": "garysdevil-kube-state-metrics-v2",
   "version": 1
 }
-
