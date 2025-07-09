@@ -2674,8 +2674,8 @@
     "list": [
       {
         "current": {
-          "text": "",
-          "value": ""
+          "text": "minikube",
+          "value": "minikube"
         },
         "datasource": "$datasource",
         "definition": "label_values(kube_node_info, node)",
@@ -2689,8 +2689,8 @@
       },
       {
         "current": {
-          "text": "",
-          "value": ""
+          "text": "smart-home",
+          "value": "smart-home"
         },
         "datasource": "$datasource",
         "definition": "",
