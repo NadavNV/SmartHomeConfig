@@ -2,15 +2,33 @@
 
 NAMESPACE="smart-home"
 TIMEOUT=120
+SKIP_MINIKUBE_START=0
 
-echo "Starting Minikube..."
-minikube start --driver=docker --memory=3072 --cpus=2
+# Parse flags
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    -s|--skip)
+      SKIP_MINIKUBE_START=1
+      shift
+      ;;
+    *)
+      shift
+      ;;
+  esac
+done
 
-echo "Enabling ingress addon..."
-minikube addons enable ingress
+if [ "$SKIP_MINIKUBE_START" -eq 0 ]; then
+  echo "Starting Minikube..."
+  minikube start --driver=docker --memory=3072 --cpus=2
 
-echo "Opening tunnel to ingress controller..."
-nohup minikube tunnel > minikube-tunnel.log 2>&1 &
+  echo "Enabling ingress addon..."
+  minikube addons enable ingress
+
+  echo "Opening tunnel to ingress controller..."
+  nohup minikube tunnel > minikube-tunnel.log 2>&1 &
+else
+  echo "Skipping Minikube start as requested."
+fi
 
 echo "Applying LoadBalancer and Ingress..."
 kubectl apply -f 00-namespace.yaml
@@ -39,6 +57,8 @@ echo "Applying backend Kubernetes manifests in order..."
 kubectl apply -f 02-mongo-secrets.yaml
 kubectl apply -f 03-backend-cm.yaml
 kubectl apply -f 04-backend-manifest.yaml
+
+sleep 3
 
 echo "Waiting for all pods in namespace '$NAMESPACE' to be ready..."
 podsReady=$(kubectl wait --namespace $NAMESPACE --for=condition=ready pod --all --timeout=120s 2>&1)

@@ -2705,7 +2705,7 @@
       {
         "current": {
           "text": "Prometheus_Cluster",
-          "value": "Prometheus_Cluster"
+          "value": "PD576CF4ABCD8CCAA"
         },
         "hide": 2,
         "name": "datasource",

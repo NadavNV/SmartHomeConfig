@@ -1,14 +1,23 @@
+param (
+    [switch]$skip
+)
+
 $NAMESPACE = "smart-home"
 $TIMEOUT = 120
 
-Write-Host "Starting Minikube..."
-minikube start --driver=docker --memory=3072 --cpus=2
+if (-not $skip) {
+    Write-Host "Starting Minikube..."
+    minikube start --driver=docker --memory=3072 --cpus=2
 
-Write-Host "Enabling ingress addon..."
-minikube addons enable ingress
+    Write-Host "Enabling ingress addon..."
+    minikube addons enable ingress
 
-Write-Host "Opening tunnel to ingress controller..."
-Start-Process powershell -WindowStyle Hidden -ArgumentList "-NoExit", "-Command", "minikube tunnel *> minikube-tunnel.log"
+    Write-Host "Opening tunnel to ingress controller..."
+    Start-Process powershell -WindowStyle Hidden -ArgumentList "-NoExit", "-Command", "minikube tunnel *> minikube-tunnel.log"
+}
+else {
+    Write-Host "Skipping Minikube start as requested."
+}
 
 Write-Host "Applying LoadBalancer and Ingress..."
 kubectl apply -f 00-namespace.yaml
@@ -36,6 +45,8 @@ Write-Host "Applying backend Kubernetes manifests in order..."
 kubectl apply -f 02-mongo-secrets.yaml
 kubectl apply -f 03-backend-cm.yaml
 kubectl apply -f 04-backend-manifest.yaml
+
+Start-Sleep -Seconds 3
 
 Write-Host "Waiting for all backend pods in '$NAMESPACE' to be ready..."
 $podsReady = kubectl wait --namespace $NAMESPACE --for=condition=ready pod --all --timeout="${TIMEOUT}s" 2>&1
