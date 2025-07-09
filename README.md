@@ -12,15 +12,16 @@ As well as monitoring and CI/CD (in this repository).
 
 ## Technologies Used
 
-| Layer                | Technology              |
-| -------------------- | ----------------------- |
-| **API**              | Python3 • Flask         |
-| **Database**         | MongoDB hosted on Atlas |
-| **Frontend**         | React • Vite • nginx    |
-| **Containerization** | Docker • Docker Hub     |
-| **Orchestration**    | Kubernetes • minikube   |
-| **Observability**    | Prometheus • Grafana    |
-| **CI/CD**            | Jenkins                 |
+| Layer                 | Technology                          |
+| --------------------- | ----------------------------------- |
+| **API**               | Python3 • Flask • paho-mqtt • nginx |
+| **Database**          | MongoDB hosted on Atlas             |
+| **Device Simulation** | Python3 • paho-mqtt                 |
+| **Frontend**          | React • Vite • nginx                |
+| **Containerization**  | Docker • Docker Hub                 |
+| **Orchestration**     | Kubernetes • minikube               |
+| **Observability**     | Prometheus • Grafana                |
+| **CI/CD**             | Jenkins                             |
 
 ## Usage
 
@@ -31,13 +32,14 @@ As well as monitoring and CI/CD (in this repository).
   - Clone this repo and apply the kubernetes manifests. On Windows, run PowerShell as administrator:
     ```powershell
     git clone https://github.com/NadavNV/SmartHomeConfig.git
-    cd kubernetes
+    cd SmartHomeConfig\kubernetes
     .\setup.ps1
     ```
-    On Linux/MacOS:
+    On Linux:
     ```bash
     git clone https://github.com/NadavNV/SmartHomeConfig.git
-    cd kubernetes
+    cd SmartHomeConfig/kubernetes
+    chmod +x setup.sh
     sudo ./setup.sh
     ```
   - Access the dashboard on your browser at `smart-home-dashboard.local`
