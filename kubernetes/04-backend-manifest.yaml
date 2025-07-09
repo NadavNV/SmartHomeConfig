@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: smart-home-backend-flask-container
-          image: yardenziv/smarthome_backend_flask:latest
+          image: nadavnv/smart-home-backend-flask:latest
           resources:
             limits:
               cpu: 300m
@@ -49,7 +49,7 @@ spec:
             initialDelaySeconds: 10
             periodSeconds: 5
         - name: smart-home-backend-nginx-container
-          image: yardenziv/smarthome_backend_nginx:latest
+          image: nadavnv/smart-home-backend-nginx:latest
           resources:
             limits:
               cpu: 300m

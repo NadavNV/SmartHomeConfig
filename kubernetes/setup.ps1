@@ -1,15 +1,22 @@
-$hostname = "smart-home-dashboard.local"
-$hostsPath = "$env:SystemRoot\System32\drivers\etc\hosts"
-$timeoutSeconds = 120
-$startTime = Get-Date
-
 Write-Host "Starting Minikube..."
 minikube start
 
 Write-Host "Enabling ingress addon..."
 minikube addons enable ingress
 
-Write-Host "Applying Kubernetes manifests..."
+# Write-Host "Opening tunnel to ingress controller..."
+# Start-Process powershell -ArgumentList "-NoExit", "-Command", "minikube tunnel"
+
+Write-Host "Waiting for ingress-nginx controller and webhook to be ready..."
+
+$ingressReady = kubectl wait --namespace ingress-nginx --for=condition=available deployment ingress-nginx-controller --timeout=120s 2>&1
+
+if ($LASTEXITCODE -ne 0) {
+    Write-Warning "Ingress controller not ready: $ingressReady"
+    exit 1
+}
+
+Write-Host "Ingress controller is ready. Applying manifests..."
 kubectl apply -f .
 
 # Get Minikube IP
@@ -31,34 +38,12 @@ else {
     Write-Output "All pods in 'smart-home' are ready."
 }
 
-
-# Update hosts file to include the host name used by the ingress
-$hostsContent = Get-Content -Path $hostsPath
-$filteredContent = $hostsContent | Where-Object { $_ -notmatch "$hostname" }
-$newEntry = "$minikubeIp `t $hostname"
-Set-Content -Path $hostsPath -Value ($filteredContent + $newEntry) -Force
-Write-Host "Updated hosts file: $newEntry"
-
-Write-Host "Waiting for ingress to be ready..."
-
-while ($true) {
-    $response = try {
-        Invoke-WebRequest -Uri "http://$hostname" -UseBasicParsing -TimeoutSec 5
-    }
-    catch {
-        $null
-    }
-
-    if ($response -and $response.StatusCode -eq 200) {
-        Write-Host "Ingress is up and serving traffic!"
-        break
-    }
-
-    $elapsed = (Get-Date) - $startTime
-    if ($elapsed.TotalSeconds -gt $timeoutSeconds) {
-        Write-Warning "Timeout waiting for ingress. Exiting."
-        exit 1
-    }
-
-    Start-Sleep -Seconds 5
+$externalIp = kubectl get svc smart-home-dashboard-svc -n smart-home -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
+if ([string]::IsNullOrEmpty($externalIp)) {
+    Write-Host "LoadBalancer external IP not assigned yet"
 }
+else {
+    Write-Host "External IP: $externalIp"
+}
+
+Write-Host "*** Done! ***"

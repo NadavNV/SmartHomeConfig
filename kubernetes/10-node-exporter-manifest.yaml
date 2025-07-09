@@ -26,8 +26,8 @@ spec:
             - containerPort: 9100
           resources:
             limits:
-              memory: "50Mi"
-              cpu: "100m"
+              memory: "200Mi"
+              cpu: "200m"
           volumeMounts:
             - name: proc
               mountPath: /host/proc
