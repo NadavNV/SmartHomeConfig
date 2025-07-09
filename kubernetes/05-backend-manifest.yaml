@@ -36,6 +36,16 @@ spec:
                 secretKeyRef:
                   key: MONGO_PASS
                   name: mongo-secrets
+            - name: BROKER_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: smart-home-mqtt-broker-cm
+                  key: BROKER_HOST
+            - name: BROKER_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: smart-home-mqtt-broker-cm
+                  key: BROKER_PORT
           livenessProbe:
             httpGet:
               path: /healthy

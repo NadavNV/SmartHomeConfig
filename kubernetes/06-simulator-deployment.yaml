@@ -29,6 +29,16 @@ spec:
                 configMapKeyRef:
                   name: smart-home-backend-cm
                   key: API_URL
+            - name: BROKER_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: smart-home-mqtt-broker-cm
+                  key: BROKER_HOST
+            - name: BROKER_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: smart-home-mqtt-broker-cm
+                  key: BROKER_PORT
           livenessProbe:
             exec:
               command:
