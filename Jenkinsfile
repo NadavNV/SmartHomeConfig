@@ -181,7 +181,7 @@ pipeline {
                 // run the frontend container
                 sh "docker run -d -p 3001:3001 --network test-net --name frontend-container --hostname frontend-container ${env.FRONT_IMAGE_NAME}_local:${env.BUILD_NUMBER}"
                 // run the Prometheus container
-                sh 'docker run -d --name prometheus -p 9090:9090 --network test-net -v "$(pwd)/SmartHomeConfig/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml" prom/prometheus:latest'
+                sh 'docker run -d --name prometheus -p 9090:9090 --network test-net -v monitoring/prometheus.yml:/etc/prometheus/prometheus.yml prom/prometheus:latest'
                 // run the Grafana container
                 sh "docker run -d --name grafana -p 3000:3000 --network test-net ${env.GRAFANA_IMAGE_NAME}:${env.BUILD_NUMBER}"
                 sh "sleep 20"
