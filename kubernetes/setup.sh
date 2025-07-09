@@ -4,6 +4,13 @@ NAMESPACE="smart-home"
 TIMEOUT=120
 SKIP_MINIKUBE_START=0
 
+# ANSI colors
+CYAN='\033[1;36m'
+YELLOW='\033[1;33m'
+GREEN='\033[1;32m'
+RED='\033[1;31m'
+RESET='\033[0m'
+
 # Parse flags
 while [[ $# -gt 0 ]]; do
   case $1 in
@@ -18,78 +25,89 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [ "$SKIP_MINIKUBE_START" -eq 0 ]; then
-  echo "Starting Minikube..."
+  echo -e "${CYAN}Starting Minikube...${RESET}"
   minikube start --driver=docker --memory=3072 --cpus=2
 
-  echo "Enabling ingress addon..."
+  echo -e "${CYAN}Enabling ingress addon...${RESET}"
   minikube addons enable ingress
 
-  echo "Opening tunnel to ingress controller..."
+  echo -e "${CYAN}Opening tunnel to ingress controller...${RESET}"
   nohup minikube tunnel > minikube-tunnel.log 2>&1 &
 else
-  echo "Skipping Minikube start as requested."
+  echo -e "${CYAN}Skipping Minikube start as requested.${RESET}"
 fi
 
-echo "Applying LoadBalancer and Ingress..."
+echo -e "${CYAN}Applying LoadBalancer and Ingress...${RESET}"
 kubectl apply -f 00-namespace.yaml
-kubectl apply -f 01-dashboard-svc.yaml
+kubectl apply -f 02-dashboard-svc.yaml
 
-echo "Waiting for Minikube tunnel to assign LoadBalancer IP..."
-
-# Retry for up to 60 seconds
+echo -e "${YELLOW}Waiting for Minikube tunnel to assign LoadBalancer IP...${RESET}"
 for i in {1..30}; do
-    # Check if any LoadBalancer IP is assigned in any service in any namespace
-    if kubectl get svc --all-namespaces | grep -q 'LoadBalancer'; then
-        echo "Minikube tunnel is active."
-        break
-    fi
-    sleep 2
+  if kubectl get svc --all-namespaces | grep -q 'LoadBalancer'; then
+    echo -e "${GREEN}Minikube tunnel is active.${RESET}"
+    break
+  fi
+  sleep 2
 done
 
-# Final check: error out if tunnel failed
 if ! kubectl get svc --all-namespaces | grep -q 'LoadBalancer'; then
-    echo "Tunnel did not become active. Exiting."
-    exit 1
+  echo -e "${RED}Tunnel did not become active. Exiting.${RESET}"
+  exit 1
 fi
 
-echo "Applying backend Kubernetes manifests in order..."
-
-kubectl apply -f 02-mongo-secrets.yaml
-kubectl apply -f 03-backend-cm.yaml
-kubectl apply -f 04-backend-manifest.yaml
+echo -e "${CYAN}Applying MQTT deployment...${RESET}"
+kubectl apply -f 01-mqtt-manifest.yaml
 
 sleep 3
 
-echo "Waiting for all pods in namespace '$NAMESPACE' to be ready..."
-podsReady=$(kubectl wait --namespace $NAMESPACE --for=condition=ready pod --all --timeout=120s 2>&1)
+echo -e "${YELLOW}Waiting for MQTT broker pod in '$NAMESPACE' to be ready...${RESET}"
+podsReady=$(kubectl wait --namespace "$NAMESPACE" --for=condition=ready pod --all --timeout=${TIMEOUT}s 2>&1)
 
 if [ $? -ne 0 ]; then
-  echo "Timeout or error waiting for pods to become ready:"
+  echo -e "${RED}Timeout or error waiting for pod to become ready:${RESET}"
   echo "$podsReady"
   exit 1
 else
-  echo "All backend pods are ready. proceeding.."
+  echo -e "${GREEN}MQTT broker is ready. Proceeding...${RESET}"
 fi
 
+echo -e "${CYAN}Applying backend Kubernetes manifests in order...${RESET}"
+kubectl apply -f 03-mongo-secrets.yaml
+kubectl apply -f 04-backend-cm.yaml
+kubectl apply -f 05-backend-manifest.yaml
+
+sleep 3
+
+echo -e "${YELLOW}Waiting for all backend pods in '$NAMESPACE' to be ready...${RESET}"
+podsReady=$(kubectl wait --namespace "$NAMESPACE" --for=condition=ready pod --all --timeout=${TIMEOUT}s 2>&1)
+
+if [ $? -ne 0 ]; then
+  echo -e "${RED}Timeout or error waiting for pods to become ready:${RESET}"
+  echo "$podsReady"
+  exit 1
+else
+  echo -e "${GREEN}All backend pods are ready. Proceeding...${RESET}"
+fi
+
+echo -e "${CYAN}Applying all manifests in the current directory...${RESET}"
 kubectl apply -f .
 
-echo "Waiting for the rest of the pods in namespace '$NAMESPACE' to be ready..."
-podsReady=$(kubectl wait --namespace smart-home --for=condition=ready pod --all --timeout=120s 2>&1)
+echo -e "${YELLOW}Waiting for the rest of the pods in '$NAMESPACE' to be ready...${RESET}"
+podsReady=$(kubectl wait --namespace "$NAMESPACE" --for=condition=ready pod --all --timeout=${TIMEOUT}s 2>&1)
 
 if [ $? -ne 0 ]; then
-  echo "Timeout or error waiting for pods to become ready:"
+  echo -e "${RED}Timeout or error waiting for pods readiness:${RESET}"
   echo "$podsReady"
   exit 1
 else
-  echo "All pods in 'smart-home' are ready."
+  echo -e "${GREEN}All pods in '$NAMESPACE' are ready.${RESET}"
 fi
 
-
-EXTERNAL_IP=$(kubectl get svc smart-home-dashboard-svc -n smart-home -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+EXTERNAL_IP=$(kubectl get svc smart-home-dashboard-svc -n "$NAMESPACE" -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
 if [ -z "$EXTERNAL_IP" ]; then
-  echo "LoadBalancer external IP not assigned yet"
+  echo -e "${YELLOW}LoadBalancer external IP not assigned yet${RESET}"
 else
-  echo "External IP: $EXTERNAL_IP"
+  echo -e "${CYAN}External IP: $EXTERNAL_IP${RESET}"
 fi
 
-echo -e "\n*** Done! ***\n"
+echo -e "\n${GREEN}*** Done! ***${RESET}\n"
