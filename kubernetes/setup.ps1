@@ -78,6 +78,8 @@ else {
 Write-Host "Applying all manifests in the current directory..." -ForegroundColor Cyan
 kubectl apply -f .
 
+Start-Sleep -Seconds 3
+
 Write-Host "Waiting for the rest of the pods in '$NAMESPACE' to be ready..." -ForegroundColor Yellow
 $podsReady = kubectl wait --namespace $NAMESPACE --for=condition=ready pod --all --timeout="${TIMEOUT}s" 2>&1
 if ($LASTEXITCODE -ne 0) {

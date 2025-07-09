@@ -91,6 +91,7 @@ fi
 
 echo -e "${CYAN}Applying all manifests in the current directory...${RESET}"
 kubectl apply -f .
+sleep 3
 
 echo -e "${YELLOW}Waiting for the rest of the pods in '$NAMESPACE' to be ready...${RESET}"
 podsReady=$(kubectl wait --namespace "$NAMESPACE" --for=condition=ready pod --all --timeout=${TIMEOUT}s 2>&1)
