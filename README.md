@@ -32,13 +32,13 @@ As well as monitoring and CI/CD (in this repository).
   - Clone this repo and apply the kubernetes manifests. On Windows, run PowerShell as administrator:
     ```powershell
     git clone https://github.com/NadavNV/SmartHomeConfig.git
-    cd kubernetes
+    cd SmartHomeConfig\kubernetes
     .\setup.ps1
     ```
     On Linux:
     ```bash
     git clone https://github.com/NadavNV/SmartHomeConfig.git
-    cd kubernetes
+    cd SmartHomeConfig/kubernetes
     sudo ./setup.sh
     ```
   - Access the dashboard on your browser at `smart-home-dashboard.local`
