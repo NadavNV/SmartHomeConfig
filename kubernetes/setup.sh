@@ -14,19 +14,8 @@ minikube addons enable ingress
 echo "Opening tunnel to ingress controller..."
 nohup minikube tunnel > minikube-tunnel.log 2>&1 &
 
-echo "Applying Kubernetes manifests..."
-kubectl apply -f .
-
-echo "Waiting for all pods in 'smart-home' namespace to be ready..."
-podsReady=$(kubectl wait --namespace smart-home --for=condition=ready pod --all --timeout=120s 2>&1)
-
-if [ $? -ne 0 ]; then
-  echo "Timeout or error waiting for pods to become ready:"
-  echo "$podsReady"
-  exit 1
-else
-  echo "All pods in 'smart-home' are ready."
-fi
+echo "Applying LoadBalancer and Ingress..."
+kubectl apply -f 00-dashboard-svc.yaml
 
 echo "Waiting for Minikube tunnel to assign LoadBalancer IP..."
 
@@ -45,6 +34,21 @@ if ! kubectl get svc --all-namespaces | grep -q 'LoadBalancer'; then
     echo "Tunnel did not become active. Exiting."
     exit 1
 fi
+
+echo "Applying Kubernetes manifests..."
+kubectl apply -f .
+
+echo "Waiting for all pods in 'smart-home' namespace to be ready..."
+podsReady=$(kubectl wait --namespace smart-home --for=condition=ready pod --all --timeout=120s 2>&1)
+
+if [ $? -ne 0 ]; then
+  echo "Timeout or error waiting for pods to become ready:"
+  echo "$podsReady"
+  exit 1
+else
+  echo "All pods in 'smart-home' are ready."
+fi
+
 
 EXTERNAL_IP=$(kubectl get svc smart-home-dashboard-svc -n smart-home -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
 if [ -z "$EXTERNAL_IP" ]; then
