@@ -9,6 +9,11 @@ if (-not $skip) {
     Write-Host "Starting Minikube..." -ForegroundColor Cyan
     minikube start --driver=docker --memory=3072 --cpus=2
 
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "Minikube failed to start. Exiting." -ForegroundColor Red
+        exit 1
+    }
+
     Write-Host "Enabling ingress addon..." -ForegroundColor Cyan
     minikube addons enable ingress
 

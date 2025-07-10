@@ -28,6 +28,11 @@ if [ "$SKIP_MINIKUBE_START" -eq 0 ]; then
   echo -e "${CYAN}Starting Minikube...${RESET}"
   minikube start --driver=docker --memory=3072 --cpus=2
 
+  if [ $? -ne 0 ]; then
+    echo -e "${RED}Minikube failed to start. Exiting.${RESET}"
+    exit 1
+  fi
+
   echo -e "${CYAN}Enabling ingress addon...${RESET}"
   minikube addons enable ingress
 
