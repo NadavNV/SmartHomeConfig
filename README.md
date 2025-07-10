@@ -33,6 +33,7 @@ As well as monitoring and CI/CD (in this repository).
     ```powershell
     git clone https://github.com/NadavNV/SmartHomeConfig.git
     cd SmartHomeConfig\kubernetes
+    Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
     .\setup.ps1
     ```
     On Linux:
