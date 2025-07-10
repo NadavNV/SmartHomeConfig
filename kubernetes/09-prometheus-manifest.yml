@@ -9,25 +9,25 @@ kind: ClusterRole
 metadata:
   name: smart-home-prometheus-role
 rules:
-- apiGroups: [""]
-  resources:
-    - nodes
-    - nodes/proxy
-    - services
-    - endpoints
-    - pods
-  verbs: ["get", "list", "watch"]
-- apiGroups:
-  - extensions
-  - apps
-  resources:
-  - replicasets
-  verbs: ["get", "list", "watch"]
-- apiGroups:
-  - networking.k8s.io
-  resources:
-  - ingresses
-  verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources:
+      - nodes
+      - nodes/proxy
+      - services
+      - endpoints
+      - pods
+    verbs: ["get", "list", "watch"]
+  - apiGroups:
+      - extensions
+      - apps
+    resources:
+      - replicasets
+    verbs: ["get", "list", "watch"]
+  - apiGroups:
+      - networking.k8s.io
+    resources:
+      - ingresses
+    verbs: ["get", "list", "watch"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -38,9 +38,9 @@ roleRef:
   kind: ClusterRole
   name: smart-home-prometheus-role
 subjects:
-- kind: ServiceAccount
-  name: smart-home-prometheus-sa
-  namespace: smart-home
+  - kind: ServiceAccount
+    name: smart-home-prometheus-sa
+    namespace: smart-home
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -96,10 +96,10 @@ metadata:
   name: smart-home-prometheus-svc
   namespace: smart-home
 spec:
+  # ClusterIP by default
   selector:
     app: smart-home-prometheus
   ports:
     - protocol: TCP
       port: 9090
       targetPort: 9090
-
