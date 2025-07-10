@@ -72,13 +72,13 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "request_count_total{endpoint=~\"/api/.*\"}",
+          "expr": "sum(rate(request_count_total{endpoint=~\"/api/.*\"}[1m]))",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Total API requests count",
+      "title": "Total API requests per second",
       "type": "stat"
     },
     {
@@ -138,11 +138,11 @@
       "pluginVersion": "12.0.2",
       "targets": [
         {
-          "expr": "rate(request_latency_seconds_sum{endpoint=\"/api/.*\"}[1m]) / rate(request_latency_seconds_count{endpoint=\"/api/.*\"}[1m])",
+          "expr": "avg(rate(request_latency_seconds_sum{endpoint=~\"/api/.*\"}[1m]) / rate(request_latency_seconds_count{endpoint=~\"/api/.*\"}[1m] and rate(request_latency_seconds_count{endpoint=~\"/api/.*\"}[1m] > 0))",
           "refId": "A"
         }
       ],
-      "title": "API Latency (/api/)",
+      "title": "Average API Latency (/api/)",
       "type": "stat"
     },
     {
