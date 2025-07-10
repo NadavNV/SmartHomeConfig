@@ -13,22 +13,24 @@ if (-not $skip) {
         Write-Host "Minikube failed to start. Exiting." -ForegroundColor Red
         exit 1
     }
-
-    Write-Host "Enabling ingress addon..." -ForegroundColor Cyan
-    minikube addons enable ingress
-
-    Write-Host "Opening tunnel to ingress controller..." -ForegroundColor Cyan
-    Start-Process powershell -WindowStyle Hidden -ArgumentList "-NoExit", "-Command", "minikube tunnel *> minikube-tunnel.log"
 }
 else {
     Write-Host "Skipping Minikube start as requested." -ForegroundColor Cyan
 }
+
+Write-Host "Enabling ingress addon..." -ForegroundColor Cyan
+minikube addons enable ingress
+
+Write-Host "Opening tunnel to ingress controller..." -ForegroundColor Cyan
+Start-Process powershell -WindowStyle Hidden -ArgumentList "-NoExit", "-Command", "minikube tunnel *> minikube-tunnel.log"
 
 Write-Host "Applying LoadBalancer and Ingress..." -ForegroundColor Cyan
 kubectl apply -f 00-namespace.yaml
 kubectl apply -f 02-dashboard-svc.yaml
 
 Write-Host "Waiting for Minikube tunnel to assign LoadBalancer IP..." -ForegroundColor Yellow
+
+Start-Sleep -Seconds 2
 
 $success = $false
 for ($i = 0; $i -lt 30; $i++) {
@@ -52,7 +54,7 @@ kubectl apply -f 01-mqtt-manifest.yaml
 Start-Sleep -Seconds 3
 
 Write-Host "Waiting for MQTT broker pod in '$NAMESPACE' to be ready..." -ForegroundColor Yellow
-$podsReady = kubectl wait --namespace $NAMESPACE --for=condition=ready pod --all --timeout="${TIMEOUT}s" 2>&1
+$podsReady = kubectl wait --namespace $NAMESPACE --for=condition=available deployment/mqtt-broker-deploy --timeout="${TIMEOUT}s" 2>&1
 if ($LASTEXITCODE -ne 0) {
     Write-Error "Timeout or error waiting for pod to become ready:"
     Write-Output $podsReady
@@ -70,7 +72,7 @@ kubectl apply -f 05-backend-manifest.yaml
 Start-Sleep -Seconds 3
 
 Write-Host "Waiting for all backend pods in '$NAMESPACE' to be ready..." -ForegroundColor Yellow
-$podsReady = kubectl wait --namespace $NAMESPACE --for=condition=ready pod --all --timeout="${TIMEOUT}s" 2>&1
+$podsReady = kubectl wait --namespace $NAMESPACE --for=condition=available deployment/backend-deploy --timeout="${TIMEOUT}s" 2>&1
 if ($LASTEXITCODE -ne 0) {
     Write-Error "Timeout or error waiting for pods to become ready:"
     Write-Output $podsReady
@@ -96,12 +98,12 @@ else {
     Write-Host "All pods in '$NAMESPACE' are ready." -ForegroundColor Green
 }
 
-$externalIp = kubectl get svc smart-home-dashboard-svc -n $NAMESPACE -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
+$externalIp = kubectl get svc dashboard-svc -n $NAMESPACE -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
 if ([string]::IsNullOrEmpty($externalIp)) {
-    Write-Host "LoadBalancer external IP not assigned yet" -ForegroundColor Yellow
+    Write-Host "LoadBalancer external IP not assigned yet. Opening service..." -ForegroundColor Yellow
+    minikube service -n $NAMESPACE dashboard-svc
 }
 else {
     Write-Host "External IP: $externalIp" -ForegroundColor Cyan
+    Write-Host "`n*** Done! ***`n" -ForegroundColor Green
 }
-
-Write-Host "`n*** Done! ***`n" -ForegroundColor Green

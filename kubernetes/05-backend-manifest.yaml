@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: smart-home-backend-deploy
+  name: backend-deploy
   namespace: smart-home
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: smart-home-backend
+      app: backend
   template:
     metadata:
       labels:
-        app: smart-home-backend
+        app: backend
     spec:
       containers:
-        - name: smart-home-backend-flask-container
+        - name: backend-flask-container
           image: nadavnv/smart-home-backend-flask:latest
           resources:
             limits:
@@ -39,12 +39,12 @@ spec:
             - name: BROKER_URL
               valueFrom:
                 configMapKeyRef:
-                  name: smart-home-mqtt-broker-cm
+                  name: mqtt-broker-cm
                   key: BROKER_HOST
             - name: BROKER_PORT
               valueFrom:
                 configMapKeyRef:
-                  name: smart-home-mqtt-broker-cm
+                  name: mqtt-broker-cm
                   key: BROKER_PORT
           livenessProbe:
             httpGet:
@@ -58,7 +58,7 @@ spec:
               port: 8000
             initialDelaySeconds: 10
             periodSeconds: 5
-        - name: smart-home-backend-nginx-container
+        - name: backend-nginx-container
           image: nadavnv/smart-home-backend-nginx:latest
           resources:
             limits:
@@ -91,12 +91,12 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: smart-home-backend-svc
+  name: backend-svc
   namespace: smart-home
 spec:
   # ClusterIP by default
   selector:
-    app: smart-home-backend
+    app: backend
   ports:
     - port: 5200
       targetPort: 5200

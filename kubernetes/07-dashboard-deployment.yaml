@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: smart-home-dashboard-deploy
+  name: dashboard-deploy
   namespace: smart-home
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: smart-home-dashboard
+      app: dashboard
   template:
     metadata:
       labels:
-        app: smart-home-dashboard
+        app: dashboard
     spec:
       containers:
-        - name: smart-home-dashboard-container
+        - name: dashboard-container
           image: nadavnv/smart-home-dashboard:latest
           resources:
             limits:
@@ -37,7 +37,7 @@ spec:
                 # Verify that the frontend is connected to the backend
                 - /bin/sh
                 - -c
-                - curl -sf http://smart-home-backend-svc:5200/ready
+                - curl -sf http://backend-svc:5200/ready
             initialDelaySeconds: 5
             periodSeconds: 5
   strategy:

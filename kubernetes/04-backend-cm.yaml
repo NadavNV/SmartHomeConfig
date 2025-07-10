@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: smart-home-backend-cm
+  name: backend-cm
   namespace: smart-home
 data:
-  API_URL: http://smart-home-backend-svc.smart-home:5200
+  API_URL: http://backend-svc.smart-home:5200
