@@ -72,13 +72,13 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "request_count_total{endpoint=~\"/api/devices/.*/action\", method=\"POST\"}",
+          "expr": "request_count_total{endpoint=~\"/api/.*\"}",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Total RT action requests count",
+      "title": "Total API requests count",
       "type": "stat"
     },
     {
@@ -138,11 +138,11 @@
       "pluginVersion": "12.0.2",
       "targets": [
         {
-          "expr": "rate(request_latency_seconds_sum{endpoint=\"/api/devices\"}[1m]) / rate(request_latency_seconds_count{endpoint=\"/api/devices\"}[1m])",
+          "expr": "rate(request_latency_seconds_sum{endpoint=\"/api/.*\"}[1m]) / rate(request_latency_seconds_count{endpoint=\"/api/.*\"}[1m])",
           "refId": "A"
         }
       ],
-      "title": "API Latency (/api/devices)",
+      "title": "API Latency (/api/)",
       "type": "stat"
     },
     {
@@ -288,7 +288,7 @@
       "pluginVersion": "12.0.2",
       "targets": [
         {
-          "expr": "rate(request_latency_seconds_sum{endpoint=\"/api/devices\"}[1m]) / rate(request_latency_seconds_count{endpoint=\"/api/devices\"}[1m])",
+          "expr": "rate(request_latency_seconds_sum[1m]) / rate(request_latency_seconds_count[1m])",
           "refId": "A"
         }
       ],
