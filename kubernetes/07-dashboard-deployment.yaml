@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: dashboard-container
-          image: nadavnv/smart-home-dashboard:latest
+          image: yardenziv/smarthome_dashboard:V43
           resources:
             limits:
               cpu: 300m
