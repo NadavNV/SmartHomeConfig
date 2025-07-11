@@ -4,7 +4,7 @@ datasources:
   - name: Prometheus_Cluster
     type: prometheus
     access: proxy
-    url: http://smart-home-prometheus-svc.smart-home.svc.cluster.local:9090
+    url: http://prometheus-svc.smart-home.svc.cluster.local:9090
     isDefault: true
     editable: true
 
