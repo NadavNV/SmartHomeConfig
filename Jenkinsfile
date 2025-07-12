@@ -64,7 +64,7 @@ pipeline {
         stage("build frontend images") {
     steps {
         echo "Building clean production frontend image"
-        sh "docker build -t ${env.FRONT_IMAGE_NAME}:${env.BUILD_NUMBER} --build-arg VITE_API_URL=http://smart-home-backend-svc:5200 SmartHomeDashboard"
+        sh "docker build -t ${env.FRONT_IMAGE_NAME}:${env.BUILD_NUMBER} SmartHomeDashboard"
 
 
         echo "Creating local nginx.conf for testing"
