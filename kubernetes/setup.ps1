@@ -51,9 +51,8 @@ if (-not $success) {
 Write-Host "Applying MQTT deployment..." -ForegroundColor Cyan
 kubectl apply -f 01-mqtt-manifest.yaml
 
-Start-Sleep -Seconds 3
-
 Write-Host "Waiting for MQTT broker pod in '$NAMESPACE' to be ready..." -ForegroundColor Yellow
+Start-Sleep -Seconds 3
 $podsReady = kubectl wait --namespace $NAMESPACE --for=condition=available deployment/mqtt-broker-deploy --timeout="${TIMEOUT}s" 2>&1
 if ($LASTEXITCODE -ne 0) {
     Write-Error "Timeout or error waiting for pod to become ready:"
@@ -69,9 +68,8 @@ kubectl apply -f 03-mongo-secrets.yaml
 kubectl apply -f 04-backend-cm.yaml
 kubectl apply -f 05-backend-manifest.yaml
 
-Start-Sleep -Seconds 3
-
 Write-Host "Waiting for all backend pods in '$NAMESPACE' to be ready..." -ForegroundColor Yellow
+Start-Sleep -Seconds 3
 $podsReady = kubectl wait --namespace $NAMESPACE --for=condition=available deployment/backend-deploy --timeout="${TIMEOUT}s" 2>&1
 if ($LASTEXITCODE -ne 0) {
     Write-Error "Timeout or error waiting for pods to become ready:"
@@ -85,10 +83,9 @@ else {
 Write-Host "Applying all manifests in the current directory..." -ForegroundColor Cyan
 kubectl apply -f .
 
-Start-Sleep -Seconds 3
-
 Write-Host "Waiting for the rest of the pods in '$NAMESPACE' to be ready..." -ForegroundColor Yellow
-$podsReady = kubectl wait --namespace $NAMESPACE --for=condition=ready pod --all --timeout="${TIMEOUT}s" 2>&1
+Start-Sleep -Seconds 3
+$podsReady = kubectl wait deployment --all --namespace "$NAMESPACE" --for=condition=available --timeout=${TIMEOUT}s 2>&1
 if ($LASTEXITCODE -ne 0) {
     Write-Error "Timeout or error waiting for pods readiness:"
     Write-Output $podsReady

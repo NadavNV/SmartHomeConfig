@@ -46,9 +46,8 @@ echo -e "${CYAN}Applying LoadBalancer and Ingress...${RESET}"
 kubectl apply -f 00-namespace.yaml
 kubectl apply -f 02-dashboard-svc.yaml
 
-sleep 2
-
 echo -e "${YELLOW}Waiting for Minikube tunnel to assign LoadBalancer IP...${RESET}"
+sleep 2
 for i in {1..30}; do
   if kubectl get svc --all-namespaces | grep -q 'LoadBalancer'; then
     echo -e "${GREEN}Minikube tunnel is active.${RESET}"
@@ -65,9 +64,8 @@ fi
 echo -e "${CYAN}Applying MQTT deployment...${RESET}"
 kubectl apply -f 01-mqtt-manifest.yaml
 
-sleep 3
-
 echo -e "${YELLOW}Waiting for MQTT broker pod in '$NAMESPACE' to be ready...${RESET}"
+sleep 3
 $podsReady=$(kubectl wait --namespace $NAMESPACE --for=condition=available deployment/mqtt-broker-deploy --timeout="${TIMEOUT}s" 2>&1)
 
 if [ $? -ne 0 ]; then
@@ -83,9 +81,8 @@ kubectl apply -f 03-mongo-secrets.yaml
 kubectl apply -f 04-backend-cm.yaml
 kubectl apply -f 05-backend-manifest.yaml
 
-sleep 3
-
 echo -e "${YELLOW}Waiting for all backend pods in '$NAMESPACE' to be ready...${RESET}"
+sleep 3
 podsReady=$(kubectl wait --namespace $NAMESPACE --for=condition=available deployment/backend-deploy --timeout="${TIMEOUT}s" 2>&1)
 
 if [ $? -ne 0 ]; then
@@ -98,10 +95,10 @@ fi
 
 echo -e "${CYAN}Applying all manifests in the current directory...${RESET}"
 kubectl apply -f .
-sleep 3
 
 echo -e "${YELLOW}Waiting for the rest of the pods in '$NAMESPACE' to be ready...${RESET}"
-podsReady=$(kubectl wait --namespace "$NAMESPACE" --for=condition=ready pod --all --timeout=${TIMEOUT}s 2>&1)
+sleep 3
+podsReady=$(kubectl wait deployment --all --namespace "$NAMESPACE" --for=condition=available --timeout=${TIMEOUT}s 2>&1)
 
 if [ $? -ne 0 ]; then
   echo -e "${RED}Timeout or error waiting for pods readiness:${RESET}"
