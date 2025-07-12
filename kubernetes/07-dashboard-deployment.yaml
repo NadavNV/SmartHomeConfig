@@ -4,7 +4,7 @@ metadata:
   name: dashboard-deploy
   namespace: smart-home
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       app: dashboard
@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: dashboard-container
-          image: yardenziv/smarthome_dashboard:V45
+          image: nadavnv/smart-home-dashboard:V1.51
           resources:
             limits:
               cpu: 300m

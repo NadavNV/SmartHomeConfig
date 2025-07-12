@@ -59,7 +59,7 @@ spec:
       serviceAccountName: prometheus-sa
       containers:
         - name: prometheus-container
-          image: prom/prometheus:latest
+          image: prom/prometheus:v2.53.5
           resources:
             requests:
               cpu: 500m
