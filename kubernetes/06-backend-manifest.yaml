@@ -26,6 +26,11 @@ spec:
           ports:
             - containerPort: 8000
           env:
+            - name: REDIS_PASS
+              valueFrom:
+                secretKeyRef:
+                  key: REDIS_PASS
+                  name: redis-secrets
             - name: MONGO_USER
               valueFrom:
                 secretKeyRef:

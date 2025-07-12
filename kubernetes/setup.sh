@@ -78,8 +78,9 @@ fi
 
 echo -e "${CYAN}Applying backend Kubernetes manifests in order...${RESET}"
 kubectl apply -f 03-mongo-secrets.yaml
-kubectl apply -f 04-backend-cm.yaml
-kubectl apply -f 05-backend-manifest.yaml
+kubectl apply -f 04-redis-secrets.yaml
+kubectl apply -f 05-backend-cm.yaml
+kubectl apply -f 06-backend-manifest.yaml
 
 echo -e "${YELLOW}Waiting for all backend pods in '$NAMESPACE' to be ready...${RESET}"
 sleep 3
