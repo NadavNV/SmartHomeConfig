@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: grafana
-          image: yardenziv/smarthome_grafana:V44
+          image: yardenziv/smarthome_grafana:V45
           ports:
             - containerPort: 3000
           env:

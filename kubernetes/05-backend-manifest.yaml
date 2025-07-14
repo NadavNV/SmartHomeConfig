@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: backend-flask-container
-          image: nadavnv/smart-home-backend-flask:latest
+          image: yardenziv/smarthome_backend_flask:V45
           resources:
             limits:
               cpu: 300m
