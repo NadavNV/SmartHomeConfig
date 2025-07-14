@@ -34,7 +34,7 @@ As well as monitoring and CI/CD (in this repository).
     git clone https://github.com/NadavNV/SmartHomeConfig.git
     cd SmartHomeConfig\kubernetes
     Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-    .\setup.ps1
+    .\setup.ps1 [-s]
     ```
     On Linux:
     ```bash
@@ -42,8 +42,9 @@ As well as monitoring and CI/CD (in this repository).
     cd SmartHomeConfig/kubernetes
     sudo swapoff -a
     chmod +x setup.sh
-    ./setup.sh
+    ./setup.sh [-s]
     ```
+  - Use `-s` to skip starting minikube, if it is already running.
   - Access the dashboard on your browser at `smart-home-dashboard.local`
   - To view the monitoring through grafana run `minikube service -n smart-home smart-home-grafana-svc` and log in using username: `admin`, password: `admin`.
 
