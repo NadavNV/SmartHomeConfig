@@ -66,15 +66,23 @@ kubectl apply -f 01-mqtt-manifest.yaml
 
 echo -e "${YELLOW}Waiting for MQTT broker pod in '$NAMESPACE' to be ready...${RESET}"
 sleep 3
-$podsReady=$(kubectl wait --namespace $NAMESPACE --for=condition=available deployment/mqtt-broker-deploy --timeout="${TIMEOUT}s" 2>&1)
-
+deployReady=$(kubectl wait --namespace $NAMESPACE --for=condition=available deployment/mqtt-broker-deploy --timeout="${TIMEOUT}s" 2>&1)
 if [ $? -ne 0 ]; then
-  echo -e "${RED}Timeout or error waiting for pod to become ready:${RESET}"
-  echo "$podsReady"
+  echo -e "${RED}Timeout or error waiting for deployment to become ready:${RESET}"
+  echo "$deployReady"
   exit 1
 else
-  echo -e "${GREEN}MQTT broker is ready. Proceeding...${RESET}"
+  podsReady=$(kubectl wait --for=condition=Ready pods --all --namespace "$NAMESPACE" --timeout="${TIMEOUT}s")
+  if [ $? -ne 0 ]; then
+    echo -e "${RED}Timeout or error waiting for pod to become ready:${RESET}"
+    echo "$podsReady"
+    exit 1
+  else
+    echo -e "${GREEN}MQTT broker is ready. Proceeding...${RESET}"
+  fi
 fi
+
+
 
 echo -e "${CYAN}Applying backend Kubernetes manifests in order...${RESET}"
 kubectl apply -f 03-mongo-secrets.yaml
@@ -84,14 +92,20 @@ kubectl apply -f 06-backend-manifest.yaml
 
 echo -e "${YELLOW}Waiting for all backend pods in '$NAMESPACE' to be ready...${RESET}"
 sleep 3
-podsReady=$(kubectl wait --namespace $NAMESPACE --for=condition=available deployment/backend-deploy --timeout="${TIMEOUT}s" 2>&1)
-
+deployReady=$(kubectl wait --namespace $NAMESPACE --for=condition=available deployment/backend-deploy --timeout="${TIMEOUT}s" 2>&1)
 if [ $? -ne 0 ]; then
-  echo -e "${RED}Timeout or error waiting for pods to become ready:${RESET}"
-  echo "$podsReady"
+  echo -e "${RED}Timeout or error waiting for deployment to become ready:${RESET}"
+  echo "$deployReady"
   exit 1
 else
-  echo -e "${GREEN}All backend pods are ready. Proceeding...${RESET}"
+  podsReady=$(kubectl wait --for=condition=Ready pods --all --namespace "$NAMESPACE" --timeout="${TIMEOUT}s")
+  if [ $? -ne 0 ]; then
+    echo -e "${RED}Timeout or error waiting for pods to become ready:${RESET}"
+    echo "$podsReady"
+    exit 1
+  else
+    echo -e "${GREEN}Backend is ready. Proceeding...${RESET}"
+  fi
 fi
 
 echo -e "${CYAN}Applying all manifests in the current directory...${RESET}"
@@ -99,14 +113,20 @@ kubectl apply -f .
 
 echo -e "${YELLOW}Waiting for the rest of the pods in '$NAMESPACE' to be ready...${RESET}"
 sleep 3
-podsReady=$(kubectl wait deployment --all --namespace "$NAMESPACE" --for=condition=available --timeout=${TIMEOUT}s 2>&1)
-
+deployReady=$(kubectl wait --namespace $NAMESPACE --for=condition=available deployment --all --timeout="${TIMEOUT}s" 2>&1)
 if [ $? -ne 0 ]; then
-  echo -e "${RED}Timeout or error waiting for pods readiness:${RESET}"
-  echo "$podsReady"
+  echo -e "${RED}Timeout or error waiting for deployments to become ready:${RESET}"
+  echo "$deployReady"
   exit 1
 else
-  echo -e "${GREEN}All pods in '$NAMESPACE' are ready.${RESET}"
+  podsReady=$(kubectl wait --for=condition=Ready pods --all --namespace "$NAMESPACE" --timeout="${TIMEOUT}s")
+  if [ $? -ne 0 ]; then
+    echo -e "${RED}Timeout or error waiting for pods to become ready:${RESET}"
+    echo "$podsReady"
+    exit 1
+  else
+    echo -e "${GREEN}All pods in '$NAMESPACE' are ready. Proceeding...${RESET}"
+  fi
 fi
 
 EXTERNAL_IP=$(kubectl get svc dashboard-svc -n "$NAMESPACE" -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
