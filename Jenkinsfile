@@ -15,6 +15,7 @@ pipeline{
                 // Make sure docker is available
                 sh "docker ps"
                 sh "docker volume ls"
+                sh "docker inspect eclipse-mosquitto | grep -A5 Volumes"
             }
         }
         stage('Clone'){
@@ -136,12 +137,12 @@ pipeline{
                     ls -la ${WORKSPACE}/SmartHomeConfig/mosquitto
                     
 
-                    mkdir -p /tmp/mosq-test
-                    echo -e "listener 1883\nallow_anonymous true\n" > /tmp/mosq-test/mosquitto.conf
+                    mkdir -p ${WORKSPACE}/mosq-test
+                    echo -e "listener 1883\nallow_anonymous true\n" > ${WORKSPACE}/mosq-test/mosquitto.conf
 
-                    docker run --rm -v /tmp/mosq-test:/mosquitto/config alpine ls -l /mosquitto/config
+                    docker run --rm -v ${WORKSPACE}/mosq-test:/mosquitto/config alpine ls -l /mosquitto/config
                     
-                    docker run --rm -v "${WORKSPACE}/SmartHomeConfig/mosquitto:/mosquitto/config:Z" alpine sh -c 'ls -l /mosquitto/config && cat /mosquitto/config/mosquitto.conf'
+                    # docker run --rm -v "${WORKSPACE}/SmartHomeConfig/mosquitto:/mosquitto/config:Z" alpine sh -c 'ls -l /mosquitto/config && cat /mosquitto/config/mosquitto.conf'
 
                     docker run -d \\
                     --network test \\
