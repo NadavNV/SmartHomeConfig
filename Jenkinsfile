@@ -159,6 +159,9 @@ pipeline{
 
                     docker run -d -p 5200:5200 --network test --name backend \\
                     ${DOCKER_USERNAME}/${NGINX}:V${PC}.${BUILD_NUMBER}
+
+                    docker ps -a
+                    docker logs ${FLASK}
                 """
                 echo "====== Testing the backend ======"
                 sh "for i in {1..10}; do docker exec ${FLASK} curl http://localhost:8000/ready && break || sleep 5; done"
