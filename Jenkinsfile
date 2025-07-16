@@ -164,36 +164,32 @@ pipeline{
                 """
                 echo "====== Testing the backend ======"
                 sh '''
-                    success=0
-                    for i in {1..10}; do
+                    i=1
+                    while [ $i -le 10 ]; do
                         echo "Attempt $i: Checking if Flask is ready..."
                         if docker exec ${FLASK} wget -q --spider http://localhost:8000/ready; then
-                            success=1
                             break
                         fi
+                        i=$((i + 1))
                         sleep 5
                     done
 
-                    if [ "$success" -ne 1 ]; then
-                        echo "Flask did not become ready in time"
-                        exit 1
-                    fi
+                    # Final check to fail if still not up
+                    docker exec ${FLASK} wget -q --spider http://localhost:8000/ready || exit 1
                 '''
                 sh '''
-                    success=0
-                    for i in {1..10}; do
+                    i=1
+                    while [ $i -le 10 ]; do
                         echo "Attempt $i: Checking if nginx is ready..."
                         if docker exec backend curl -s http://localhost:8000/ready; then
-                            success=1
                             break
                         fi
+                        i=$((i + 1))
                         sleep 5
                     done
 
-                    if [ "$success" -ne 1 ]; then
-                        echo "nginx did not become ready in time"
-                        exit 1
-                    fi
+                    # Final check to fail if still not up
+                    docker exec backend curl -s http://localhost:8000/ready || exit 1
                 '''
                 sh "docker exec ${FLASK} python -m unittest discover -s /app/test -p \"test_*.py\" -v"
             }
@@ -209,20 +205,18 @@ pipeline{
                         """
                         echo "====== Testing the simulator ======"
                         sh '''
-                            success=0
-                            for i in {1..10}; do
+                            i=1
+                            while [ $i -le 10 ]; do
                                 echo "Attempt $i: Checking if simulator is ready..."
                                 if docker exec ${SIMULATOR} cat status | grep ready; then
-                                    success=1
                                     break
                                 fi
+                                i=$((i + 1))
                                 sleep 5
                             done
 
-                            if [ "$success" -ne 1 ]; then
-                                echo "Simulator did not become ready in time"
-                                exit 1
-                            fi
+                            # Final check to fail if still not up
+                            docker exec ${SIMULATOR} cat status | grep ready || exit 1
                         '''
                     }
                 }
@@ -233,22 +227,20 @@ pipeline{
                         docker run -d -p 3001:3001 --network test --env-file SmartHomeDashboard/.env --name ${FRONTEND} \\
                         ${DOCKER_USERNAME}/${FRONTEND}:V${PC}.${BUILD_NUMBER}
                         """
-                        echo "====== Testing the frontend ======"                        
+                        echo "====== Testing the frontend ======"
                         sh '''
-                            success=0
-                            for i in {1..10}; do
+                            i=1
+                            while [ $i -le 10 ]; do
                                 echo "Attempt $i: Checking if frontend can reach backend..."
                                 if docker exec ${FRONTEND} curl -s http://backend:5200/ready; then
-                                    success=1
                                     break
                                 fi
+                                i=$((i + 1))
                                 sleep 5
                             done
 
-                            if [ "$success" -ne 1 ]; then
-                                echo "Backend not reachable from frontend in time"
-                                exit 1
-                            fi
+                            # Final check to fail if still not up
+                            docker exec ${FRONTEND} curl -s http://backend:5200/ready || exit 1
                         '''
                     }
                 }
@@ -261,20 +253,18 @@ pipeline{
                         """
                         echo "====== Testing grafana ======"
                         sh '''
-                            success=0
-                            for i in {1..10}; do
+                            i=1
+                            while [ $i -le 10 ]; do
                                 echo "Attempt $i: Checking if grafana is ready..."
-                                if docker exec ${GRAFANA} http://localhost:3000/api/health; then
-                                    success=1
+                                if docker exec ${GRAFANA} curl http://localhost:3000/api/health; then
                                     break
                                 fi
+                                i=$((i + 1))
                                 sleep 5
                             done
 
-                            if [ "$success" -ne 1 ]; then
-                                echo "Grafana did not become ready in time"
-                                exit 1
-                            fi
+                            # Final check to fail if still not up
+                            docker exec ${GRAFANA} curl http://localhost:3000/api/health || exit 1
                         '''
                     }
                 }
