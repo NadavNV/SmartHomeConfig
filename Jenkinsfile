@@ -131,8 +131,9 @@ pipeline{
                 sh """
                     docker stop mqtt-broker || true
                     docker rm -f mqtt-broker || true
-
+                    ls -l ${WORKSPACE}/SmartHomeConfig/mosquitto
                     chmod 644 ${WORKSPACE}/SmartHomeConfig/mosquitto/mosquitto.conf
+                    ls -l ${WORKSPACE}/SmartHomeConfig/mosquitto
                     docker run --rm -v "${WORKSPACE}/SmartHomeConfig/mosquitto":/mosquitto/config alpine ls -l /mosquitto/config
 
                     docker run -d \\
