@@ -145,10 +145,6 @@ pipeline{
                     docker restart mqtt-broker
 
                     sleep 3
-
-                    docker ps -a
-                    docker logs mqtt-broker
-                    exit 1
                 """
             }
         }
@@ -186,7 +182,7 @@ pipeline{
                     steps{
                         echo "====== Running the frontend ======"
                         sh """
-                        docker run -d --network test --env-file SmartHomeDashboard/.env --name ${FRONTEND} \\
+                        docker run -d -p 3001:3001 --network test --env-file SmartHomeDashboard/.env --name ${FRONTEND} \\
                         ${DOCKER_USERNAME}/${FRONTEND}:V${PC}.${BUILD_NUMBER}
                         """
                         echo "====== Testing the frontend ======"                        
