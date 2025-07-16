@@ -80,7 +80,7 @@ pipeline{
                         echo "====== Building the backend ======"
                         // Make sure that the container names are available
                         sh "docker stop ${FLASK} || true"
-                        sh "docker stop ${NGINX} || true"
+                        sh "docker stop backend || true"
                         dir('SmartHomeBackend'){
                             sh "docker build -f flask.Dockerfile -t ${DOCKER_USERNAME}/${FLASK}:V${PC}.${BUILD_NUMBER} ."
                             sh "docker build -f nginx.Dockerfile -t ${DOCKER_USERNAME}/${NGINX}:V${PC}.${BUILD_NUMBER} ."
@@ -138,6 +138,8 @@ pipeline{
                         cp "$WORKSPACE/mosquitto/mosquitto.conf" "$CONFIG_DIR/mosquitto.conf"
                     fi
 
+                    cat "$CONFIG_DIR/mosquitto.conf"
+
                     docker run -d \
                     --network test \
                     --name mqtt-broker \
@@ -150,20 +152,31 @@ pipeline{
         }
         stage("Run the backend"){
             steps{
+                sh """
+                    echo "====== Debugging Gunicorn version ======"
+                    docker run --rm --env-file SmartHomeBackend/.env \\
+                    ${DOCKER_USERNAME}/${FLASK}:V${PC}.${BUILD_NUMBER} \\
+                    gunicorn --version || echo "Gunicorn not found"
+
+                    echo "====== Checking installed packages ======"
+                    docker run --rm --env-file SmartHomeBackend/.env \\
+                    ${DOCKER_USERNAME}/${FLASK}:V${PC}.${BUILD_NUMBER} \\
+                    pip freeze | grep gunicorn || echo "Gunicorn not installed"
+                """
                 echo "====== Running the backend ======"
                 sh """
-                docker run -d -p 8000:8000 --env-file SmartHomeBackend/.env \
-                --network test --name ${FLASK} ${DOCKER_USERNAME}/${FLASK}:V${PC}.${BUILD_NUMBER}
+                    docker run -d -p 8000:8000 --env-file SmartHomeBackend/.env \\
+                    --network test --name ${FLASK} ${DOCKER_USERNAME}/${FLASK}:V${PC}.${BUILD_NUMBER}
 
-                docker run -d -p 5200:5200 --network test --name backend \
-                ${DOCKER_USERNAME}/${NGINX}:V${PC}.${BUILD_NUMBER}
+                    docker run -d -p 5200:5200 --network test --name backend \\
+                    ${DOCKER_USERNAME}/${NGINX}:V${PC}.${BUILD_NUMBER}
 
-                sleep 3
+                    sleep 3
 
-                echo "Containers started:"
-                docker ps -a
+                    echo "Containers started:"
+                    docker ps -a
 
-                docker logs ${FLASK}
+                    docker logs ${FLASK}
 
                 """
                 echo "====== Testing the backend ======"
@@ -178,7 +191,7 @@ pipeline{
                     steps{
                         echo "====== Running the simulator ======"
                         sh """
-                        docker run -d --env-file SmartHomeSimulator.env \
+                        docker run -d --env-file SmartHomeSimulator.env \\
                         --network test --name ${SIMULATOR} ${DOCKER_USERNAME}/${SIMULATOR}:V${PC}.${BUILD_NUMBER}
 
                         sleep 3
@@ -191,7 +204,7 @@ pipeline{
                     steps{
                         echo "====== Running the frontend ======"
                         sh """
-                        docker run -d --network test --env-file SmartHomeDashboard/.env --name ${FRONTEND} \
+                        docker run -d --network test --env-file SmartHomeDashboard/.env --name ${FRONTEND} \\
                         ${DOCKER_USERNAME}/${FRONTEND}:V${PC}.${BUILD_NUMBER}
 
                         sleep 3
@@ -208,7 +221,7 @@ pipeline{
                     steps{
                         echo "====== Running grafana ======"
                         sh """
-                        docker run -d --network test --name ${GRAFANA} \
+                        docker run -d --network test --name ${GRAFANA} \\
                         ${DOCKER_USERNAME}/${GRAFANA}:V${PC}.${BUILD_NUMBER}
 
                         sleep 3
