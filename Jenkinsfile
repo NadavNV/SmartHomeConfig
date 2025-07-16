@@ -143,6 +143,7 @@ pipeline{
 
                     docker cp ${WORKSPACE}/SmartHomeConfig/mosquitto/mosquitto.conf mqtt-broker:/mosquitto/config/mosquitto.conf
                     docker restart mqtt-broker
+                    docker exec mqtt-broker cat /mosquitto/config/mosquitto.conf
 
                     sleep 3
                 """
@@ -160,8 +161,38 @@ pipeline{
 
                 """
                 echo "====== Testing the backend ======"
-                sh "for i in {1..10}; do docker exec ${FLASK} curl http://localhost:8000/ready && break || sleep 5; done"
-                sh "for i in {1..10}; do docker exec backend curl http://localhost:5200/ready && break || sleep 5; done"
+                sh '''
+                    success=0
+                    for i in {1..10}; do
+                        echo "Attempt $i: Checking if Flask is ready..."
+                        if docker exec ${FLASK} curl -s http://localhost:8000/ready; then
+                            success=1
+                            break
+                        fi
+                        sleep 5
+                    done
+
+                    if [ "$success" -ne 1 ]; then
+                        echo "Flask did not become ready in time"
+                        exit 1
+                    fi
+                '''
+                sh '''
+                    success=0
+                    for i in {1..10}; do
+                        echo "Attempt $i: Checking if nginx is ready..."
+                        if docker exec backend curl -s http://localhost:8000/ready; then
+                            success=1
+                            break
+                        fi
+                        sleep 5
+                    done
+
+                    if [ "$success" -ne 1 ]; then
+                        echo "nginx did not become ready in time"
+                        exit 1
+                    fi
+                '''
                 sh "docker exec ${FLASK} python -m unittest discover -s /app/test -p \"test_*.py\" -v"
             }
         }
@@ -175,7 +206,22 @@ pipeline{
                         --network test --name ${SIMULATOR} ${DOCKER_USERNAME}/${SIMULATOR}:V${PC}.${BUILD_NUMBER}
                         """
                         echo "====== Testing the simulator ======"
-                        sh "for i in {1..10}; do docker exec ${SIMULATOR} cat status | grep ready && break || sleep 5; done"
+                        sh '''
+                            success=0
+                            for i in {1..10}; do
+                                echo "Attempt $i: Checking if simulator is ready..."
+                                if docker exec ${SIMULATOR} cat status | grep ready; then
+                                    success=1
+                                    break
+                                fi
+                                sleep 5
+                            done
+
+                            if [ "$success" -ne 1 ]; then
+                                echo "Simulator did not become ready in time"
+                                exit 1
+                            fi
+                        '''
                     }
                 }
                 stage("Testing the frontend"){
@@ -186,11 +232,22 @@ pipeline{
                         ${DOCKER_USERNAME}/${FRONTEND}:V${PC}.${BUILD_NUMBER}
                         """
                         echo "====== Testing the frontend ======"                        
-                        sh """bash -c '
-                        for i in {1..10}; do
-                        (curl --max-time 5 http://localhost:3001 && docker exec ${FRONTEND} curl http://backend:5200/ready) && break || sleep 5
-                        done'
-                        """
+                        sh '''
+                            success=0
+                            for i in {1..10}; do
+                                echo "Attempt $i: Checking if frontend can reach backend..."
+                                if docker exec ${FRONTEND} curl -s http://backend:5200/ready; then
+                                    success=1
+                                    break
+                                fi
+                                sleep 5
+                            done
+
+                            if [ "$success" -ne 1 ]; then
+                                echo "Backend not reachable from frontend in time"
+                                exit 1
+                            fi
+                        '''
                     }
                 }
                 stage("Testing grafana"){
@@ -201,7 +258,22 @@ pipeline{
                         ${DOCKER_USERNAME}/${GRAFANA}:V${PC}.${BUILD_NUMBER}
                         """
                         echo "====== Testing grafana ======"
-                        sh "for i in {1..10}; do curl http://localhost:3000/api/health && break || sleep 5; done"
+                        sh '''
+                            success=0
+                            for i in {1..10}; do
+                                echo "Attempt $i: Checking if grafana is ready..."
+                                if docker exec ${GRAFANA} http://localhost:3000/api/health; then
+                                    success=1
+                                    break
+                                fi
+                                sleep 5
+                            done
+
+                            if [ "$success" -ne 1 ]; then
+                                echo "Grafana did not become ready in time"
+                                exit 1
+                            fi
+                        '''
                     }
                 }
             }
