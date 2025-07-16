@@ -145,6 +145,7 @@ pipeline{
 
                     docker ps -a
                     docker logs mqtt-broker
+                    exit 1
                 """
             }
         }
