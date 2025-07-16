@@ -133,7 +133,7 @@ pipeline{
                     mkdir -p "$CONFIG_DIR"
 
                     if [ ! -f "$WORKSPACE/mosquitto/mosquitto.conf" ]; then
-                        echo -e "listener 1883\\nallow_anonymous true" > "$CONFIG_DIR/mosquitto.conf"
+                        echo -e "listener 1883\nallow_anonymous true" > "$CONFIG_DIR/mosquitto.conf"
                     else
                         cp "$WORKSPACE/mosquitto/mosquitto.conf" "$CONFIG_DIR/mosquitto.conf"
                     fi
@@ -162,6 +162,8 @@ pipeline{
 
                 echo "Containers started:"
                 docker ps -a
+
+                docker logs ${FLASK}
 
                 """
                 echo "====== Testing the backend ======"
