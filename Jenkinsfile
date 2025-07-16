@@ -159,6 +159,8 @@ pipeline{
                     docker run -d -p 5200:5200 --network test --name backend \\
                     ${DOCKER_USERNAME}/${NGINX}:V${PC}.${BUILD_NUMBER}
 
+                    docker logs ${FLASK}
+
                 """
                 echo "====== Testing the backend ======"
                 sh '''
