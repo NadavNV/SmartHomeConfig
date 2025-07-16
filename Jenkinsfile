@@ -152,7 +152,7 @@ pipeline{
             steps{
                 echo "====== Running the backend ======"
                 sh """
-                docker run -d -p 8000:8000 --env-file .env \
+                docker run -d -p 8000:8000 --env-file SmartHomeBackend/.env \
                 --network test --name ${FLASK} ${DOCKER_USERNAME}/${FLASK}:V${PC}.${BUILD_NUMBER}
 
                 docker run -d -p 5200:5200 --network test --name backend \
@@ -170,7 +170,7 @@ pipeline{
                     steps{
                         echo "====== Running the simulator ======"
                         sh """
-                        docker run -d --env-file .env \
+                        docker run -d --env-file SmartHomeSimulator.env \
                         --network test --name ${SIMULATOR} ${DOCKER_USERNAME}/${SIMULATOR}:V${PC}.${BUILD_NUMBER}
                         """
                         echo "====== Testing the simulator ======"
@@ -181,7 +181,7 @@ pipeline{
                     steps{
                         echo "====== Running the frontend ======"
                         sh """
-                        docker run -d --network test --env-file .env --name ${FRONTEND} \
+                        docker run -d --network test --env-file SmartHomeDashboard/.env --name ${FRONTEND} \
                         ${DOCKER_USERNAME}/${FRONTEND}:V${PC}.${BUILD_NUMBER}
                         """
                         echo "====== Testing the frontend ======"                        
