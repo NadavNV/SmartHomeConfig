@@ -165,7 +165,7 @@ pipeline{
                     success=0
                     for i in {1..10}; do
                         echo "Attempt $i: Checking if Flask is ready..."
-                        if docker exec ${FLASK} curl -s http://localhost:8000/ready; then
+                        if docker exec ${FLASK} wget -q --spider http://localhost:8000/ready; then
                             success=1
                             break
                         fi
