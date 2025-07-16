@@ -14,7 +14,7 @@ pipeline{
             steps{
                 // Make sure docker is available
                 sh "docker ps"
-                sh "docker volumes"
+                sh "docker volume ls"
             }
         }
         stage('Clone'){
