@@ -135,12 +135,13 @@ pipeline{
                     chmod 644 ${WORKSPACE}/SmartHomeConfig/mosquitto/mosquitto.conf
                     ls -la ${WORKSPACE}/SmartHomeConfig/mosquitto
                     
-                    docker run --rm -v "${WORKSPACE}/SmartHomeConfig/mosquitto:/mosquitto/config:Z" alpine sh -c 'ls -l /mosquitto/config && cat /mosquitto/config/mosquitto.conf'
 
                     mkdir -p /tmp/mosq-test
                     echo -e "listener 1883\nallow_anonymous true\n" > /tmp/mosq-test/mosquitto.conf
 
                     docker run --rm -v /tmp/mosq-test:/mosquitto/config alpine ls -l /mosquitto/config
+                    
+                    docker run --rm -v "${WORKSPACE}/SmartHomeConfig/mosquitto:/mosquitto/config:Z" alpine sh -c 'ls -l /mosquitto/config && cat /mosquitto/config/mosquitto.conf'
 
                     docker run -d \\
                     --network test \\
