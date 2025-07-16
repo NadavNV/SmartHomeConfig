@@ -7,7 +7,7 @@ pipeline{
         FRONTEND = "smart-home-dashboard"
         SIMULATOR = "smart-home-simulator"
         DOCKER_USERNAME = "nadavnv"
-        PC = "b"  // I work from different computer with different BUILD_NUMBERs
+        PC = "a"  // I work from different computers with different BUILD_NUMBERs
     }
     stages{
         stage("Prepare") {
@@ -24,6 +24,7 @@ pipeline{
                         sh "mkdir SmartHomeBackend"
                         dir('SmartHomeBackend'){
                             git branch: 'main', url: 'https://github.com/NadavNV/SmartHomeBackend'
+                            sh "git submodule update --init --recursive"
                             withCredentials([usernamePassword(credentialsId: 'redis-credentials', passwordVariable: 'REDIS_PASS', usernameVariable: 'REDIS_USER'), usernamePassword(credentialsId: 'mongo-credentials', passwordVariable: 'MONGO_PASS', usernameVariable: 'MONGO_USER')]) {
                                 echo "====== Creating backend .env ======"
                                 sh '''
@@ -42,6 +43,7 @@ pipeline{
                         sh "mkdir SmartHomeDashboard"
                         dir('SmartHomeDashboard'){
                             git branch: 'main', url: 'https://github.com/NadavNV/SmartHomeDashboard'
+                            sh "git submodule update --init --recursive"
                             echo "====== Creating frontend .env ======"
                             sh '''
                                 echo "BACKEND_URL=backend:5200" > .env
@@ -55,6 +57,7 @@ pipeline{
                         sh "mkdir SmartHomeSimulator"
                         dir('SmartHomeSimulator'){
                             git branch: 'main', url: 'https://github.com/NadavNV/SmartHomeSimulator'
+                            sh "git submodule update --init --recursive"
                             echo "====== Creating simulator .env ======"
                             sh '''
                                 echo "BROKER_HOST=mqtt-broker" > .env
@@ -133,7 +136,7 @@ pipeline{
                     mkdir -p "$CONFIG_DIR"
 
                     if [ ! -f "$WORKSPACE/mosquitto/mosquitto.conf" ]; then
-                        echo -e "listener 1883\nallow_anonymous true\n" > "$CONFIG_DIR/mosquitto.conf"
+                        printf "listener 1883\nallow_anonymous true\n" > "$CONFIG_DIR/mosquitto.conf"
                     else
                         cp "$WORKSPACE/mosquitto/mosquitto.conf" "$CONFIG_DIR/mosquitto.conf"
                     fi
