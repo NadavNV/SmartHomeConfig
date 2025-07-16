@@ -147,6 +147,8 @@ pipeline{
                     eclipse-mosquitto
 
                     sleep 3
+
+                    docker logs mqtt-broker
                 '''
             }
         }
