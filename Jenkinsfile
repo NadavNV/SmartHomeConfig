@@ -139,7 +139,7 @@ pipeline{
                     fi
 
                     docker run -d \
-                    --network test-net \
+                    --network test \
                     --name mqtt-broker \
                     -v "$CONFIG_DIR":/mosquitto/config \
                     eclipse-mosquitto
