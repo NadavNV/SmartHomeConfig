@@ -158,6 +158,8 @@ pipeline{
                 docker run -d -p 5200:5200 --network test --name backend \
                 ${DOCKER_USERNAME}/${NGINX}:V${PC}.${BUILD_NUMBER}
 
+                sleep 3
+
                 echo "Containers started:"
                 docker ps -a
 
@@ -176,6 +178,8 @@ pipeline{
                         sh """
                         docker run -d --env-file SmartHomeSimulator.env \
                         --network test --name ${SIMULATOR} ${DOCKER_USERNAME}/${SIMULATOR}:V${PC}.${BUILD_NUMBER}
+
+                        sleep 3
                         """
                         echo "====== Testing the simulator ======"
                         sh "for i in {1..10}; do docker exec ${SIMULATOR} cat status | grep ready && break || sleep 5; done"
@@ -187,6 +191,8 @@ pipeline{
                         sh """
                         docker run -d --network test --env-file SmartHomeDashboard/.env --name ${FRONTEND} \
                         ${DOCKER_USERNAME}/${FRONTEND}:V${PC}.${BUILD_NUMBER}
+
+                        sleep 3
                         """
                         echo "====== Testing the frontend ======"                        
                         sh """bash -c '
@@ -202,6 +208,8 @@ pipeline{
                         sh """
                         docker run -d --network test --name ${GRAFANA} \
                         ${DOCKER_USERNAME}/${GRAFANA}:V${PC}.${BUILD_NUMBER}
+
+                        sleep 3
                         """
                         echo "====== Testing grafana ======"
                         sh "for i in {1..10}; do curl http://localhost:3000/api/health && break || sleep 5; done"
