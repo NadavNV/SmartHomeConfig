@@ -103,7 +103,7 @@ pipeline{
                         // Make sure that the container name is available
                         sh "docker stop ${SIMULATOR} || true"
                         dir('SmartHomeSimulator'){
-                            sh "docker build -t ${DOCKER_USERNAME}/${SIMULATOR}:V${{PC}}.${BUILD_NUMBER} ."
+                            sh "docker build -t ${DOCKER_USERNAME}/${SIMULATOR}:V${PC}.${BUILD_NUMBER} ."
                         }
                     }
                 }
@@ -113,7 +113,7 @@ pipeline{
                         // Make sure that the container name is available
                         sh "docker stop ${GRAFANA} || true"
                         dir('SmartHomeConfig/monitoring/grafana'){
-                            sh "docker build -t ${DOCKER_USERNAME}/${GRAFANA}:V${{PC}}.${BUILD_NUMBER} ."
+                            sh "docker build -t ${DOCKER_USERNAME}/${GRAFANA}:V${PC}.${BUILD_NUMBER} ."
                         }
                     }
                 }
@@ -164,7 +164,7 @@ pipeline{
                         echo "====== Running the simulator ======"
                         sh """
                         docker run -d --env-file .env \
-                        --network test --name ${SIMULATOR} ${DOCKER_USERNAME}/${SIMULATOR}:V${{PC}}.${BUILD_NUMBER}
+                        --network test --name ${SIMULATOR} ${DOCKER_USERNAME}/${SIMULATOR}:V${PC}.${BUILD_NUMBER}
                         """
                         echo "====== Testing the simulator ======"
                         sh "for i in {1..10}; do docker exec ${SIMULATOR} cat status | grep ready && break || sleep 5; done"
@@ -175,7 +175,7 @@ pipeline{
                         echo "====== Running the frontend ======"
                         sh """
                         docker run -d --network test --env-file .env --name ${FRONTEND} \
-                        ${DOCKER_USERNAME}/${FRONTEND}:V${{PC}}.${BUILD_NUMBER}
+                        ${DOCKER_USERNAME}/${FRONTEND}:V${PC}.${BUILD_NUMBER}
                         """
                         echo "====== Testing the frontend ======"                        
                         sh """bash -c '
@@ -190,7 +190,7 @@ pipeline{
                         echo "====== Running grafana ======"
                         sh """
                         docker run -d --rm --network test --name ${GRAFANA} \
-                        ${DOCKER_USERNAME}/${GRAFANA}:V${{PC}}.${BUILD_NUMBER}
+                        ${DOCKER_USERNAME}/${GRAFANA}:V${PC}.${BUILD_NUMBER}
                         """
                         echo "====== Testing grafana ======"
                         sh "for i in {1..10}; do curl http://localhost:3000/api/health && break || sleep 5; done"
@@ -225,55 +225,55 @@ pipeline{
                 stage("Deploying backend"){
                     steps{
                         echo "====== Deploying the backend ======"
-                        sh "docker image tag ${DOCKER_USERNAME}/${FLASK}:V${{PC}}.$BUILD_NUMBER ${DOCKER_USERNAME}/${FLASK}:latest"
-                        sh "docker image tag ${DOCKER_USERNAME}/${NGINX}:V${{PC}}.$BUILD_NUMBER ${DOCKER_USERNAME}/${NGINX}:latest"
+                        sh "docker image tag ${DOCKER_USERNAME}/${FLASK}:V${PC}.$BUILD_NUMBER ${DOCKER_USERNAME}/${FLASK}:latest"
+                        sh "docker image tag ${DOCKER_USERNAME}/${NGINX}:V${PC}.$BUILD_NUMBER ${DOCKER_USERNAME}/${NGINX}:latest"
                         retry(4){
                             sh "docker push ${DOCKER_USERNAME}/${NGINX}:latest"
                         }
                         retry(4){
-                            sh "docker push ${DOCKER_USERNAME}/${NGINX}:V${{PC}}.${BUILD_NUMBER}"
+                            sh "docker push ${DOCKER_USERNAME}/${NGINX}:V${PC}.${BUILD_NUMBER}"
                         }
                         retry(4){
                             sh "docker push ${DOCKER_USERNAME}/${FLASK}:latest"
                         }
                         retry(4){
-                            sh "docker push ${DOCKER_USERNAME}/${FLASK}:V${{PC}}.${BUILD_NUMBER}"
+                            sh "docker push ${DOCKER_USERNAME}/${FLASK}:V${PC}.${BUILD_NUMBER}"
                         }
                     }
                 }
                 stage("Deploying frontend"){
                     steps{
                         echo "====== Deploying the frontend ======"
-                        sh "docker image tag ${DOCKER_USERNAME}/${FRONTEND}:V${{PC}}.$BUILD_NUMBER ${DOCKER_USERNAME}/${FRONTEND}:latest"
+                        sh "docker image tag ${DOCKER_USERNAME}/${FRONTEND}:V${PC}.$BUILD_NUMBER ${DOCKER_USERNAME}/${FRONTEND}:latest"
                         retry(4){
                             sh "docker push ${DOCKER_USERNAME}/${FRONTEND}:latest"
                         }
                         retry(4){
-                            sh "docker push ${DOCKER_USERNAME}/${FRONTEND}:V${{PC}}.${BUILD_NUMBER}"
+                            sh "docker push ${DOCKER_USERNAME}/${FRONTEND}:V${PC}.${BUILD_NUMBER}"
                         }
                     }
                 }
                 stage("Deploying simulator"){
                     steps{
                         echo "====== Deploying the simulator ======"
-                        sh "docker image tag ${DOCKER_USERNAME}/${SIMULATOR}:V${{PC}}.$BUILD_NUMBER ${DOCKER_USERNAME}/${SIMULATOR}:latest"
+                        sh "docker image tag ${DOCKER_USERNAME}/${SIMULATOR}:V${PC}.$BUILD_NUMBER ${DOCKER_USERNAME}/${SIMULATOR}:latest"
                         retry(4){
                             sh "docker push ${DOCKER_USERNAME}/${SIMULATOR}:latest"
                         }
                         retry(4){
-                            sh "docker push ${DOCKER_USERNAME}/${SIMULATOR}:V${{PC}}.${BUILD_NUMBER}"
+                            sh "docker push ${DOCKER_USERNAME}/${SIMULATOR}:V${PC}.${BUILD_NUMBER}"
                         }
                     }
                 }
                 stage("Deploying grafana"){
                     steps{
                         echo "====== Deploying grafana ======"
-                        sh "docker image tag ${DOCKER_USERNAME}/${GRAFANA}:V${{PC}}.$BUILD_NUMBER ${DOCKER_USERNAME}/${GRAFANA}:latest"
+                        sh "docker image tag ${DOCKER_USERNAME}/${GRAFANA}:V${PC}.$BUILD_NUMBER ${DOCKER_USERNAME}/${GRAFANA}:latest"
                         retry(4){
                             sh "docker push ${DOCKER_USERNAME}/${GRAFANA}:latest"
                         }
                         retry(4){
-                            sh "docker push ${DOCKER_USERNAME}/${GRAFANA}:V${{PC}}.${BUILD_NUMBER}"
+                            sh "docker push ${DOCKER_USERNAME}/${GRAFANA}:V${PC}.${BUILD_NUMBER}"
                         }
                     }
                 }
