@@ -136,12 +136,9 @@ pipeline{
                     mkdir -p "$CONFIG_DIR"
 
                     if [ ! -f "$WORKSPACE/mosquitto/mosquitto.conf" ]; then
-                        cat <<EOF > "$CONFIG_DIR/mosquitto.conf"
-listener 1883
-allow_anonymous true
-EOF
+                        printf "listener 1883\nallow_anonymous true\n\n" > "$CONFIG_DIR/mosquitto.conf"
                     else
-                        cp "$WORKSPACE/mosquitto/mosquitto.conf" "$CONFIG_DIR/mosquitto.conf"
+                        cp "$WORKSPACE/mosquitto/mosquitto.conf" "$CONFIG_DIR"
                     fi
 
                     cat "$CONFIG_DIR/mosquitto.conf"
@@ -177,7 +174,7 @@ EOF
                 echo "====== Testing the backend ======"
                 sh "for i in {1..10}; do docker exec ${FLASK} curl http://localhost:8000/ready && break || sleep 5; done"
                 sh "for i in {1..10}; do docker exec backend curl http://localhost:5200/ready && break || sleep 5; done"
-                sh "docker exec ${FLASK} python -m unittest discover -s test -p \"test_*.py\" -v"
+                sh "docker exec ${FLASK} python -m unittest discover -s /app/test -p \"test_*.py\" -v"
             }
         }
         stage("Unit test dependencies"){
