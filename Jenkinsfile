@@ -128,37 +128,21 @@ pipeline{
                 echo "====== Testing the app ======"
                 sh "docker network create test || true"
                 // run and config a local mqtt-broker for testing
-                sh '''
+                sh """
                     docker stop mqtt-broker || true
                     docker rm -f mqtt-broker || true
-
-                    CONFIG_DIR="$WORKSPACE/mosquitto_config"
-
-                    mkdir -p "$CONFIG_DIR"
-
-                    if [ ! -f "$WORKSPACE/mosquitto/mosquitto.conf" ]; then
-                        echo creating conf file
-                        printf "listener 1883\nallow_anonymous true\n\n" > "$CONFIG_DIR/mosquitto.conf"
-                    else
-                        echo conf file exists
-                        cp "$WORKSPACE/mosquitto/mosquitto.conf" "$CONFIG_DIR"
-                    fi
-
-                    cat "$CONFIG_DIR/mosquitto.conf"
-                    chmod 644 "$CONFIG_DIR/mosquitto.conf"
-
-                    docker run --rm -v "$CONFIG_DIR":/mosquitto/config alpine ls -l /mosquitto/config
 
                     docker run -d \\
                     --network test \\
                     --name mqtt-broker \\
-                    -v "$CONFIG_DIR":/mosquitto/config \\
+                    -v "${WORKSPACE}/SmartHomeConfig/mosquitto":/mosquitto/config \\
                     eclipse-mosquitto
 
                     sleep 3
 
+                    docker ps -a
                     docker logs mqtt-broker
-                '''
+                """
             }
         }
         stage("Run the backend"){
@@ -171,8 +155,6 @@ pipeline{
                     docker run -d -p 5200:5200 --network test --name backend \\
                     ${DOCKER_USERNAME}/${NGINX}:V${PC}.${BUILD_NUMBER}
 
-                    docker ps -a
-                    docker logs ${FLASK}
                 """
                 echo "====== Testing the backend ======"
                 sh "for i in {1..10}; do docker exec ${FLASK} curl http://localhost:8000/ready && break || sleep 5; done"
