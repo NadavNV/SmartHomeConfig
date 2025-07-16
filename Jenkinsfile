@@ -165,7 +165,7 @@ pipeline{
                     i=1
                     while [ $i -le 10 ]; do
                         echo "Attempt $i: Checking if Flask is ready..."
-                        if docker exec ${FLASK} wget -q --spider http://localhost:8000/ready; then
+                        if curl -s --fail http://localhost:8000/ready; then
                             break
                         fi
                         i=$((i + 1))
@@ -173,13 +173,13 @@ pipeline{
                     done
 
                     # Final check to fail if still not up
-                    docker exec ${FLASK} wget -q --spider http://localhost:8000/ready || docker logs ${FLASK} && exit 1
+                    curl -s --fail http://localhost:8000/ready || docker logs ${FLASK} && exit 1
                 '''
                 sh '''
                     i=1
                     while [ $i -le 10 ]; do
                         echo "Attempt $i: Checking if nginx is ready..."
-                        if docker exec backend curl -s http://localhost:8000/ready; then
+                        if docker exec backend curl -s http://localhost:5200/ready; then
                             break
                         fi
                         i=$((i + 1))
@@ -187,7 +187,7 @@ pipeline{
                     done
 
                     # Final check to fail if still not up
-                    docker exec backend curl -s http://localhost:8000/ready || docker logs backend && exit 1
+                    docker exec backend curl -s http://localhost:5200/ready || docker logs backend && exit 1
                 '''
                 sh "docker exec ${FLASK} python -m unittest discover -s /app/test -p \"test_*.py\" -v"
             }
