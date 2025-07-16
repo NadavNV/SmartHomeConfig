@@ -133,23 +133,16 @@ pipeline{
                 sh """
                     docker stop mqtt-broker || true
                     docker rm -f mqtt-broker || true
-                    ls -la ${WORKSPACE}/SmartHomeConfig/mosquitto
+                    
                     chmod 644 ${WORKSPACE}/SmartHomeConfig/mosquitto/mosquitto.conf
-                    ls -la ${WORKSPACE}/SmartHomeConfig/mosquitto
                     
-
-                    mkdir -p ${WORKSPACE}/mosq-test
-                    echo -e "listener 1883\nallow_anonymous true\n" > ${WORKSPACE}/mosq-test/mosquitto.conf
-
-                    docker run --rm -v ${WORKSPACE}/mosq-test:/mosquitto/config alpine ls -l /mosquitto/config
-                    
-                    # docker run --rm -v "${WORKSPACE}/SmartHomeConfig/mosquitto:/mosquitto/config:Z" alpine sh -c 'ls -l /mosquitto/config && cat /mosquitto/config/mosquitto.conf'
-
                     docker run -d \\
                     --network test \\
                     --name mqtt-broker \\
-                    -v "${WORKSPACE}/SmartHomeConfig/mosquitto":/mosquitto/config:Z \\
                     eclipse-mosquitto
+
+                    docker cp ${WORKSPACE}/SmartHomeConfig/mosquitto/mosquitto.conf mqtt-broker:/mosquitto/config/mosquitto.conf
+                    docker restart mqtt-broker
 
                     sleep 3
 
