@@ -199,17 +199,21 @@ pipeline{
             }
         }
         stage("Integration test"){
-            sh """
-            export FRONTEND_URL=${FRONTEND}:3001
-            export BACKEND_URL=backend:5200
-            docker exec ${FLASK} python test/integration_test.py
-            """
+            steps{
+                sh """
+                export FRONTEND_URL=${FRONTEND}:3001
+                export BACKEND_URL=backend:5200
+                docker exec ${FLASK} python test/integration_test.py
+                """
+            }
         }
         stage("Build clean frontend"){
-            dir('SmartHomeDashboard'){
-                sh "docker rm -f ${FRONTEND} || true"
-                sh "docker rmi -f ${DOCKER_USERNAME}/${FRONTEND}:V${PC}.${BUILD_NUMBER} || true"
-                sh "docker build -t ${DOCKER_USERNAME}/${FRONTEND}:V${PC}.${BUILD_NUMBER} ."
+            steps{
+                dir('SmartHomeDashboard'){
+                    sh "docker rm -f ${FRONTEND} || true"
+                    sh "docker rmi -f ${DOCKER_USERNAME}/${FRONTEND}:V${PC}.${BUILD_NUMBER} || true"
+                    sh "docker build -t ${DOCKER_USERNAME}/${FRONTEND}:V${PC}.${BUILD_NUMBER} ."
+                }
             }
         }
         stage("Docker login"){
