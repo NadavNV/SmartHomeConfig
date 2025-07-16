@@ -159,8 +159,6 @@ pipeline{
                     docker run -d -p 5200:5200 --network test --name backend \\
                     ${DOCKER_USERNAME}/${NGINX}:V${PC}.${BUILD_NUMBER}
 
-                    docker logs ${FLASK}
-
                 """
                 echo "====== Testing the backend ======"
                 sh '''
@@ -175,7 +173,7 @@ pipeline{
                     done
 
                     # Final check to fail if still not up
-                    docker exec ${FLASK} wget -q --spider http://localhost:8000/ready || exit 1
+                    docker exec ${FLASK} wget -q --spider http://localhost:8000/ready || docker logs ${FLASK} && exit 1
                 '''
                 sh '''
                     i=1
@@ -189,7 +187,7 @@ pipeline{
                     done
 
                     # Final check to fail if still not up
-                    docker exec backend curl -s http://localhost:8000/ready || exit 1
+                    docker exec backend curl -s http://localhost:8000/ready || docker logs backend && exit 1
                 '''
                 sh "docker exec ${FLASK} python -m unittest discover -s /app/test -p \"test_*.py\" -v"
             }
@@ -216,7 +214,7 @@ pipeline{
                             done
 
                             # Final check to fail if still not up
-                            docker exec ${SIMULATOR} cat status | grep ready || exit 1
+                            docker exec ${SIMULATOR} cat status | grep ready || docker logs ${SIMULATOR} && exit 1
                         '''
                     }
                 }
@@ -240,7 +238,7 @@ pipeline{
                             done
 
                             # Final check to fail if still not up
-                            docker exec ${FRONTEND} curl -s http://backend:5200/ready || exit 1
+                            docker exec ${FRONTEND} curl -s http://backend:5200/ready || docker logs ${FRONTEND} && exit 1
                         '''
                     }
                 }
@@ -264,7 +262,7 @@ pipeline{
                             done
 
                             # Final check to fail if still not up
-                            docker exec ${GRAFANA} curl http://localhost:3000/api/health || exit 1
+                            docker exec ${GRAFANA} curl http://localhost:3000/api/health || docker logs ${GRAFANA} && exit 1
                         '''
                     }
                 }
