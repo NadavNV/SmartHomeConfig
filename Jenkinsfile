@@ -186,7 +186,7 @@ pipeline{
                     steps{
                         echo "====== Running the simulator ======"
                         sh """
-                        docker run -d --env-file SmartHomeSimulator.env \\
+                        docker run -d --env-file SmartHomeSimulator/.env \\
                         --network test --name ${SIMULATOR} ${DOCKER_USERNAME}/${SIMULATOR}:V${PC}.${BUILD_NUMBER}
                         """
                         echo "====== Testing the simulator ======"
