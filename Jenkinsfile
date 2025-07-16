@@ -125,6 +125,9 @@ pipeline{
                 sh "docker network create test || true"
                 // run and config a local mqtt-broker for testing
                 sh '''
+                    docker stop mqtt-broker || true
+                    docker rm -f mqtt-broker || true
+
                     CONFIG_DIR="$WORKSPACE/mosquitto_config"
 
                     mkdir -p "$CONFIG_DIR"
@@ -298,17 +301,20 @@ pipeline{
                 notFailBuild: true
             )
             // Remove the containers
+            sh "docker stop mqtt-broker || true"
             sh "docker stop ${FLASK} || true"
-            sh "docker stop ${NGINX} || true"
+            sh "docker stop backend || true"
             sh "docker stop ${FRONTEND} || true"
             sh "docker stop ${SIMULATOR} || true"
             sh "docker stop ${GRAFANA} || true"
+            sh "docker rm -f mqtt-broker || true"
             sh "docker rm -f ${FLASK} || true"
-            sh "docker rm -f ${NGINX} || true"
+            sh "docker rm -f backend || true"
             sh "docker rm -f ${FRONTEND} || true"
             sh "docker rm -f ${SIMULATOR} || true"
             sh "docker rm -f ${GRAFANA} || true"
             // Remove images
+            sh "docker rmi -f eclipse-mosquitto || true"
             sh "docker rmi -f \$(docker image ls | egrep '^nadav' | awk '{print \$3}') || true"
             sh "docker logout || true"
         }
