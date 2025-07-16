@@ -16,13 +16,16 @@ data:
   mosquitto.conf: |
     listener 1883
     allow_anonymous true
+    persistence true
+    persistence_location /mosquitto/data/
 ---
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: mqtt-broker-deploy
   namespace: smart-home
 spec:
+  serviceName: mqtt-broker-svc
   replicas: 1
   selector:
     matchLabels:
@@ -34,7 +37,7 @@ spec:
     spec:
       containers:
         - name: mqtt-broker
-          image: eclipse-mosquitto:latest
+          image: eclipse-mosquitto:2.0.22
           resources:
             requests:
               cpu: 500m
@@ -57,6 +60,14 @@ spec:
     rollingUpdate:
       maxSurge: 1
       maxUnavailable: 1
+  volumeClaimTemplates:
+    - metadata:
+        name: data-volume
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi
 ---
 apiVersion: v1
 kind: Service
@@ -64,6 +75,7 @@ metadata:
   name: mqtt-broker-svc
   namespace: smart-home
 spec:
+  ClusterIP: None
   selector:
     app: mqtt-broker
   ports:
