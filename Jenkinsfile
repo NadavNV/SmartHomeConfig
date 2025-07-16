@@ -136,12 +136,18 @@ pipeline{
                     mkdir -p "$CONFIG_DIR"
 
                     if [ ! -f "$WORKSPACE/mosquitto/mosquitto.conf" ]; then
-                        printf "listener 1883\nallow_anonymous true\n" > "$CONFIG_DIR/mosquitto.conf"
+                        cat <<EOF > "$CONFIG_DIR/mosquitto.conf"
+listener 1883
+allow_anonymous true
+EOF
                     else
                         cp "$WORKSPACE/mosquitto/mosquitto.conf" "$CONFIG_DIR/mosquitto.conf"
                     fi
 
                     cat "$CONFIG_DIR/mosquitto.conf"
+                    chmod 644 "$CONFIG_DIR/mosquitto.conf"
+
+                    docker run --rm -v "$CONFIG_DIR/mosquitto.conf":/mosquitto/config/mosquitto.conf alpine ls -l /mosquitto/config
 
                     docker run -d \
                     --network test \
