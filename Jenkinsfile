@@ -125,18 +125,22 @@ pipeline{
                 sh "docker network create test || true"
                 // run and config a local mqtt-broker for testing
                 sh '''
+                    CONFIG_DIR="$WORKSPACE/mosquitto_config"
+
+                    mkdir -p "$CONFIG_DIR"
+
                     if [ ! -f "$WORKSPACE/mosquitto/mosquitto.conf" ]; then
-                        echo -e "listener 1883\\nallow_anonymous true" > ./mosquitto.conf
-                        MOUNT="-v $(pwd)/mosquitto.conf:/mosquitto/config/mosquitto.conf"
+                        echo -e "listener 1883\\nallow_anonymous true" > "$CONFIG_DIR/mosquitto.conf"
                     else
-                        MOUNT="-v $WORKSPACE/mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf"
+                        cp "$WORKSPACE/mosquitto/mosquitto.conf" "$CONFIG_DIR/mosquitto.conf"
                     fi
 
                     docker run -d \
                     --network test-net \
                     --name mqtt-broker \
-                    $MOUNT \
+                    -v "$CONFIG_DIR":/mosquitto/config \
                     eclipse-mosquitto
+
                     sleep 10
                 '''
             }
