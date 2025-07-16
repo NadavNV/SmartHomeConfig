@@ -133,7 +133,7 @@ pipeline{
                     docker rm -f mqtt-broker || true
 
                     chmod 644 ${WORKSPACE}/SmartHomeConfig/mosquitto/mosquitto.conf
-                    docker run --rm -v "${WORKSPACE}/SmartHomeCondig/mosquitto":/mosquitto/config alpine ls -l /mosquitto/config
+                    docker run --rm -v "${WORKSPACE}/SmartHomeConfig/mosquitto":/mosquitto/config alpine ls -l /mosquitto/config
 
                     docker run -d \\
                     --network test \\
