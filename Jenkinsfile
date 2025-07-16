@@ -137,20 +137,22 @@ pipeline{
                     mkdir -p "$CONFIG_DIR"
 
                     if [ ! -f "$WORKSPACE/mosquitto/mosquitto.conf" ]; then
+                        echo creating conf file
                         printf "listener 1883\nallow_anonymous true\n\n" > "$CONFIG_DIR/mosquitto.conf"
                     else
+                        echo conf file exists
                         cp "$WORKSPACE/mosquitto/mosquitto.conf" "$CONFIG_DIR"
                     fi
 
                     cat "$CONFIG_DIR/mosquitto.conf"
                     chmod 644 "$CONFIG_DIR/mosquitto.conf"
 
-                    docker run --rm -v "$CONFIG_DIR/mosquitto.conf":/mosquitto/config/mosquitto.conf alpine ls -l /mosquitto/config
+                    docker run --rm -v "$CONFIG_DIR":/mosquitto/config alpine ls -l /mosquitto/config
 
-                    docker run -d \
-                    --network test \
-                    --name mqtt-broker \
-                    -v "$CONFIG_DIR":/mosquitto/config \
+                    docker run -d \\
+                    --network test \\
+                    --name mqtt-broker \\
+                    -v "$CONFIG_DIR":/mosquitto/config \\
                     eclipse-mosquitto
 
                     sleep 3
