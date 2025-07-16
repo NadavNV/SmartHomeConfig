@@ -159,9 +159,9 @@ pipeline{
                 ${DOCKER_USERNAME}/${NGINX}:V${PC}.${BUILD_NUMBER}
                 """
                 echo "====== Testing the backend ======"
-                sh "docker exec ${FLASK} python -m unittest discover -s test -p \"test_*.py\" -v"
                 sh "for i in {1..10}; do docker exec ${FLASK} curl http://localhost:8000/ready && break || sleep 5; done"
                 sh "for i in {1..10}; do docker exec backend curl http://localhost:5200/ready && break || sleep 5; done"
+                sh "docker exec ${FLASK} python -m unittest discover -s test -p \"test_*.py\" -v"
             }
         }
         stage("Unit test dependencies"){
@@ -196,7 +196,7 @@ pipeline{
                     steps{
                         echo "====== Running grafana ======"
                         sh """
-                        docker run -d --rm --network test --name ${GRAFANA} \
+                        docker run -d --network test --name ${GRAFANA} \
                         ${DOCKER_USERNAME}/${GRAFANA}:V${PC}.${BUILD_NUMBER}
                         """
                         echo "====== Testing grafana ======"
