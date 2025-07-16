@@ -132,6 +132,8 @@ pipeline{
                     docker stop mqtt-broker || true
                     docker rm -f mqtt-broker || true
 
+                    chmod 644 ${WORKSPACE}/SmartHomeConfig/mosquitto/mosquitto.conf
+
                     docker run -d \\
                     --network test \\
                     --name mqtt-broker \\
