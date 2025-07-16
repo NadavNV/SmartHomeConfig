@@ -1,10 +1,16 @@
-FROM python:3.11-slim
+FROM jenkins/jenkins:lts
 
-WORKDIR /app
+USER root
 
-COPY backend/requirements.txt .
-RUN pip install -r requirements.txt
+# Install Docker CLI
+RUN apt-get update && apt-get install -y docker.io
 
-COPY backend/ .
+# Create docker group with matching GID
+RUN groupmod -g 1001 docker && \
+    usermod -aG docker jenkins
 
-CMD ["python", "main.py"]
+# Entrypoint script to fix socket permissions
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
