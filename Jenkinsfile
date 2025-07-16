@@ -146,23 +146,12 @@ pipeline{
                     -v "$CONFIG_DIR":/mosquitto/config \
                     eclipse-mosquitto
 
-                    sleep 10
+                    sleep 3
                 '''
             }
         }
         stage("Run the backend"){
             steps{
-                sh """
-                    echo "====== Debugging Gunicorn version ======"
-                    docker run --rm --env-file SmartHomeBackend/.env \\
-                    ${DOCKER_USERNAME}/${FLASK}:V${PC}.${BUILD_NUMBER} \\
-                    gunicorn --version || echo "Gunicorn not found"
-
-                    echo "====== Checking installed packages ======"
-                    docker run --rm --env-file SmartHomeBackend/.env \\
-                    ${DOCKER_USERNAME}/${FLASK}:V${PC}.${BUILD_NUMBER} \\
-                    pip freeze | grep gunicorn || echo "Gunicorn not installed"
-                """
                 echo "====== Running the backend ======"
                 sh """
                     docker run -d -p 8000:8000 --env-file SmartHomeBackend/.env \\
@@ -170,14 +159,6 @@ pipeline{
 
                     docker run -d -p 5200:5200 --network test --name backend \\
                     ${DOCKER_USERNAME}/${NGINX}:V${PC}.${BUILD_NUMBER}
-
-                    sleep 3
-
-                    echo "Containers started:"
-                    docker ps -a
-
-                    docker logs ${FLASK}
-
                 """
                 echo "====== Testing the backend ======"
                 sh "for i in {1..10}; do docker exec ${FLASK} curl http://localhost:8000/ready && break || sleep 5; done"
@@ -193,8 +174,6 @@ pipeline{
                         sh """
                         docker run -d --env-file SmartHomeSimulator.env \\
                         --network test --name ${SIMULATOR} ${DOCKER_USERNAME}/${SIMULATOR}:V${PC}.${BUILD_NUMBER}
-
-                        sleep 3
                         """
                         echo "====== Testing the simulator ======"
                         sh "for i in {1..10}; do docker exec ${SIMULATOR} cat status | grep ready && break || sleep 5; done"
@@ -206,8 +185,6 @@ pipeline{
                         sh """
                         docker run -d --network test --env-file SmartHomeDashboard/.env --name ${FRONTEND} \\
                         ${DOCKER_USERNAME}/${FRONTEND}:V${PC}.${BUILD_NUMBER}
-
-                        sleep 3
                         """
                         echo "====== Testing the frontend ======"                        
                         sh """bash -c '
@@ -223,8 +200,6 @@ pipeline{
                         sh """
                         docker run -d --network test --name ${GRAFANA} \\
                         ${DOCKER_USERNAME}/${GRAFANA}:V${PC}.${BUILD_NUMBER}
-
-                        sleep 3
                         """
                         echo "====== Testing grafana ======"
                         sh "for i in {1..10}; do curl http://localhost:3000/api/health && break || sleep 5; done"
