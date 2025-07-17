@@ -190,13 +190,13 @@ spec:
               path: /livez
               port: http-metrics
             initialDelaySeconds: 5
-            timeoutSeconds: 5
+            timeoutSeconds: 20
           readinessProbe:
             httpGet:
               path: /readyz
               port: telemetry
             initialDelaySeconds: 5
-            timeoutSeconds: 5
+            timeoutSeconds: 10
           resources:
             requests:
               cpu: 100m
