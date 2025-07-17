@@ -272,11 +272,7 @@ pipeline{
         }
         stage("Integration test"){
             steps{
-                sh """
-                export FRONTEND_URL=${FRONTEND}:3001
-                export BACKEND_URL=backend:5200
-                docker exec ${FLASK} python test/integration_test.py
-                """
+                sh "docker exec -e FRONTEND_URL=http://${FRONTEND}:3001 -e BACKEND_URL=http://backend:5200 ${FLASK} python test/integration_test.py"
             }
         }
         stage("Build clean frontend"){
