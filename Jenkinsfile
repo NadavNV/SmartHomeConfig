@@ -64,6 +64,7 @@ pipeline{
                             echo "====== Creating simulator .env ======"
                             sh '''
                                 echo "BROKER_HOST=mqtt-broker" > .env
+                                echo "API_URL=backend:5200" >> .env
                             '''
                         }
                     }
