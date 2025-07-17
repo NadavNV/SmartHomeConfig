@@ -273,7 +273,7 @@ pipeline{
         stage("Integration test"){
             steps{
                 sh """
-                docker exec ${FRONTEND} tree -I '.idea|.venv'
+                docker exec ${FRONTEND} tree -I .*
                 docker exec -e FRONTEND_URL=http://${FRONTEND}:3001 -e BACKEND_URL=http://backend:5200 \\
                 -e GRAFANA_URL=http://${GRAFANA}:3000 ${FLASK} python test/integration_test.py
                 """
