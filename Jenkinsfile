@@ -157,7 +157,7 @@ pipeline{
                     docker run -d -p 8000:8000 --env-file SmartHomeBackend/.env \\
                     --network test --name ${FLASK} ${DOCKER_USERNAME}/${FLASK}:V${PC}.${BUILD_NUMBER}
 
-                    docker run -d -p 5200:5200 --network test --name backend \\
+                    docker run -d -p 5200:5200 -e FLASK_BACKEND_HOST=${FLASK} --network test --name backend \\
                     ${DOCKER_USERNAME}/${NGINX}:V${PC}.${BUILD_NUMBER}
 
                 """
