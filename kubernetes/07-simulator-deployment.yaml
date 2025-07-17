@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: simulator-container
-          image: nadavnv/smart-home-simulator:V1.51
+          image: nadavnv/smart-home-simulator:Va.114
           resources:
             limits:
               cpu: 300m
