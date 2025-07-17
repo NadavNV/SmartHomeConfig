@@ -215,7 +215,7 @@ pipeline{
                             done
 
                             # Final check to fail if still not up
-                            docker exec ${SIMULATOR} cat status | grep ready || { docker logs ${SIMULATOR} && exit 1; }
+                            docker exec ${SIMULATOR} cat status | grep ready || { docker logs ${SIMULATOR} && docler logs ${FLASK} && exit 1; }
                         '''
                     }
                 }
