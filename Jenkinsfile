@@ -150,7 +150,7 @@ pipeline{
                 """
             }
         }
-        stage("Run the backend"){
+        stage("Unit test the backend"){
             steps{
                 echo "====== Running the backend ======"
                 sh """
@@ -191,7 +191,7 @@ pipeline{
                     # Final check to fail if still not up
                     docker exec backend curl -s http://localhost:5200/ready || { docker logs backend && exit 1; }
                 '''
-                sh "docker exec ${FLASK} python -m unittest discover -s /app/test -p \"test_*.py\" -v"
+                sh "docker exec ${FLASK} python -m unittest discover -s /app/test -p \"test_*.py\" -v || { docker logs ${FLASK} && exit 1 }"
             }
         }
         stage("Unit test dependencies"){
@@ -218,6 +218,7 @@ pipeline{
                             # Final check to fail if still not up
                             docker exec ${SIMULATOR} cat status | grep ready || { docker logs ${SIMULATOR} && docker logs ${FLASK} && exit 1; }
                         '''
+                        sh "docker exec ${SIMULATOR} python -m unittest discover -s /app/test -p \"test_*.py\" -v || { docker logs ${SIMULATOR} && exit 1 }"
                     }
                 }
                 stage("Testing the frontend"){
@@ -242,6 +243,10 @@ pipeline{
                             # Final check to fail if still not up
                             docker exec ${FRONTEND} curl -s http://backend:5200/ready || { docker logs ${FRONTEND} && exit 1; }
                         '''
+                        dir('SmartHomeDashboard'){
+                            sh "npm ci"
+                            sh "npm test -- --ci --coverage"
+                        }
                     }
                 }
                 stage("Testing grafana"){
