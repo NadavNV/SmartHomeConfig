@@ -30,7 +30,7 @@ spec:
               path: /
               port: 3001
             initialDelaySeconds: 5
-            periodSeconds: 5
+            periodSeconds: 20
           readinessProbe:
             exec:
               command:
@@ -39,7 +39,7 @@ spec:
                 - -c
                 - curl -sf http://backend-svc:5200/ready
             initialDelaySeconds: 5
-            periodSeconds: 5
+            periodSeconds: 10
   strategy:
     type: RollingUpdate
     rollingUpdate:

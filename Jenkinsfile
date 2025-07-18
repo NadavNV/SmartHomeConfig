@@ -14,9 +14,6 @@ pipeline{
             steps{
                 // Make sure docker is available
                 sh "docker ps"
-                sh "docker volume ls"
-                sh "docker pull eclipse-mosquitto"
-                sh "docker inspect eclipse-mosquitto | grep -A5 Volumes"
             }
         }
         stage('Clone'){

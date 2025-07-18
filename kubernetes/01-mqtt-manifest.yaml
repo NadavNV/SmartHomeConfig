@@ -51,15 +51,22 @@ spec:
             - name: mosquitto-config
               mountPath: /mosquitto/config/mosquitto.conf
               subPath: mosquitto.conf
+            - name: mosquitto-data
+              mountPath: /mosquitto/data
+          readinessProbe:
+            tcpSocket:
+              port: 1883
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 1883
+            initialDelaySeconds: 15
+            periodSeconds: 20
       volumes:
         - name: mosquitto-config
           configMap:
             name: mosquitto-config
-  strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 1
   volumeClaimTemplates:
     - metadata:
         name: data-volume
