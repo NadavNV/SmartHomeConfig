@@ -231,7 +231,7 @@ pipeline{
                         if docker exec ${FLASK} curl -s --fail http://localhost:8000/ready; then
                             break
                         fi
-                        i=$((i + 1))
+                        i=\$((i + 1))
                         sleep 5
                     done
 
@@ -245,7 +245,7 @@ pipeline{
                         if docker exec ${NGINX} curl -s http://localhost:5200/ready; then
                             break
                         fi
-                        i=$((i + 1))
+                        i=\$((i + 1))
                         sleep 5
                     done
 
@@ -284,7 +284,7 @@ pipeline{
                                     if docker exec ${SIMULATOR} cat status | grep ready; then
                                         break
                                     fi
-                                    i=$((i + 1))
+                                    i=\$((i + 1))
                                     sleep 5
                                 done
 
@@ -315,7 +315,7 @@ pipeline{
                                     if docker exec ${FRONTEND} curl -s http://${NGINX}:5200/ready; then
                                         break
                                     fi
-                                    i=$((i + 1))
+                                    i=\$((i + 1))
                                     sleep 5
                                 done
 
@@ -343,7 +343,7 @@ pipeline{
                                     if docker exec ${GRAFANA} curl http://localhost:3000/api/health; then
                                         break
                                     fi
-                                    i=$((i + 1))
+                                    i=\$((i + 1))
                                     sleep 5
                                 done
 
