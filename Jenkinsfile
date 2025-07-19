@@ -254,7 +254,7 @@ pipeline{
                         sh """"
                             i=1
                             while [ \$i -le 10 ]; do
-                                echo "Attempt \$i: Checking if simulator is ready..."
+                                echo \"Attempt \$i: Checking if simulator is ready...\"
                                 if docker exec ${SIMULATOR} cat status | grep ready; then
                                     break
                                 fi
@@ -279,13 +279,13 @@ pipeline{
                         echo "====== Running the frontend ======"
                         sh """
                         docker run -d -p 3001:3001 --network test --env-file SmartHomeDashboard/.env --name ${FRONTEND} \\
-                        ${DOCKER_USERNAME}/${FRONTEND}:V${envMap.FRONTEND_TAG}
+                        ${DOCKER_USERNAME}/${FRONTEND}:V${envMap.FRONTEND_TAG}_dirty
                         """
                         echo "====== Testing the frontend ======"
                         sh """
                             i=1
                             while [ \$i -le 10 ]; do
-                                echo "Attempt \$i: Checking if frontend can reach backend..."
+                                echo \"Attempt \$i: Checking if frontend can reach backend...\"
                                 if docker exec ${FRONTEND} curl -s http://${NGINX}:5200/ready; then
                                     break
                                 fi
@@ -296,9 +296,15 @@ pipeline{
                             # Final check to fail if still not up
                             docker exec ${FRONTEND} curl -s http://${NGINX}:5200/ready || { docker logs ${FRONTEND} && exit 1; }
                         """
-                        dir('SmartHomeDashboard'){
-                            sh "npm ci"
-                            sh "npm test -- --ci --coverage"
+                        script{
+                            if (envMap.FRONTEND_IS_NEW == "true"){
+                                dir('SmartHomeDashboard'){
+                                    sh "npm ci"
+                                    sh "npm test -- --ci --coverage"
+                                }
+                            } else {
+                                echo "Frontend isn't new, skipping unit tests"
+                            }
                         }
                     }
                 }
@@ -313,7 +319,7 @@ pipeline{
                         sh """
                             i=1
                             while [ \$i -le 10 ]; do
-                                echo "Attempt \$i: Checking if grafana is ready..."
+                                echo \"Attempt \$i: Checking if grafana is ready...\"
                                 if docker exec ${GRAFANA} curl http://localhost:3000/api/health; then
                                     break
                                 fi
@@ -343,6 +349,7 @@ pipeline{
                     if (envMap.FRONTEND_IS_NEW == "true"){
                         dir('SmartHomeDashboard'){
                             sh "docker rm -f ${FRONTEND} || true"
+                            sh "docker rmi -f ${DOCKER_USERNAME}/${FRONTEND}:V${envMap.FRONTEND_TAG}_dirty || true"
                             sh "docker rmi -f ${DOCKER_USERNAME}/${FRONTEND}:V${envMap.FRONTEND_TAG} || true"
                             sh "docker build -t ${DOCKER_USERNAME}/${FRONTEND}:V${envMap.FRONTEND_TAG} ."
                         }
