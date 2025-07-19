@@ -300,7 +300,7 @@ pipeline{
                             if (envMap.FRONTEND_IS_NEW == "true"){
                                 dir('SmartHomeDashboard'){
                                     sh "npm ci"
-                                    sh "npm test:coverage"
+                                    sh "npm run test:coverage"
                                 }
                             } else {
                                 echo "Frontend isn't new, skipping unit tests"
