@@ -234,7 +234,7 @@ pipeline{
                 """
                 script{
                     if (envMap.FLASK_IS_NEW == "true") {
-                        sh "docker exec ${FLASK} python -m unittest discover -s /app/test -p \"test_*.py\" -v || { docker logs ${FLASK} && exit 1 }"
+                        sh "docker exec ${FLASK} python -m unittest discover -s /app/test -p \"test_*.py\" -v || { docker logs ${FLASK} && exit 1; }"
                     } else {
                         echo "Flask isn't new, skipping unit tests."
                     }
@@ -267,7 +267,7 @@ pipeline{
                         """
                         script{
                             if (envMap.SIMULATOR_IS_NEW == "true") {
-                                sh "docker exec ${SIMULATOR} python -m unittest discover -s /app/test -p \"test_*.py\" -v || { docker logs ${SIMULATOR} && exit 1 }"
+                                sh "docker exec ${SIMULATOR} python -m unittest discover -s /app/test -p \"test_*.py\" -v || { docker logs ${SIMULATOR} && exit 1; }"
                             } else {
                                 echo "Simulator is not new, skipping unit tests"
                             }
