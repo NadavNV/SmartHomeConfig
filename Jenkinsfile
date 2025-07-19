@@ -44,9 +44,9 @@ pipeline{
                             git branch: 'main', url: 'https://github.com/NadavNV/SmartHomeDashboard'
                             sh "git submodule update --init --recursive"
                             echo "====== Creating frontend .env ======"
-                            sh '''
-                                echo "BACKEND_URL=backend:5200" > .env
-                            '''
+                            sh """
+                                echo "BACKEND_URL=${NGINX}:5200" > .env
+                            """
                         }
                     }
                 }
@@ -58,10 +58,10 @@ pipeline{
                             git branch: 'main', url: 'https://github.com/NadavNV/SmartHomeSimulator'
                             sh "git submodule update --init --recursive"
                             echo "====== Creating simulator .env ======"
-                            sh '''
+                            sh """
                                 echo "BROKER_HOST=mqtt-broker" > .env
-                                echo "API_URL=http://backend:5200" >> .env
-                            '''
+                                echo "API_URL=http://${NGINX}:5200" >> .env
+                            """
                         }
                     }
                 }
@@ -223,11 +223,11 @@ pipeline{
                 """
                 echo "====== Testing the backend ======"
 
-                sh '''
+                sh """
                     docker exec ${FLASK} sh -c "which curl || (apk update && apk add curl)"
                     i=1
-                    while [ $i -le 10 ]; do
-                        echo "Attempt $i: Checking if Flask is ready..."
+                    while [ \$i -le 10 ]; do
+                        echo "Attempt \$i: Checking if Flask is ready..."
                         if docker exec ${FLASK} curl -s --fail http://localhost:8000/ready; then
                             break
                         fi
@@ -237,12 +237,12 @@ pipeline{
 
                     # Final check to fail if still not up
                     docker exec ${FLASK} curl -s --fail http://localhost:8000/ready || { docker logs ${FLASK} && exit 1; }
-                '''
-                sh '''
+                """
+                sh """
                     i=1
-                    while [ $i -le 10 ]; do
-                        echo "Attempt $i: Checking if nginx is ready..."
-                        if docker exec backend curl -s http://localhost:5200/ready; then
+                    while [ \$i -le 10 ]; do
+                        echo "Attempt \$i: Checking if nginx is ready..."
+                        if docker exec ${NGINX} curl -s http://localhost:5200/ready; then
                             break
                         fi
                         i=$((i + 1))
@@ -250,8 +250,8 @@ pipeline{
                     done
 
                     # Final check to fail if still not up
-                    docker exec backend curl -s http://localhost:5200/ready || { docker logs backend && exit 1; }
-                '''
+                    docker exec ${NGINX} curl -s http://localhost:5200/ready || { docker logs ${NGINX} && exit 1; }
+                """
                 script{
                     if (envMap.FLASK_IS_NEW == "true") {
                         sh "docker exec ${FLASK} python -m unittest discover -s /app/test -p \"test_*.py\" -v || { docker logs ${FLASK} && exit 1 }"
@@ -277,10 +277,10 @@ pipeline{
                             --network test --name ${SIMULATOR} ${DOCKER_USERNAME}/${SIMULATOR}:V${envMap.SIMULATOR_TAG}
                             """
                             echo "====== Testing the simulator ======"
-                            sh '''
+                            sh """"
                                 i=1
-                                while [ $i -le 10 ]; do
-                                    echo "Attempt $i: Checking if simulator is ready..."
+                                while [ \$i -le 10 ]; do
+                                    echo "Attempt \$i: Checking if simulator is ready..."
                                     if docker exec ${SIMULATOR} cat status | grep ready; then
                                         break
                                     fi
@@ -290,9 +290,13 @@ pipeline{
 
                                 # Final check to fail if still not up
                                 docker exec ${SIMULATOR} cat status | grep ready || { docker logs ${SIMULATOR} && docker logs ${FLASK} && exit 1; }
-                            '''
-                            if (envMap.SIMULATOR_IS_NEW == "true") {
-                                sh "docker exec ${SIMULATOR} python -m unittest discover -s /app/test -p \"test_*.py\" -v || { docker logs ${SIMULATOR} && exit 1 }"
+                            """
+                            script{
+                                if (envMap.SIMULATOR_IS_NEW == "true") {
+                                    sh "docker exec ${SIMULATOR} python -m unittest discover -s /app/test -p \"test_*.py\" -v || { docker logs ${SIMULATOR} && exit 1 }"
+                                } else {
+                                    echo "Simulator is not new, skipping unit tests"
+                                }
                             }
                         }
                     }
@@ -306,8 +310,8 @@ pipeline{
                             echo "====== Testing the frontend ======"
                             sh """
                                 i=1
-                                while [ $i -le 10 ]; do
-                                    echo "Attempt $i: Checking if frontend can reach backend..."
+                                while [ \$i -le 10 ]; do
+                                    echo "Attempt \$i: Checking if frontend can reach backend..."
                                     if docker exec ${FRONTEND} curl -s http://${NGINX}:5200/ready; then
                                         break
                                     fi
@@ -332,10 +336,10 @@ pipeline{
                             ${DOCKER_USERNAME}/${GRAFANA}:V${envMap.GRAFANA_TAG}
                             """
                             echo "====== Testing grafana ======"
-                            sh '''
+                            sh """
                                 i=1
-                                while [ $i -le 10 ]; do
-                                    echo "Attempt $i: Checking if grafana is ready..."
+                                while [ \$i -le 10 ]; do
+                                    echo "Attempt \$i: Checking if grafana is ready..."
                                     if docker exec ${GRAFANA} curl http://localhost:3000/api/health; then
                                         break
                                     fi
@@ -345,7 +349,7 @@ pipeline{
 
                                 # Final check to fail if still not up
                                 docker exec ${GRAFANA} curl http://localhost:3000/api/health || { docker logs ${GRAFANA} && exit 1; }
-                            '''
+                            """
                         }
                     }
                 }
