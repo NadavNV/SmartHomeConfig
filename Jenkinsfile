@@ -207,7 +207,7 @@ pipeline{
                     docker exec ${FLASK} sh -c "which curl || (apk update && apk add curl)"
                     i=1
                     while [ \$i -le 10 ]; do
-                        echo "Attempt \$i: Checking if Flask is ready..."
+                        echo \"Attempt \$i: Checking if Flask is ready...\"
                         if docker exec ${FLASK} curl -s --fail http://localhost:8000/ready; then
                             break
                         fi
@@ -221,7 +221,7 @@ pipeline{
                 sh """
                     i=1
                     while [ \$i -le 10 ]; do
-                        echo "Attempt \$i: Checking if nginx is ready..."
+                        echo \"Attempt \$i: Checking if nginx is ready...\"
                         if docker exec ${NGINX} curl -s http://localhost:5200/ready; then
                             break
                         fi
@@ -251,7 +251,7 @@ pipeline{
                         --network test --name ${SIMULATOR} ${DOCKER_USERNAME}/${SIMULATOR}:V${envMap.SIMULATOR_TAG}
                         """
                         echo "====== Testing the simulator ======"
-                        sh """"
+                        sh """
                             i=1
                             while [ \$i -le 10 ]; do
                                 echo \"Attempt \$i: Checking if simulator is ready...\"
