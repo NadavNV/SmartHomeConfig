@@ -112,6 +112,11 @@ pipeline{
                         sh "echo '${svc.name}_IS_NEW=${isNew}' >> metadata.env"
                         echo "${svc.name}: tag=${tag}, isNew=${isNew}"
                     }
+                    def envData = readFile('metadata.env').trim().split('\n')
+                    envData.each { line ->
+                        def (k, v) = line.split('=')
+                        env[k] = v
+                    }
                 }
             }
         }
@@ -119,63 +124,43 @@ pipeline{
             parallel{
                 stage("Building backend"){
                     steps{
-                        def envData = readFile('metadata.env').trim().split('\n')
-                        def envMap = envData.collectEntries { line ->
-                            def (k, v) = line.split('=')
-                            [(k): v]
-                        }
                         echo "====== Building the backend ======"
                         // Make sure that the container names are available
                         sh "docker stop ${FLASK} || true"
                         sh "docker stop ${NGINX} || true"
                         dir('SmartHomeBackend'){
-                            sh "docker build -f flask.Dockerfile -t ${DOCKER_USERNAME}/${FLASK}:V${envMap.FLASK_TAG} ."
-                            sh "docker build -f nginx.Dockerfile -t ${DOCKER_USERNAME}/${NGINX}:V${envMap.NGINX_TAG} ."
+                            sh "docker build -f flask.Dockerfile -t ${DOCKER_USERNAME}/${FLASK}:V${env.FLASK_TAG} ."
+                            sh "docker build -f nginx.Dockerfile -t ${DOCKER_USERNAME}/${NGINX}:V${env.NGINX_TAG} ."
                         }
                     }
                 }
                 stage("Building frontend"){
                     steps{
-                        def envData = readFile('metadata.env').trim().split('\n')
-                        def envMap = envData.collectEntries { line ->
-                            def (k, v) = line.split('=')
-                            [(k): v]
-                        }
                         echo "====== Building the frontend ======"
                         // Make sure that the container name is available
                         sh "docker stop ${FRONTEND} || true"
                         dir('SmartHomeDashboard'){
-                            sh "docker build --build-arg VITE_API_URL=${NGINX}:5200 -t ${DOCKER_USERNAME}/${FRONTEND}:V${envMap.FRONTEND_TAG}_dirty ."
+                            sh "docker build --build-arg VITE_API_URL=${NGINX}:5200 -t ${DOCKER_USERNAME}/${FRONTEND}:V${env.FRONTEND_TAG}_dirty ."
                         }
                     }
                 }
                 stage("Building simulator"){
                     steps{
-                        def envData = readFile('metadata.env').trim().split('\n')
-                        def envMap = envData.collectEntries { line ->
-                            def (k, v) = line.split('=')
-                            [(k): v]
-                        }
                         echo "====== Building the simulator ======"
                         // Make sure that the container name is available
                         sh "docker stop ${SIMULATOR} || true"
                         dir('SmartHomeSimulator'){
-                            sh "docker build -t ${DOCKER_USERNAME}/${SIMULATOR}:V${envMap.SIMULATOR_TAG} ."
+                            sh "docker build -t ${DOCKER_USERNAME}/${SIMULATOR}:V${env.SIMULATOR_TAG} ."
                         }
                     }
                 }
                 stage("Building grafana"){
                     steps{
-                        def envData = readFile('metadata.env').trim().split('\n')
-                        def envMap = envData.collectEntries { line ->
-                            def (k, v) = line.split('=')
-                            [(k): v]
-                        }
                         echo "====== Building grafana ======"
                         // Make sure that the container name is available
                         sh "docker stop ${GRAFANA} || true"
                         dir('SmartHomeConfig/monitoring/grafana'){
-                            sh "docker build -t ${DOCKER_USERNAME}/${GRAFANA}:V${envMap.GRAFANA_TAG} ."
+                            sh "docker build -t ${DOCKER_USERNAME}/${GRAFANA}:V${env.GRAFANA_TAG} ."
                         }
                     }
                 }
@@ -207,18 +192,13 @@ pipeline{
         }
         stage("Unit test the backend"){
             steps{
-                def envData = readFile('metadata.env').trim().split('\n')
-                def envMap = envData.collectEntries { line ->
-                    def (k, v) = line.split('=')
-                    [(k): v]
-                }
                 echo "====== Running the backend ======"
                 sh """
                     docker run -d -p 8000:8000 --env-file SmartHomeBackend/.env \\
-                    --network test --name ${FLASK} ${DOCKER_USERNAME}/${FLASK}:V${envMap.FLASK_TAG}
+                    --network test --name ${FLASK} ${DOCKER_USERNAME}/${FLASK}:V${env.FLASK_TAG}
 
                     docker run -d -p 5200:5200 -e FLASK_BACKEND_HOST=${FLASK} --network test --name ${NGINX} \\
-                    ${DOCKER_USERNAME}/${NGINX}:V${envMap.NGINX_TAG}
+                    ${DOCKER_USERNAME}/${NGINX}:V${env.NGINX_TAG}
 
                 """
                 echo "====== Testing the backend ======"
@@ -253,7 +233,7 @@ pipeline{
                     docker exec ${NGINX} curl -s http://localhost:5200/ready || { docker logs ${NGINX} && exit 1; }
                 """
                 script{
-                    if (envMap.FLASK_IS_NEW == "true") {
+                    if (env.FLASK_IS_NEW == "true") {
                         sh "docker exec ${FLASK} python -m unittest discover -s /app/test -p \"test_*.py\" -v || { docker logs ${FLASK} && exit 1 }"
                     } else {
                         echo "Flask isn't new, skipping unit tests."
@@ -262,95 +242,88 @@ pipeline{
             }
         }
         stage("Unit test dependencies"){
-            steps{
-                def envData = readFile('metadata.env').trim().split('\n')
-                def envMap = envData.collectEntries { line ->
-                    def (k, v) = line.split('=')
-                    [(k): v]
+            parallel{
+                stage("Testing the simulator"){
+                    steps{
+                        echo "====== Running the simulator ======"
+                        sh """
+                        docker run -d --env-file SmartHomeSimulator/.env \\
+                        --network test --name ${SIMULATOR} ${DOCKER_USERNAME}/${SIMULATOR}:V${env.SIMULATOR_TAG}
+                        """
+                        echo "====== Testing the simulator ======"
+                        sh """"
+                            i=1
+                            while [ \$i -le 10 ]; do
+                                echo "Attempt \$i: Checking if simulator is ready..."
+                                if docker exec ${SIMULATOR} cat status | grep ready; then
+                                    break
+                                fi
+                                i=\$((i + 1))
+                                sleep 5
+                            done
+
+                            # Final check to fail if still not up
+                            docker exec ${SIMULATOR} cat status | grep ready || { docker logs ${SIMULATOR} && docker logs ${FLASK} && exit 1; }
+                        """
+                        script{
+                            if (env.SIMULATOR_IS_NEW == "true") {
+                                sh "docker exec ${SIMULATOR} python -m unittest discover -s /app/test -p \"test_*.py\" -v || { docker logs ${SIMULATOR} && exit 1 }"
+                            } else {
+                                echo "Simulator is not new, skipping unit tests"
+                            }
+                        }
+                    }
                 }
-                parallel{
-                    stage("Testing the simulator"){
-                        steps{
-                            echo "====== Running the simulator ======"
-                            sh """
-                            docker run -d --env-file SmartHomeSimulator/.env \\
-                            --network test --name ${SIMULATOR} ${DOCKER_USERNAME}/${SIMULATOR}:V${envMap.SIMULATOR_TAG}
-                            """
-                            echo "====== Testing the simulator ======"
-                            sh """"
-                                i=1
-                                while [ \$i -le 10 ]; do
-                                    echo "Attempt \$i: Checking if simulator is ready..."
-                                    if docker exec ${SIMULATOR} cat status | grep ready; then
-                                        break
-                                    fi
-                                    i=\$((i + 1))
-                                    sleep 5
-                                done
+                stage("Testing the frontend"){
+                    steps{
+                        echo "====== Running the frontend ======"
+                        sh """
+                        docker run -d -p 3001:3001 --network test --env-file SmartHomeDashboard/.env --name ${FRONTEND} \\
+                        ${DOCKER_USERNAME}/${FRONTEND}:V${env.FRONTEND_TAG}
+                        """
+                        echo "====== Testing the frontend ======"
+                        sh """
+                            i=1
+                            while [ \$i -le 10 ]; do
+                                echo "Attempt \$i: Checking if frontend can reach backend..."
+                                if docker exec ${FRONTEND} curl -s http://${NGINX}:5200/ready; then
+                                    break
+                                fi
+                                i=\$((i + 1))
+                                sleep 5
+                            done
 
-                                # Final check to fail if still not up
-                                docker exec ${SIMULATOR} cat status | grep ready || { docker logs ${SIMULATOR} && docker logs ${FLASK} && exit 1; }
-                            """
-                            script{
-                                if (envMap.SIMULATOR_IS_NEW == "true") {
-                                    sh "docker exec ${SIMULATOR} python -m unittest discover -s /app/test -p \"test_*.py\" -v || { docker logs ${SIMULATOR} && exit 1 }"
-                                } else {
-                                    echo "Simulator is not new, skipping unit tests"
-                                }
-                            }
+                            # Final check to fail if still not up
+                            docker exec ${FRONTEND} curl -s http://${NGINX}:5200/ready || { docker logs ${FRONTEND} && exit 1; }
+                        """
+                        dir('SmartHomeDashboard'){
+                            sh "npm ci"
+                            sh "npm test -- --ci --coverage"
                         }
                     }
-                    stage("Testing the frontend"){
-                        steps{
-                            echo "====== Running the frontend ======"
-                            sh """
-                            docker run -d -p 3001:3001 --network test --env-file SmartHomeDashboard/.env --name ${FRONTEND} \\
-                            ${DOCKER_USERNAME}/${FRONTEND}:V${envMap.FRONTEND_TAG}
-                            """
-                            echo "====== Testing the frontend ======"
-                            sh """
-                                i=1
-                                while [ \$i -le 10 ]; do
-                                    echo "Attempt \$i: Checking if frontend can reach backend..."
-                                    if docker exec ${FRONTEND} curl -s http://${NGINX}:5200/ready; then
-                                        break
-                                    fi
-                                    i=\$((i + 1))
-                                    sleep 5
-                                done
+                }
+                stage("Testing grafana"){
+                    steps{
+                        echo "====== Running grafana ======"
+                        sh """
+                        docker run -d --network test --name ${GRAFANA} \\
+                        ${DOCKER_USERNAME}/${GRAFANA}:V${env.GRAFANA_TAG}
+                        """
+                        echo "====== Testing grafana ======"
+                        sh """
+                            i=1
+                            while [ \$i -le 10 ]; do
+                                echo "Attempt \$i: Checking if grafana is ready..."
+                                if docker exec ${GRAFANA} curl http://localhost:3000/api/health; then
+                                    break
+                                fi
+                                i=\$((i + 1))
+                                sleep 5
+                            done
 
-                                # Final check to fail if still not up
-                                docker exec ${FRONTEND} curl -s http://${NGINX}:5200/ready || { docker logs ${FRONTEND} && exit 1; }
-                            """
-                            dir('SmartHomeDashboard'){
-                                sh "npm ci"
-                                sh "npm test -- --ci --coverage"
-                            }
-                        }
-                    }
-                    stage("Testing grafana"){
-                        steps{
-                            echo "====== Running grafana ======"
-                            sh """
-                            docker run -d --network test --name ${GRAFANA} \\
-                            ${DOCKER_USERNAME}/${GRAFANA}:V${envMap.GRAFANA_TAG}
-                            """
-                            echo "====== Testing grafana ======"
-                            sh """
-                                i=1
-                                while [ \$i -le 10 ]; do
-                                    echo "Attempt \$i: Checking if grafana is ready..."
-                                    if docker exec ${GRAFANA} curl http://localhost:3000/api/health; then
-                                        break
-                                    fi
-                                    i=\$((i + 1))
-                                    sleep 5
-                                done
-
-                                # Final check to fail if still not up
-                                docker exec ${GRAFANA} curl http://localhost:3000/api/health || { docker logs ${GRAFANA} && exit 1; }
-                            """
-                        }
+                            # Final check to fail if still not up
+                            docker exec ${GRAFANA} curl http://localhost:3000/api/health || { docker logs ${GRAFANA} && exit 1; }
+                        """
                     }
                 }
             }
@@ -366,17 +339,12 @@ pipeline{
         }
         stage("Build clean frontend"){
             steps{
-                def envData = readFile('metadata.env').trim().split('\n')
-                def envMap = envData.collectEntries { line ->
-                    def (k, v) = line.split('=')
-                    [(k): v]
-                }
                 script{
-                    if (envMap.FRONTEND_IS_NEW == "true"){
+                    if (env.FRONTEND_IS_NEW == "true"){
                         dir('SmartHomeDashboard'){
                             sh "docker rm -f ${FRONTEND} || true"
-                            sh "docker rmi -f ${DOCKER_USERNAME}/${FRONTEND}:V${envMap.FRONTEND_TAG} || true"
-                            sh "docker build -t ${DOCKER_USERNAME}/${FRONTEND}:V${envMap.FRONTEND_TAG} ."
+                            sh "docker rmi -f ${DOCKER_USERNAME}/${FRONTEND}:V${env.FRONTEND_TAG} || true"
+                            sh "docker build -t ${DOCKER_USERNAME}/${FRONTEND}:V${env.FRONTEND_TAG} ."
                         }
                     } else {
                         echo "Frontend isn't new, skipping clean build."
@@ -393,95 +361,88 @@ pipeline{
             }
         }
         stage('Deploy'){
-            steps{
-                def envData = readFile('metadata.env').trim().split('\n')
-                def envMap = envData.collectEntries { line ->
-                    def (k, v) = line.split('=')
-                    [(k): v]
+            parallel{
+                stage("Deploying backend"){
+                    steps{
+                        echo "====== Deploying the backend ======"
+                        sh "docker image tag ${DOCKER_USERNAME}/${FLASK}:V${env.FLASK_TAG} ${DOCKER_USERNAME}/${FLASK}:latest"
+                        sh "docker image tag ${DOCKER_USERNAME}/${NGINX}:V${env.NGINX_TAG} ${DOCKER_USERNAME}/${NGINX}:latest"
+                        script{
+                            if (env.NGINX_IS_NEW == "true"){
+                                retry(4){
+                                    sh "docker push ${DOCKER_USERNAME}/${NGINX}:latest"
+                                }
+                                retry(4){
+                                    sh "docker push ${DOCKER_USERNAME}/${NGINX}:V${env.NGINX_TAG}"
+                                }
+                            } else {
+                                echo "NGINX isn't new, skipping deployment."
+                            }
+                        }
+                        script{
+                            if (env.FLASK_IS_NEW == "true"){
+                                retry(4){
+                                    sh "docker push ${DOCKER_USERNAME}/${FLASK}:latest"
+                                }
+                                retry(4){
+                                    sh "docker push ${DOCKER_USERNAME}/${FLASK}:V${env.FLASK_TAG}"
+                                }
+                            } else {
+                                echo "Flask isn't new, skipping deployment."
+                            }
+                        }
+                    }
                 }
-                parallel{
-                    stage("Deploying backend"){
-                        steps{
-                            echo "====== Deploying the backend ======"
-                            sh "docker image tag ${DOCKER_USERNAME}/${FLASK}:V${envMap.FLASK_TAG} ${DOCKER_USERNAME}/${FLASK}:latest"
-                            sh "docker image tag ${DOCKER_USERNAME}/${NGINX}:V${envMap.NGINX_TAG} ${DOCKER_USERNAME}/${NGINX}:latest"
-                            script{
-                                if (envMap.NGINX_IS_NEW == "true"){
-                                    retry(4){
-                                        sh "docker push ${DOCKER_USERNAME}/${NGINX}:latest"
-                                    }
-                                    retry(4){
-                                        sh "docker push ${DOCKER_USERNAME}/${NGINX}:V${envMap.NGINX_TAG}"
-                                    }
-                                } else {
-                                    echo "NGINX isn't new, skipping deployment."
+                stage("Deploying frontend"){
+                    steps{
+                        echo "====== Deploying the frontend ======"
+                        sh "docker image tag ${DOCKER_USERNAME}/${FRONTEND}:V${env.FRONTEND_TAG} ${DOCKER_USERNAME}/${FRONTEND}:latest"
+                        script{
+                            if (env.FRONTEND_IS_NEW == "true"){                        
+                                retry(4){
+                                    sh "docker push ${DOCKER_USERNAME}/${FRONTEND}:latest"
                                 }
-                            }
-                            script{
-                                if (envMap.FLASK_IS_NEW == "true"){
-                                    retry(4){
-                                        sh "docker push ${DOCKER_USERNAME}/${FLASK}:latest"
-                                    }
-                                    retry(4){
-                                        sh "docker push ${DOCKER_USERNAME}/${FLASK}:V${envMap.FLASK_TAG}"
-                                    }
-                                } else {
-                                    echo "Flask isn't new, skipping deployment."
+                                retry(4){
+                                    sh "docker push ${DOCKER_USERNAME}/${FRONTEND}:V${env.FRONTEND_TAG}"
                                 }
+                            } else {
+                                echo "Frontend isn't new, skipping deployment."
                             }
                         }
                     }
-                    stage("Deploying frontend"){
-                        steps{
-                            echo "====== Deploying the frontend ======"
-                            sh "docker image tag ${DOCKER_USERNAME}/${FRONTEND}:V${envMap.FRONTEND_TAG} ${DOCKER_USERNAME}/${FRONTEND}:latest"
-                            script{
-                                if (envMap.FRONTEND_IS_NEW == "true"){                        
-                                    retry(4){
-                                        sh "docker push ${DOCKER_USERNAME}/${FRONTEND}:latest"
-                                    }
-                                    retry(4){
-                                        sh "docker push ${DOCKER_USERNAME}/${FRONTEND}:V${envMap.FRONTEND_TAG}"
-                                    }
-                                } else {
-                                    echo "Frontend isn't new, skipping deployment."
+                }
+                stage("Deploying simulator"){
+                    steps{
+                        echo "====== Deploying the simulator ======"
+                        sh "docker image tag ${DOCKER_USERNAME}/${SIMULATOR}:V${env.SIMULATOR_TAG} ${DOCKER_USERNAME}/${SIMULATOR}:latest"
+                        script{
+                            if (env.SIMULATOR_IS_NEW == "true"){
+                                retry(4){
+                                    sh "docker push ${DOCKER_USERNAME}/${SIMULATOR}:latest"
                                 }
+                                retry(4){
+                                    sh "docker push ${DOCKER_USERNAME}/${SIMULATOR}:V${env.SIMULATOR_TAG}"
+                                }
+                            } else {
+                                echo "Simulator isn't new, skipping deployment."
                             }
                         }
                     }
-                    stage("Deploying simulator"){
-                        steps{
-                            echo "====== Deploying the simulator ======"
-                            sh "docker image tag ${DOCKER_USERNAME}/${SIMULATOR}:V${envMap.SIMULATOR_TAG} ${DOCKER_USERNAME}/${SIMULATOR}:latest"
-                            script{
-                                if (envMap.SIMULATOR_IS_NEW == "true"){
-                                    retry(4){
-                                        sh "docker push ${DOCKER_USERNAME}/${SIMULATOR}:latest"
-                                    }
-                                    retry(4){
-                                        sh "docker push ${DOCKER_USERNAME}/${SIMULATOR}:V${envMap.SIMULATOR_TAG}"
-                                    }
-                                } else {
-                                    echo "Simulator isn't new, skipping deployment."
+                }
+                stage("Deploying grafana"){
+                    steps{
+                        echo "====== Deploying grafana ======"
+                        script{
+                            if (env.GRAFANA_IS_NEW == "true"){
+                                sh "docker image tag ${DOCKER_USERNAME}/${GRAFANA}:V${env.GRAFANA_TAG} ${DOCKER_USERNAME}/${GRAFANA}:latest"
+                                retry(4){
+                                    sh "docker push ${DOCKER_USERNAME}/${GRAFANA}:latest"
                                 }
-                            }
-                        }
-                    }
-                    stage("Deploying grafana"){
-                        steps{
-                            echo "====== Deploying grafana ======"
-                            script{
-                                if (envMap.GRAFANA_IS_NEW == "true"){
-                                    sh "docker image tag ${DOCKER_USERNAME}/${GRAFANA}:V${envMap.GRAFANA_TAG} ${DOCKER_USERNAME}/${GRAFANA}:latest"
-                                    retry(4){
-                                        sh "docker push ${DOCKER_USERNAME}/${GRAFANA}:latest"
-                                    }
-                                    retry(4){
-                                        sh "docker push ${DOCKER_USERNAME}/${GRAFANA}:V${envMap.GRAFANA_TAG}"
-                                    }
-                                } else{
-                                    echo "Grafana isn't new, skipping deployment."
+                                retry(4){
+                                    sh "docker push ${DOCKER_USERNAME}/${GRAFANA}:V${env.GRAFANA_TAG}"
                                 }
+                            } else{
+                                echo "Grafana isn't new, skipping deployment."
                             }
                         }
                     }
