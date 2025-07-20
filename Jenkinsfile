@@ -105,7 +105,7 @@ pipeline{
                         // Check if Docker Hub already has this tag
                         def exists = sh(
                             script: """
-                                curl -s -f https://hub.docker.com/v2/repositories/${svc.dockerImage}/tags/${tag} > /dev/null && echo exists || echo missing
+                                curl -s -f https://hub.docker.com/v2/repositories/${svc.dockerImage}/tags/V${tag} > /dev/null && echo exists || echo missing
                             """,
                             returnStdout: true
                         ).trim()
