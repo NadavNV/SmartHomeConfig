@@ -376,7 +376,7 @@ pipeline{
             }
         }
         stage('Deploy'){
-            steos{
+            steps{
                 parallel{
                     stage("Deploying backend"){
                         steps{
