@@ -90,7 +90,8 @@ pipeline{
 
                     // Clean tag tracking files
                     sh 'rm -f metadata.env'
-
+                    
+                    def new_images = 0
                     for (svc in services) {
                         def tag = ""
                         dir(svc.dir) {
@@ -110,8 +111,15 @@ pipeline{
                         ).trim()
 
                         def isNew = (exists == "missing") ? "true" : "false"
+                        if (isNew == "true") {
+                            new_images += 1
+                        }
                         sh "echo '${svc.name}_IS_NEW=${isNew}' >> metadata.env"
                         echo "${svc.name}: tag=${tag}, isNew=${isNew}"
+                    }
+                    if (new_images == 0) {
+                        echo "No new changes."
+                        exit 0
                     }
                     envMap = readFile('metadata.env').trim().split('\n').collectEntries { line ->
                         def (k, v) = line.split('=')
@@ -336,7 +344,6 @@ pipeline{
         }
         stage("Integration test"){
             steps{
-                // Skip if none are new
                 sh """
                 docker exec -e FRONTEND_URL=http://${FRONTEND}:3001 -e BACKEND_URL=http://${NGINX}:5200 \\
                 -e GRAFANA_URL=http://${GRAFANA}:3000 ${FLASK} python test/integration_test.py || { docker logs ${FLASK} && docker logs ${SIMULATOR} && exit 1; }
