@@ -118,13 +118,12 @@ pipeline{
                         echo "${svc.name}: tag=${tag}, isNew=${isNew}"
                     }
                     if (new_images == 0) {
-                        echo "No new Docker images to build or deploy. Exiting pipeline gracefully."
-                        currentBuild.result = 'SUCCESS'
-                        return
-                    }
-                    envMap = readFile('metadata.env').trim().split('\n').collectEntries { line ->
-                        def (k, v) = line.split('=')
-                        [(k): v]
+                        error("No new Docker images to build or deploy. Exiting pipeline gracefully.")
+                    } else {
+                        envMap = readFile('metadata.env').trim().split('\n').collectEntries { line ->
+                            def (k, v) = line.split('=')
+                            [(k): v]
+                        }
                     }
                 }
             }
