@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: grafana
-          image: nadavnv/smart-home-grafana:V1.0.13
+          image: nadavnv/smart-home-grafana:1.0.14
           ports:
             - containerPort: 3000
           env:
