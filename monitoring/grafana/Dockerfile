@@ -8,6 +8,7 @@ COPY startup.sh /startup.sh
 RUN chmod +x /startup.sh
 
 RUN apk add --no-cache jq
+RUN apk add --no-cache grep
 
 # Install dos2unix and clean dashboard files
 RUN apk add --no-cache dos2unix && \

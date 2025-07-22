@@ -6,7 +6,7 @@ GRAFANA_URL="http://localhost:3000"
 ADMIN_USER="${GF_SECURITY_ADMIN_USER:-admin}"
 ADMIN_PASS="${GF_SECURITY_ADMIN_PASSWORD:-admin}"
 # Wait until Grafana is up
-until curl -s "$GRAFANA_URL/api/health | grep -q '"database": "ok"'"; do
+until curl -s "$GRAFANA_URL/api/health" | grep -q '"database": "ok"'; do
   echo "Waiting for Grafana to start..."
   sleep 3
 done
