@@ -49,14 +49,14 @@ kubectl apply -f 02-dashboard-svc.yaml
 echo -e "${YELLOW}Waiting for Minikube tunnel to assign LoadBalancer IP...${RESET}"
 sleep 2
 for i in {1..30}; do
-  if kubectl get svc --all-namespaces | grep -q 'LoadBalancer'; then
+  if kubectl get pods -n ingress-nginx --no-headers | grep -q "Running"; then
     echo -e "${GREEN}Minikube tunnel is active.${RESET}"
     break
   fi
   sleep 2
 done
 
-if ! kubectl get svc --all-namespaces | grep -q 'LoadBalancer'; then
+if ! kubectl get pods -n ingress-nginx --no-headers | grep -q "Running"; then
   echo -e "${RED}Tunnel did not become active. Exiting.${RESET}"
   exit 1
 fi
@@ -66,20 +66,13 @@ kubectl apply -f 01-mqtt-manifest.yaml
 
 echo -e "${YELLOW}Waiting for MQTT broker pod in '$NAMESPACE' to be ready...${RESET}"
 sleep 3
-deployReady=$(kubectl wait --namespace $NAMESPACE --for=condition=available deployment/mqtt-broker-deploy --timeout="${TIMEOUT}s" 2>&1)
+podsReady=$(kubectl wait --for=condition=Ready pods --all --namespace "$NAMESPACE" --timeout="${TIMEOUT}s")
 if [ $? -ne 0 ]; then
-  echo -e "${RED}Timeout or error waiting for deployment to become ready:${RESET}"
-  echo "$deployReady"
+  echo -e "${RED}Timeout or error waiting for pod to become ready:${RESET}"
+  echo "$podsReady"
   exit 1
 else
-  podsReady=$(kubectl wait --for=condition=Ready pods --all --namespace "$NAMESPACE" --timeout="${TIMEOUT}s")
-  if [ $? -ne 0 ]; then
-    echo -e "${RED}Timeout or error waiting for pod to become ready:${RESET}"
-    echo "$podsReady"
-    exit 1
-  else
-    echo -e "${GREEN}MQTT broker is ready. Proceeding...${RESET}"
-  fi
+  echo -e "${GREEN}MQTT broker is ready. Proceeding...${RESET}"
 fi
 
 
@@ -91,20 +84,13 @@ kubectl apply -f 06-backend-manifest.yaml
 
 echo -e "${YELLOW}Waiting for all backend pods in '$NAMESPACE' to be ready...${RESET}"
 sleep 3
-deployReady=$(kubectl wait --namespace $NAMESPACE --for=condition=available deployment/backend-deploy --timeout="${TIMEOUT}s" 2>&1)
+podsReady=$(kubectl wait --for=condition=Ready pods --all --namespace "$NAMESPACE" --timeout="${TIMEOUT}s")
 if [ $? -ne 0 ]; then
-  echo -e "${RED}Timeout or error waiting for deployment to become ready:${RESET}"
-  echo "$deployReady"
+  echo -e "${RED}Timeout or error waiting for pods to become ready:${RESET}"
+  echo "$podsReady"
   exit 1
 else
-  podsReady=$(kubectl wait --for=condition=Ready pods --all --namespace "$NAMESPACE" --timeout="${TIMEOUT}s")
-  if [ $? -ne 0 ]; then
-    echo -e "${RED}Timeout or error waiting for pods to become ready:${RESET}"
-    echo "$podsReady"
-    exit 1
-  else
-    echo -e "${GREEN}Backend is ready. Proceeding...${RESET}"
-  fi
+  echo -e "${GREEN}Backend is ready. Proceeding...${RESET}"
 fi
 
 echo -e "${CYAN}Applying all manifests in the current directory...${RESET}"
@@ -128,11 +114,22 @@ else
   fi
 fi
 
-EXTERNAL_IP=$(kubectl get svc dashboard-svc -n "$NAMESPACE" -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
-if [ -z "$EXTERNAL_IP" ]; then
-  echo -e "${YELLOW}LoadBalancer external IP not assigned yet. Opening service...${RESET}"
-  minikube service -n $NAMESPACE dashboard-svc
-else
-  echo -e "${CYAN}External IP: $EXTERNAL_IP${RESET}"
-  echo -e "\n${GREEN}*** Done! ***${RESET}\n"
-fi
+echo -e "${CYAN}Adding DNS names to hosts file...${RESET}"
+
+add_host_entry() {
+  local host_entry="$1"
+  if grep -qF "$host_entry" /etc/hosts; then
+    echo -e "${YELLOW}$host_entry already exists in hosts file${RESET}"
+  else
+    echo "$host_entry" | sudo tee -a /etc/hosts > /dev/null
+    echo -e "${GREEN}Added $host_entry to hosts file${RESET}"
+  fi
+}
+
+add_host_entry "127.0.0.1 dashboard.local"
+add_host_entry "127.0.0.1 grafana.local"
+
+
+echo -e "${CYAN}Frontend: http://dashboard.local${RESET}"
+echo -e "${CYAN}Grafana: http://grafana.local${RESET}"
+echo -e "\n${GREEN}*** Done! ***${RESET}\n"

@@ -4,6 +4,7 @@ USER root
 
 COPY dashboards /var/lib/grafana/dashboards
 COPY provisioning /etc/grafana/provisioning
+COPY startup.sh /startup.sh
 
 RUN apk add --no-cache jq
 

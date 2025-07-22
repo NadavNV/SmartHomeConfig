@@ -34,8 +34,8 @@ Start-Sleep -Seconds 2
 
 $success = $false
 for ($i = 0; $i -lt 30; $i++) {
-    $services = kubectl get svc --all-namespaces
-    if ($services -match "LoadBalancer") {
+    $ingressPods = kubectl get pods -n ingress-nginx --no-headers | Select-String "Running"
+    if ($ingressPods) {
         Write-Host "Minikube tunnel is active." -ForegroundColor Green
         $success = $true
         break
@@ -53,12 +53,6 @@ kubectl apply -f 01-mqtt-manifest.yaml
 
 Write-Host "Waiting for MQTT broker pod in '$NAMESPACE' to be ready..." -ForegroundColor Yellow
 Start-Sleep -Seconds 3
-$deployReady = kubectl wait --namespace $NAMESPACE --for=condition=available deployment/mqtt-broker-deploy --timeout="${TIMEOUT}s" 2>&1
-if ($LASTEXITCODE -ne 0) {
-    Write-Error "Timeout or error waiting for deployment to become ready:"
-    Write-Output $deployReady
-    exit 1
-}
 $podsReady = kubectl wait --for=condition=Ready pods --all --namespace "$NAMESPACE" --timeout="${TIMEOUT}s"
 if ($LASTEXITCODE -ne 0) {
     Write-Error "Timeout or error waiting for pod to become ready:"
@@ -76,12 +70,6 @@ kubectl apply -f 06-backend-manifest.yaml
 
 Write-Host "Waiting for all backend pods in '$NAMESPACE' to be ready..." -ForegroundColor Yellow
 Start-Sleep -Seconds 3
-$deployReady = kubectl wait --namespace $NAMESPACE --for=condition=available deployment/backend-deploy --timeout="${TIMEOUT}s" 2>&1
-if ($LASTEXITCODE -ne 0) {
-    Write-Error "Timeout or error waiting for deployment to become ready:"
-    Write-Output $deployReady
-    exit 1
-}
 $podsReady = kubectl wait --for=condition=Ready pods --all --namespace "$NAMESPACE" --timeout="${TIMEOUT}s"
 if ($LASTEXITCODE -ne 0) {
     Write-Error "Timeout or error waiting for pods to become ready:"
@@ -113,12 +101,24 @@ else {
     Write-Host "All pods in '$NAMESPACE' are ready." -ForegroundColor Green
 }
 
-$externalIp = kubectl get svc dashboard-svc -n $NAMESPACE -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
-if ([string]::IsNullOrEmpty($externalIp)) {
-    Write-Host "LoadBalancer external IP not assigned yet. Opening service..." -ForegroundColor Yellow
-    minikube service -n $NAMESPACE dashboard-svc
+Write-Host "Adding DNS names to hosts file..." -ForegroundColor Cyan
+$hostsPath = "$env:WINDIR\System32\drivers\etc\hosts"
+$entries = @(
+    "127.0.0.1 dashboard.local"
+    "127.0.0.1 grafana.local"
+)
+
+foreach ($entry in $entries) {
+    if (-not (Select-String -Path $hostsPath -Pattern $entry -Quiet)) {
+        Add-Content -Path $hostsPath -Value $entry
+        Write-Host "Added $entry to hosts file" -ForegroundColor Green
+    }
+    else {
+        Write-Host "$entry already exists in hosts file" -ForegroundColor Yellow
+    }
 }
-else {
-    Write-Host "External IP: $externalIp" -ForegroundColor Cyan
-    Write-Host "`n*** Done! ***`n" -ForegroundColor Green
-}
+
+Write-Host "Frontend: http://dashboard.local" -ForegroundColor Cyan
+Write-Host "Grafana: http://grafana.local" -ForegroundColor Cyan
+Write-Host "`n*** Done! ***`n" -ForegroundColor Green
+

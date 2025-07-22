@@ -40,6 +40,9 @@ spec:
                 - curl -sf http://backend-svc:5200/ready
             initialDelaySeconds: 5
             periodSeconds: 10
+          env:
+            - name: BACKEND_URL
+              value: backend-svc.smart-home:5200
   strategy:
     type: RollingUpdate
     rollingUpdate:
