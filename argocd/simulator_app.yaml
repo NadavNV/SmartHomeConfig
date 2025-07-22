@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: smart-home-simulator
+  namespace: argocd
+  labels:
+    app.kubernetes.io/managed-by: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/NadavNV/SmartHomeConfig.git
+    targetRevision: HEAD
+    path: kubernetes/simulator
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: smart-home
+  dependsOn:
+    - backend
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

@@ -3,17 +3,48 @@
 # Ubuntu 22.04 is used for ease of setup
 
 provider "aws" {
-  region = "eu-central-1" # Frankfurt
+  region = var.aws_region # Frankfurt
 }
 
+provider "kubernetes" {
+  config_path = "D:\\Nadav\\DevSecOps\\kube_config.yaml"
+}
 
+provider "helm" {
+  kubernetes = {
+    config_path = "D:\\Nadav\\DevSecOps\\kube_config.yaml"
+  }
+}
+
+variable "aws_region" {
+  description = "The AWS region to deploy into"
+  type        = string
+  default     = "eu-central-1"
+}
+
+variable "key_name" {
+  description = "Name of your existing AWS EC2 key pair"
+  type        = string
+}
+
+locals {
+  common_tags = {
+    terraform = "true"
+  }
+}
+
+resource "kubernetes_namespace" "ingress_nginx" {
+  metadata {
+    name = "ingress-nginx"
+  }
+}
 
 resource "aws_vpc" "main" {
   cidr_block           = "10.0.0.0/16"
   enable_dns_hostnames = true
-  tags = {
+  tags = merge(local.common_tags, {
     Name = "kube-vpc"
-  }
+  })
 }
 
 resource "aws_subnet" "main" {
@@ -21,13 +52,14 @@ resource "aws_subnet" "main" {
   cidr_block              = "10.0.1.0/24"
   map_public_ip_on_launch = true
   availability_zone       = "eu-central-1a"
-  tags = {
+  tags = merge(local.common_tags, {
     Name = "kube-subnet"
-  }
+  })
 }
 
 resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.main.id
+  tags   = local.common_tags
 }
 
 resource "aws_route_table" "rt" {
@@ -36,6 +68,7 @@ resource "aws_route_table" "rt" {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.igw.id
   }
+  tags = local.common_tags
 }
 
 resource "aws_route_table_association" "a" {
@@ -75,18 +108,9 @@ resource "aws_security_group" "kube_sg" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+  tags = local.common_tags
 }
 
-variable "aws_region" {
-  description = "The AWS region to deploy into"
-  type        = string
-  default     = "eu-central-1"
-}
-
-variable "key_name" {
-  description = "Name of your existing AWS EC2 key pair"
-  type        = string
-}
 
 data "aws_ami" "ubuntu" {
   most_recent = true
@@ -101,7 +125,6 @@ data "aws_ami" "ubuntu" {
   }
 
   owners = ["099720109477"] # Canonical's AWS owner ID
-  region = var.aws_region   # inherits "eu-central-1"
 }
 
 resource "aws_instance" "control_plane" {
@@ -114,9 +137,9 @@ resource "aws_instance" "control_plane" {
     volume_size = 10
     volume_type = "gp2"
   }
-  tags = {
+  tags = merge(local.common_tags, {
     Name = "k8s-control-plane"
-  }
+  })
 }
 
 resource "aws_instance" "worker_nodes" {
@@ -130,15 +153,82 @@ resource "aws_instance" "worker_nodes" {
     volume_size = 10
     volume_type = "gp2"
   }
-  tags = {
+  tags = merge(local.common_tags, {
     Name = "k8s-worker-${count.index + 1}"
+  })
+}
+
+resource "aws_lb" "nlb" {
+  name                       = "k8s-nlb"
+  internal                   = false
+  load_balancer_type         = "network"
+  subnets                    = [aws_subnet.main.id] # single subnet only
+  enable_deletion_protection = false
+  tags = {
+    Name      = "k8s-nlb"
+    terraform = "true"
   }
 }
 
-output "control_plane_ip" {
-  value = aws_instance.control_plane.public_ip
+resource "aws_eip" "control_plane_eip" {
+  instance = aws_instance.control_plane.id
+  tags = {
+    Name      = "k8s-control-plane-eip"
+    terraform = "true"
+  }
 }
 
-output "worker_ips" {
-  value = [for instance in aws_instance.worker_nodes : instance.public_ip]
+resource "aws_eip" "worker_eips" {
+  count    = 2
+  instance = aws_instance.worker_nodes[count.index].id
+  tags = {
+    Name      = "k8s-worker-${count.index + 1}-eip"
+    terraform = "true"
+  }
+}
+
+resource "helm_release" "nginx_ingress" {
+  name       = "nginx-ingress"
+  repository = "https://kubernetes.github.io/ingress-nginx"
+  chart      = "ingress-nginx"
+  namespace  = kubernetes_namespace.ingress_nginx.metadata[0].name
+  version    = "4.10.0" # Adjust based on compatibility
+
+  set = [
+    {
+      name  = "controller.service.annotations.service\\.beta\\.kubernetes\\.io/aws-load-balancer-type"
+      value = "nlb"
+    },
+    {
+      name  = "controller.service.annotations.service\\.beta\\.kubernetes\\.io/aws-load-balancer-cross-zone-load-balancing-enabled"
+      value = "true"
+    },
+    {
+      name  = "controller.service.annotations.service\\.beta\\.kubernetes\\.io/aws-load-balancer-connection-idle-timeout"
+      value = "3600"
+    },
+    {
+      name  = "controller.service.type"
+      value = "LoadBalancer"
+    }
+  ]
+}
+
+data "kubernetes_service" "nginx_ingress_controller" {
+  metadata {
+    name      = "nginx-ingress-controller" # or check your actual service name
+    namespace = kubernetes_namespace.ingress_nginx.metadata[0].name
+  }
+}
+
+output "nginx_ingress_lb_hostname" {
+  value = data.kubernetes_service.nginx_ingress_controller.status[0].load_balancer[0].ingress[0].hostname
+}
+
+output "control_plane_eip" {
+  value = aws_eip.control_plane_eip.public_ip
+}
+
+output "worker_eips" {
+  value = [for eip in aws_eip.worker_eips : eip.public_ip]
 }

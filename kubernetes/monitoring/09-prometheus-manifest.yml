@@ -42,6 +42,18 @@ subjects:
     name: prometheus-sa
     namespace: smart-home
 ---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: prometheus-pvc
+  namespace: smart-home
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -60,6 +72,11 @@ spec:
       containers:
         - name: prometheus-container
           image: prom/prometheus:v2.53.5
+          args:
+            - "--config.file=/etc/prometheus/prometheus.yml"
+            - "--storage.tsdb.path=/prometheus"
+            - "--storage.tsdb.retention.time=5d"
+            - "--storage.tsdb.retention.size=1GB"
           resources:
             requests:
               cpu: 500m
@@ -85,10 +102,15 @@ spec:
             - name: prometheus-config-volume
               mountPath: /etc/prometheus/prometheus.yml
               subPath: prometheus.yml
+            - name: prometheus-data
+              mountPath: /prometheus
       volumes:
         - name: prometheus-config-volume
           configMap:
             name: prometheus-config
+        - name: prometheus-data
+          persistentVolumeClaim:
+            claimName: prometheus-pvc
 ---
 apiVersion: v1
 kind: Service

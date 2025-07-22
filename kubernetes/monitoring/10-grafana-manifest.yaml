@@ -80,8 +80,7 @@ metadata:
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
-    - host: grafana.local
-      http:
+    - http:
         paths:
           - pathType: Prefix
             path: /

@@ -24,8 +24,7 @@ metadata:
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
-    - host: dashboard.local
-      http:
+    - http:
         paths:
           - pathType: Prefix
             path: "/"
