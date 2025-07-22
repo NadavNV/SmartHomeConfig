@@ -11,11 +11,6 @@ until curl -s "$GRAFANA_URL/api/health" | grep -q '"database": "ok"'; do
   sleep 3
 done
 
-# Set credentials
-GRAFANA_URL="http://localhost:3000"
-ADMIN_USER="${GF_SECURITY_ADMIN_USER:-admin}"
-ADMIN_PASS="${GF_SECURITY_ADMIN_PASSWORD:-admin}"
-
 # Create a viewer user
 CREATE_RESPONSE=$(curl -s -X POST "$GRAFANA_URL/api/admin/users" \
   -u "$ADMIN_USER:$ADMIN_PASS" \
