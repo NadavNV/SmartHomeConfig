@@ -70,8 +70,7 @@ else {
 }
 
 Write-Host "Applying backend Kubernetes manifests in order..." -ForegroundColor Cyan
-kubectl apply -f 03-mongo-secrets.yaml
-kubectl apply -f 04-redis-secrets.yaml
+kubectl apply -f 03-secrets.yaml
 kubectl apply -f 05-backend-cm.yaml
 kubectl apply -f 06-backend-manifest.yaml
 
