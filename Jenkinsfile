@@ -216,7 +216,7 @@ pipeline{
                     i=1
                     while [ \$i -le 10 ]; do
                         echo \"Attempt \$i: Checking if Flask is ready...\"
-                        if docker exec ${FLASK} curl -s --fail http://localhost:8000/ready; then
+                        if docker exec ${FLASK} curl -s --max-time 5 --fail http://localhost:8000/ready; then
                             break
                         fi
                         i=\$((i + 1))
@@ -224,13 +224,13 @@ pipeline{
                     done
 
                     # Final check to fail if still not up
-                    docker exec ${FLASK} curl -s --fail http://localhost:8000/ready || { docker logs ${FLASK} && exit 1; }
+                    docker exec ${FLASK} curl -s --max-time 5 --fail http://localhost:8000/ready || { docker logs ${FLASK} && exit 1; }
                 """
                 sh """
                     i=1
                     while [ \$i -le 10 ]; do
                         echo \"Attempt \$i: Checking if nginx is ready...\"
-                        if docker exec ${NGINX} curl -s http://localhost:5200/ready; then
+                        if docker exec ${NGINX} curl -s --max-time 5 --fail http://localhost:5200/ready; then
                             break
                         fi
                         i=\$((i + 1))
@@ -238,7 +238,7 @@ pipeline{
                     done
 
                     # Final check to fail if still not up
-                    docker exec ${NGINX} curl -s http://localhost:5200/ready || { docker logs ${NGINX} && exit 1; }
+                    docker exec ${NGINX} curl -s --max-time 5 --fail http://localhost:5200/ready || { docker logs ${NGINX} && exit 1; }
                 """
                 script{
                     if (envMap.FLASK_IS_NEW == "true") {
@@ -294,7 +294,7 @@ pipeline{
                             i=1
                             while [ \$i -le 10 ]; do
                                 echo \"Attempt \$i: Checking if frontend can reach backend...\"
-                                if docker exec ${FRONTEND} curl -s http://${NGINX}:5200/ready; then
+                                if docker exec ${FRONTEND} curl -s --max-time 5 --fail http://${NGINX}:5200/ready; then
                                     break
                                 fi
                                 i=\$((i + 1))
@@ -302,7 +302,7 @@ pipeline{
                             done
 
                             # Final check to fail if still not up
-                            docker exec ${FRONTEND} curl -s http://${NGINX}:5200/ready || { docker logs ${FRONTEND} && exit 1; }
+                            docker exec ${FRONTEND} curl -s --max-time 5 --fail http://${NGINX}:5200/ready || { docker logs ${FRONTEND} && exit 1; }
                         """
                         script{
                             if (envMap.FRONTEND_IS_NEW == "true"){
@@ -328,7 +328,7 @@ pipeline{
                             i=1
                             while [ \$i -le 10 ]; do
                                 echo \"Attempt \$i: Checking if grafana is ready...\"
-                                if docker exec ${GRAFANA} curl http://localhost:3000/api/health; then
+                                if docker exec ${GRAFANA} curl -s --max-time 5 --fail http://localhost:3000/api/health; then
                                     break
                                 fi
                                 i=\$((i + 1))
@@ -336,7 +336,7 @@ pipeline{
                             done
 
                             # Final check to fail if still not up
-                            docker exec ${GRAFANA} curl http://localhost:3000/api/health || { docker logs ${GRAFANA} && exit 1; }
+                            docker exec ${GRAFANA} curl -s --max-time 5 --fail http://localhost:3000/api/health || { docker logs ${GRAFANA} && exit 1; }
                         """
                     }
                 }
