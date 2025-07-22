@@ -5,7 +5,7 @@ metadata:
   name: dashboard-svc
   namespace: smart-home
 spec:
-  type: LoadBalancer
+  # ClusterIP by default
   selector:
     app: dashboard
   ports:
