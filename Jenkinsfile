@@ -319,10 +319,13 @@ pipeline{
                 stage("Testing grafana"){
                     steps{
                         echo "====== Running grafana ======"
-                        sh """
-                        docker run -d --network test --name ${GRAFANA} \\
-                        ${DOCKER_USERNAME}/${GRAFANA}:V${envMap.GRAFANA_TAG}
+                        withCredentials([usernamePassword(credentialsId: 'grafana-credentials', passwordVariable: 'GRAFANA_PASS', usernameVariable: 'GRAFANA_USER')]) {
+                            sh """
+                        docker run -d --network test -e GF_SECURITY_ADMIN_USER=${GRAFANA_USER} \\
+                        -e GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASS} --name \\
+                        ${GRAFANA} ${DOCKER_USERNAME}/${GRAFANA}:V${envMap.GRAFANA_TAG}
                         """
+                        }
                         echo "====== Testing grafana ======"
                         sh """
                             i=1
