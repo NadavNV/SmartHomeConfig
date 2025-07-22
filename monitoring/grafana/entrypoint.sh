@@ -2,6 +2,7 @@
 set -e
 
 # Start run.sh in background and log output
+echo "Running run.sh" >> /proc/1/fd/1
 /run.sh >> /proc/1/fd/1 2>&1 &
 
 # Run startup.sh in foreground so we see its logs
