@@ -1,5 +1,6 @@
 #!/bin/bash
-
+echo "startup.sh started" >&2
+set -x
 # Wait until Grafana is up
 until curl -s http://localhost:3000/api/health | grep -q '"database":true'; do
   echo "Waiting for Grafana to start..."
