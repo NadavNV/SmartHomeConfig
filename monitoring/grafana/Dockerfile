@@ -14,4 +14,4 @@ RUN apk add --no-cache dos2unix && \
     find /var/lib/grafana/dashboards -name '*.json' -exec sed -i '1s/^\xEF\xBB\xBF//' {} +
 
 # Entrypoint will wait for Grafana then run the setup script
-CMD ["/bin/bash", "-c", "/run.sh & /startup.sh && wait"]
+CMD ["/bin/bash", "-c", "/run.sh >> /proc/1/fd/1 2>&1 & /startup.sh >> /proc/1/fd/1 2>&1 && wait"]
