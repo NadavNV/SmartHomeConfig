@@ -475,11 +475,14 @@ pipeline{
         stage("Commit manifest updates"){
             steps{
                 dir("SmartHomeConfig"){
-                    sh """
-                        git add .
-                        git commit -m 'Update image tags'
-                        git push origin main
-                    """
+                    withCredentials([usernamePassword(credentialsId: 'github-credentials', passwordVariable: 'GITHUB_PASS', usernameVariable: 'GITHUB_USER')]) {
+                        sh """
+                            git remote set-url origin https://${GITHUB_USER}:${GITHUB_PASS}@github.com/NadavNV/SmartHomeConfig.git
+                            git add .
+                            git commit -m 'Update image tags'
+                            git push origin main
+                        """
+                    }
                 }
             }
         }
