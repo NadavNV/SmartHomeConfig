@@ -120,5 +120,38 @@ foreach ($entry in $entries) {
 
 Write-Host "Frontend: http://dashboard.local" -ForegroundColor Cyan
 Write-Host "Grafana: http://grafana.local" -ForegroundColor Cyan
+
+Write-Host "Installing Argo CD..." -ForegroundColor Cyan
+
+kubectl create namespace argocd --dry-run=client -o yaml | kubectl apply -f -
+
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+Write-Host "Waiting for Argo CD server pod to be ready..." -ForegroundColor Yellow
+Start-Sleep -Seconds 3
+$argoReady = kubectl wait --namespace argocd --for=condition=Ready pods --selector app.kubernetes.io/name=argocd-server --timeout="${TIMEOUT}s"
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "Argo CD server pod did not become ready."
+    Write-Host $argoReady
+    exit 1
+}
+
+Write-Host "Exposing Argo CD with Ingress..." -ForegroundColor Cyan
+kubectl apply -f ../argocd/argocd-ingress.yaml
+
+Write-Host "Adding Argo CD domain to hosts file..." -ForegroundColor Cyan
+$entry = "127.0.0.1 argocd.local"
+if (-not (Select-String -Path $hostsPath -Pattern $entry -Quiet)) {
+    Add-Content -Path $hostsPath -Value $entry
+    Write-Host "Added $entry to hosts file" -ForegroundColor Green
+}
+else {
+    Write-Host "$entry already exists in hosts file" -ForegroundColor Yellow
+}
+Write-Host "Argo CD UI: https://argocd.local" -ForegroundColor Cyan
+
+Write-Host "Bootstrapping Argo CD application..." -ForegroundColor Cyan
+kubectl apply -f ../argocd/app.yaml -n argocd
+
 Write-Host "`n*** Done! ***`n" -ForegroundColor Green
 

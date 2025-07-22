@@ -132,4 +132,30 @@ add_host_entry "127.0.0.1 grafana.local"
 
 echo -e "${CYAN}Frontend: http://dashboard.local${RESET}"
 echo -e "${CYAN}Grafana: http://grafana.local${RESET}"
+
+echo -e "${CYAN}Creating argocd namespace if it doesn't exist...${RESET}"
+kubectl create namespace argocd --dry-run=client -o yaml | kubectl apply -f -
+
+echo -e "${CYAN}Installing Argo CD core components...${RESET}"
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+echo -e "${CYAN}Waiting for Argo CD server to be ready...${RESET}"
+sleep 5
+kubectl wait --for=condition=Ready pods --all -n argocd --timeout=120s
+
+echo -e "${CYAN}Applying Argo CD ingress (if defined)...${RESET}"
+if [ -f "../argocd/argocd-ingress.yaml" ]; then
+  kubectl apply -n argocd -f ../argocd/argocd-ingress.yaml
+else
+  echo -e "${YELLOW}No argocd-ingress.yaml found, skipping ingress setup.${RESET}"
+fi
+
+echo -e "${CYAN}Bootstrapping Argo CD Application...${RESET}"
+if kubectl get app smart-home -n argocd >/dev/null 2>&1; then
+  echo -e "${YELLOW}Argo CD app 'smart-home' already exists. Skipping creation.${RESET}"
+else
+  kubectl apply -f ../argocd/app.yaml -n argocd
+  echo -e "${GREEN}Argo CD Application created.${RESET}"
+fi
+
 echo -e "\n${GREEN}*** Done! ***${RESET}\n"
