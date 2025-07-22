@@ -381,11 +381,11 @@ pipeline{
             parallel{
                 stage("Deploying backend"){
                     steps{
-                        echo "====== Deploying the backend ======"
-                        sh "docker image tag ${DOCKER_USERNAME}/${FLASK}:V${envMap.FLASK_TAG} ${DOCKER_USERNAME}/${FLASK}:latest"
-                        sh "docker image tag ${DOCKER_USERNAME}/${NGINX}:V${envMap.NGINX_TAG} ${DOCKER_USERNAME}/${NGINX}:latest"
+                        
                         script{
                             if (envMap.NGINX_IS_NEW == "true"){
+                                echo "====== Deploying the backend ======"
+                                sh "docker image tag ${DOCKER_USERNAME}/${NGINX}:V${envMap.NGINX_TAG} ${DOCKER_USERNAME}/${NGINX}:latest"
                                 retry(4){
                                     sh "docker push ${DOCKER_USERNAME}/${NGINX}:latest"
                                 }
@@ -399,6 +399,7 @@ pipeline{
                         }
                         script{
                             if (envMap.FLASK_IS_NEW == "true"){
+                                sh "docker image tag ${DOCKER_USERNAME}/${FLASK}:V${envMap.FLASK_TAG} ${DOCKER_USERNAME}/${FLASK}:latest"
                                 retry(4){
                                     sh "docker push ${DOCKER_USERNAME}/${FLASK}:latest"
                                 }
@@ -414,10 +415,10 @@ pipeline{
                 }
                 stage("Deploying frontend"){
                     steps{
-                        echo "====== Deploying the frontend ======"
-                        sh "docker image tag ${DOCKER_USERNAME}/${FRONTEND}:V${envMap.FRONTEND_TAG} ${DOCKER_USERNAME}/${FRONTEND}:latest"
                         script{
-                            if (envMap.FRONTEND_IS_NEW == "true"){                        
+                            if (envMap.FRONTEND_IS_NEW == "true"){
+                                echo "====== Deploying the frontend ======"
+                                sh "docker image tag ${DOCKER_USERNAME}/${FRONTEND}:V${envMap.FRONTEND_TAG} ${DOCKER_USERNAME}/${FRONTEND}:latest"                     
                                 retry(4){
                                     sh "docker push ${DOCKER_USERNAME}/${FRONTEND}:latest"
                                 }
@@ -433,10 +434,10 @@ pipeline{
                 }
                 stage("Deploying simulator"){
                     steps{
-                        echo "====== Deploying the simulator ======"
-                        sh "docker image tag ${DOCKER_USERNAME}/${SIMULATOR}:V${envMap.SIMULATOR_TAG} ${DOCKER_USERNAME}/${SIMULATOR}:latest"
                         script{
                             if (envMap.SIMULATOR_IS_NEW == "true"){
+                                echo "====== Deploying the simulator ======"
+                                sh "docker image tag ${DOCKER_USERNAME}/${SIMULATOR}:V${envMap.SIMULATOR_TAG} ${DOCKER_USERNAME}/${SIMULATOR}:latest"
                                 retry(4){
                                     sh "docker push ${DOCKER_USERNAME}/${SIMULATOR}:latest"
                                 }
