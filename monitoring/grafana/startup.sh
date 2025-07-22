@@ -45,7 +45,7 @@ ROLE_RESPONSE=$(curl -s -X PATCH "$GRAFANA_URL/api/orgs/$ORG_ID/users/$USER_ID" 
   -u "$ADMIN_USER:$ADMIN_PASS" \
   -d '{"role": "Viewer"}')
 
-if echo "$ROLE_RESPONSE" | grep -q '"message":"User role updated"'; then
+if echo "$ROLE_RESPONSE" | grep -q '"message":"Organization user updated"'; then
   echo "Viewer role successfully assigned."
 else
   echo "Failed to assign role. Response:"
