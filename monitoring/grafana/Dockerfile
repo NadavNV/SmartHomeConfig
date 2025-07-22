@@ -5,7 +5,9 @@ USER root
 COPY dashboards /var/lib/grafana/dashboards
 COPY provisioning /etc/grafana/provisioning
 COPY startup.sh /startup.sh
+COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /startup.sh
+RUN chmod +x /entrypoint.sh
 
 RUN apk add --no-cache jq
 RUN apk add --no-cache grep
@@ -16,4 +18,4 @@ RUN apk add --no-cache dos2unix && \
     find /var/lib/grafana/dashboards -name '*.json' -exec sed -i '1s/^\xEF\xBB\xBF//' {} +
 
 # Entrypoint will wait for Grafana then run the setup script
-CMD ["/bin/bash", "-c", "/run.sh >> /proc/1/fd/1 2>&1 & /startup.sh >> /proc/1/fd/1 2>&1 & wait"]
+CMD ["/entrypoint.sh"]
