@@ -15,7 +15,7 @@ spec:
     server: "https://kubernetes.default.svc"
     namespace: smart-home
   dependsOn:
-    - mqtt-broker
+    - smart-home-setup
   syncPolicy:
     automated:
       prune: true

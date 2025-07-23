@@ -15,7 +15,7 @@ spec:
     server: "https://kubernetes.default.svc"
     namespace: smart-home
   dependsOn:
-    - backend
+    - smart-home-backend
   syncPolicy:
     automated:
       prune: true

@@ -6,13 +6,19 @@ provider "aws" {
   region = var.aws_region # Frankfurt
 }
 
+variable "kubeconfig_path" {
+  description = "Path to kubeconfig file"
+  type        = string
+  default     = "" # Optional: fallback
+}
+
 provider "kubernetes" {
-  config_path = "D:\\Nadav\\DevSecOps\\kube_config.yaml"
+  config_path = var.kubeconfig_path
 }
 
 provider "helm" {
   kubernetes = {
-    config_path = "D:\\Nadav\\DevSecOps\\kube_config.yaml"
+    config_path = var.kubeconfig_path
   }
 }
 
@@ -29,7 +35,8 @@ variable "key_name" {
 
 locals {
   common_tags = {
-    terraform = "true"
+    terraform                          = "true"
+    "kubernetes.io/cluster/smart-home" = "owned"
   }
 }
 
@@ -53,7 +60,9 @@ resource "aws_subnet" "main" {
   map_public_ip_on_launch = true
   availability_zone       = "eu-central-1a"
   tags = merge(local.common_tags, {
-    Name = "kube-subnet"
+    Name                               = "kube-subnet"
+    "kubernetes.io/cluster/smart-home" = "owned"
+    "kubernetes.io/role/elb"           = "1"
   })
 }
 
@@ -127,19 +136,102 @@ data "aws_ami" "ubuntu" {
   owners = ["099720109477"] # Canonical's AWS owner ID
 }
 
+resource "aws_ebs_volume" "worker1_root" {
+  availability_zone = aws_instance.worker_nodes[0].availability_zone
+  size              = 10
+  type              = "gp2"
+  # volume_id from import
+  tags = {
+    Name = "k8s-worker-1-root"
+  }
+
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+
+resource "aws_volume_attachment" "worker1_root_attach" {
+  device_name  = "/dev/sda1"
+  volume_id    = aws_ebs_volume.worker1_root.id
+  instance_id  = aws_instance.worker_nodes[0].id
+  force_detach = true
+
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+
+resource "aws_ebs_volume" "worker2_root" {
+  availability_zone = aws_instance.worker_nodes[0].availability_zone
+  size              = 10
+  type              = "gp2"
+  # volume_id from import
+  tags = {
+    Name = "k8s-worker-2-root"
+  }
+
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+
+resource "aws_volume_attachment" "worker2_root_attach" {
+  device_name  = "/dev/sda1"
+  volume_id    = aws_ebs_volume.worker2_root.id
+  instance_id  = aws_instance.worker_nodes[1].id
+  force_detach = true
+
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+
+resource "aws_ebs_volume" "control_plane_root" {
+  availability_zone = aws_instance.control_plane.availability_zone
+  size              = 10
+  type              = "gp2"
+
+  tags = merge(local.common_tags, {
+    Name = "k8s-control-plane-root"
+  })
+
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+
+resource "aws_volume_attachment" "control_plane_root_attach" {
+  device_name = "/dev/sda1"
+  volume_id   = aws_ebs_volume.control_plane_root.id
+  instance_id = aws_instance.control_plane.id
+
+  force_detach = true
+
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+
 resource "aws_instance" "control_plane" {
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = "t3.medium"
   subnet_id              = aws_subnet.main.id
   vpc_security_group_ids = [aws_security_group.kube_sg.id]
   key_name               = var.key_name
-  root_block_device {
-    volume_size = 10
-    volume_type = "gp2"
-  }
+  user_data              = <<-EOF
+              #!/bin/bash
+              systemctl restart docker
+              systemctl restart cri-docker.service
+              systemctl restart kubelet
+              # Add any other startup commands you need
+              EOF
   tags = merge(local.common_tags, {
     Name = "k8s-control-plane"
   })
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "aws_instance" "worker_nodes" {
@@ -149,13 +241,19 @@ resource "aws_instance" "worker_nodes" {
   subnet_id              = aws_subnet.main.id
   vpc_security_group_ids = [aws_security_group.kube_sg.id]
   key_name               = var.key_name
-  root_block_device {
-    volume_size = 10
-    volume_type = "gp2"
-  }
+  user_data              = <<-EOF
+                              #!/bin/bash
+                              systemctl start containerd || systemctl start docker
+                              systemctl restart kubelet
+                            EOF
+
   tags = merge(local.common_tags, {
     Name = "k8s-worker-${count.index + 1}"
   })
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "aws_lb" "nlb" {
@@ -168,6 +266,10 @@ resource "aws_lb" "nlb" {
     Name      = "k8s-nlb"
     terraform = "true"
   }
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "aws_eip" "control_plane_eip" {
@@ -176,14 +278,37 @@ resource "aws_eip" "control_plane_eip" {
     Name      = "k8s-control-plane-eip"
     terraform = "true"
   }
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
-resource "aws_eip" "worker_eips" {
-  count    = 2
-  instance = aws_instance.worker_nodes[count.index].id
-  tags = {
-    Name      = "k8s-worker-${count.index + 1}-eip"
-    terraform = "true"
+resource "aws_eip" "worker_node_1" {
+  instance = aws_instance.worker_nodes[0].id
+  tags = merge(local.common_tags, {
+    Name = "k8s-worker-1-eip"
+  })
+}
+
+resource "aws_eip" "worker_node_2" {
+  instance = aws_instance.worker_nodes[1].id
+  tags = merge(local.common_tags, {
+    Name = "k8s-worker-2-eip"
+  })
+}
+
+resource "kubernetes_manifest" "ccm" {
+  for_each = {
+    for doc in split("---", file("${path.module}/aws_ccm.yaml")) :
+    "${yamldecode(doc).kind}-${yamldecode(doc).metadata.name}-${lookup(yamldecode(doc).metadata, "namespace", "default")}" => yamldecode(doc)
+    if trimspace(doc) != ""
+  }
+
+  manifest = each.value
+
+  lifecycle {
+    ignore_changes = [manifest]
   }
 }
 
@@ -193,6 +318,7 @@ resource "helm_release" "nginx_ingress" {
   chart      = "ingress-nginx"
   namespace  = kubernetes_namespace.ingress_nginx.metadata[0].name
   version    = "4.10.0" # Adjust based on compatibility
+  depends_on = [kubernetes_manifest.ccm]
 
   set = [
     {
@@ -214,11 +340,76 @@ resource "helm_release" "nginx_ingress" {
   ]
 }
 
+data "kubernetes_namespace" "argocd" {
+  metadata {
+    name = "argocd"
+  }
+}
+
+resource "helm_release" "argocd" {
+  name             = "argocd"
+  namespace        = "argocd"
+  repository       = "https://argoproj.github.io/argo-helm"
+  chart            = "argo-cd"
+  version          = "5.46.7" # check for latest compatible version
+  create_namespace = true
+
+  set = [
+    {
+      name  = "server.service.type"
+      value = "ClusterIP"
+    }
+  ]
+}
+
+resource "kubernetes_manifest" "argocd_ingress" {
+  depends_on = [
+    helm_release.nginx_ingress,
+    data.kubernetes_namespace.argocd
+  ]
+  manifest = {
+    apiVersion = "networking.k8s.io/v1"
+    kind       = "Ingress"
+    metadata = {
+      name      = "argocd-server-ingress"
+      namespace = "argocd"
+      annotations = {
+        "nginx.ingress.kubernetes.io/ssl-redirect"     = "true"
+        "nginx.ingress.kubernetes.io/backend-protocol" = "HTTPS"
+      }
+    }
+    spec = {
+      rules = [
+        {
+          http = {
+            paths = [
+              {
+                path     = "/"
+                pathType = "Prefix"
+                backend = {
+                  service = {
+                    name = "argocd-server"
+                    port = {
+                      number = 443
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}
+
 data "kubernetes_service" "nginx_ingress_controller" {
   metadata {
-    name      = "nginx-ingress-controller" # or check your actual service name
+    name      = "nginx-ingress-ingress-nginx-controller"
     namespace = kubernetes_namespace.ingress_nginx.metadata[0].name
   }
+
+  depends_on = [helm_release.nginx_ingress]
 }
 
 output "nginx_ingress_lb_hostname" {
@@ -229,6 +420,14 @@ output "control_plane_eip" {
   value = aws_eip.control_plane_eip.public_ip
 }
 
-output "worker_eips" {
-  value = [for eip in aws_eip.worker_eips : eip.public_ip]
+output "worker1_eip" {
+  value = aws_eip.worker_node_1.public_ip
+}
+
+output "worker2_eip" {
+  value = aws_eip.worker_node_2.public_ip
+}
+
+output "kubeconfig_path" {
+  value = var.kubeconfig_path
 }

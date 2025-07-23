@@ -5,10 +5,10 @@ metadata:
   namespace: argocd
   annotations:
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
 spec:
   rules:
-    - host: argocd.local
-      http:
+    - http:
         paths:
           - path: /
             pathType: Prefix
