@@ -117,6 +117,15 @@ resource "aws_security_group" "kube_sg" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+  ingress {
+    description = "Allow Flannel VXLAN traffic between nodes"
+    from_port   = 8472
+    to_port     = 8472
+    protocol    = "udp"
+    cidr_blocks = ["10.0.0.0/16"]
+  }
+
   tags = local.common_tags
 }
 
