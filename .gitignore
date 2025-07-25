@@ -2,3 +2,5 @@
 *.log.*
 * - Copy
 .terraform*
+*.tfstate
+*.tfstate.backup
