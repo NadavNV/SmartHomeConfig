@@ -25,6 +25,8 @@ As well as monitoring and CI/CD (in this repository).
 
 ## Usage
 
+### CURRENTLY INCORRECT - WIP
+
 - To run the up on your machine from the pre-built images:
 
   - [Install minikube](https://minikube.sigs.k8s.io/docs/start/?arch=%2Fwindows%2Fx86-64%2Fstable%2F.exe+download)
