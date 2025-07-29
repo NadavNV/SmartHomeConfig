@@ -27,7 +27,6 @@ done
 if [ "$SKIP_MINIKUBE_START" -eq 0 ]; then
   echo -e "${CYAN}Starting Minikube...${RESET}"
   minikube start --driver=docker --memory=3072 --cpus=2
-
   if [ $? -ne 0 ]; then
     echo -e "${RED}Minikube failed to start. Exiting.${RESET}"
     exit 1
@@ -42,78 +41,61 @@ minikube addons enable ingress
 echo -e "${CYAN}Opening tunnel to ingress controller...${RESET}"
 nohup minikube tunnel > minikube-tunnel.log 2>&1 &
 
-echo -e "${CYAN}Applying LoadBalancer and Ingress...${RESET}"
-kubectl apply -f 00-namespace.yaml
-kubectl apply -f 02-dashboard-svc.yaml
-
-echo -e "${YELLOW}Waiting for Minikube tunnel to assign LoadBalancer IP...${RESET}"
+echo -e "${YELLOW}Waiting for ingress controller to be ready...${RESET}"
 sleep 2
 for i in {1..30}; do
   if kubectl get pods -n ingress-nginx --no-headers | grep -q "Running"; then
-    echo -e "${GREEN}Minikube tunnel is active.${RESET}"
+    echo -e "${GREEN}Ingress controller is ready.${RESET}"
     break
   fi
   sleep 2
 done
 
 if ! kubectl get pods -n ingress-nginx --no-headers | grep -q "Running"; then
-  echo -e "${RED}Tunnel did not become active. Exiting.${RESET}"
+  echo -e "${RED}Ingress controller did not become ready. Exiting.${RESET}"
   exit 1
 fi
 
-echo -e "${CYAN}Applying MQTT deployment...${RESET}"
-kubectl apply -f 01-mqtt-manifest.yaml
+# ------------------ Argo CD setup ------------------
+echo -e "${CYAN}Creating Argo CD namespace (if missing)...${RESET}"
+kubectl create namespace argocd --dry-run=client -o yaml | kubectl apply -f -
 
-echo -e "${YELLOW}Waiting for MQTT broker pod in '$NAMESPACE' to be ready...${RESET}"
-sleep 3
-podsReady=$(kubectl wait --for=condition=Ready pods --all --namespace "$NAMESPACE" --timeout="${TIMEOUT}s")
-if [ $? -ne 0 ]; then
-  echo -e "${RED}Timeout or error waiting for pod to become ready:${RESET}"
-  echo "$podsReady"
-  exit 1
+echo -e "${CYAN}Installing Argo CD core components...${RESET}"
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+echo -e "${CYAN}Waiting for Argo CD server pod to be ready...${RESET}"
+sleep 5
+kubectl wait --for=condition=Ready pods --selector app.kubernetes.io/name=argocd-server -n argocd --timeout=${TIMEOUT}s
+
+# Optional ingress for Argo UI
+echo -e "${CYAN}Applying Argo CD ingress (if defined)...${RESET}"
+if [ -f "../argocd/argocd-ingress.yaml" ]; then
+  kubectl apply -n argocd -f ../argocd/argocd-ingress.yaml
 else
-  echo -e "${GREEN}MQTT broker is ready. Proceeding...${RESET}"
+  echo -e "${YELLOW}No argocd-ingress.yaml found, skipping ingress setup.${RESET}"
 fi
 
+# ------------------ Argo CD App bootstrap ------------------
+echo -e "${CYAN}Bootstrapping Argo CD applications...${RESET}"
 
+ARGO_APPS=(
+  "setup_app.yaml"
+  "backend_app.yaml"
+  "frontend_app.yaml"
+  "simulator_app.yaml"
+  "monitoring_app.yaml"
+)
 
-echo -e "${CYAN}Applying backend Kubernetes manifests in order...${RESET}"
-kubectl apply -f 03-secrets.yaml
-kubectl apply -f 05-backend-cm.yaml
-kubectl apply -f 06-backend-manifest.yaml
-
-echo -e "${YELLOW}Waiting for all backend pods in '$NAMESPACE' to be ready...${RESET}"
-sleep 3
-podsReady=$(kubectl wait --for=condition=Ready pods --all --namespace "$NAMESPACE" --timeout="${TIMEOUT}s")
-if [ $? -ne 0 ]; then
-  echo -e "${RED}Timeout or error waiting for pods to become ready:${RESET}"
-  echo "$podsReady"
-  exit 1
-else
-  echo -e "${GREEN}Backend is ready. Proceeding...${RESET}"
-fi
-
-echo -e "${CYAN}Applying all manifests in the current directory...${RESET}"
-kubectl apply -f .
-
-echo -e "${YELLOW}Waiting for the rest of the pods in '$NAMESPACE' to be ready...${RESET}"
-sleep 3
-deployReady=$(kubectl wait --namespace $NAMESPACE --for=condition=available deployment --all --timeout="${TIMEOUT}s" 2>&1)
-if [ $? -ne 0 ]; then
-  echo -e "${RED}Timeout or error waiting for deployments to become ready:${RESET}"
-  echo "$deployReady"
-  exit 1
-else
-  podsReady=$(kubectl wait --for=condition=Ready pods --all --namespace "$NAMESPACE" --timeout="${TIMEOUT}s")
-  if [ $? -ne 0 ]; then
-    echo -e "${RED}Timeout or error waiting for pods to become ready:${RESET}"
-    echo "$podsReady"
-    exit 1
+for app in "${ARGO_APPS[@]}"; do
+  if [ -f "../argocd/$app" ]; then
+    echo -e "${CYAN}Applying Argo CD App: $app${RESET}"
+    kubectl apply -n argocd -f "../argocd/$app"
   else
-    echo -e "${GREEN}All pods in '$NAMESPACE' are ready. Proceeding...${RESET}"
+    echo -e "${YELLOW}Skipping missing app file: $app${RESET}"
   fi
-fi
+done
 
+# ------------------ DNS entries ------------------
 echo -e "${CYAN}Adding DNS names to hosts file...${RESET}"
 
 add_host_entry() {
@@ -126,36 +108,12 @@ add_host_entry() {
   fi
 }
 
+add_host_entry "127.0.0.1 argocd.local"
 add_host_entry "127.0.0.1 dashboard.local"
 add_host_entry "127.0.0.1 grafana.local"
 
-
 echo -e "${CYAN}Frontend: http://dashboard.local${RESET}"
 echo -e "${CYAN}Grafana: http://grafana.local${RESET}"
+echo -e "${CYAN}Argo CD: https://argocd.local${RESET}"
 
-echo -e "${CYAN}Creating argocd namespace if it doesn't exist...${RESET}"
-kubectl create namespace argocd --dry-run=client -o yaml | kubectl apply -f -
-
-echo -e "${CYAN}Installing Argo CD core components...${RESET}"
-kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-
-echo -e "${CYAN}Waiting for Argo CD server to be ready...${RESET}"
-sleep 5
-kubectl wait --for=condition=Ready pods --all -n argocd --timeout=120s
-
-echo -e "${CYAN}Applying Argo CD ingress (if defined)...${RESET}"
-if [ -f "../argocd/argocd-ingress.yaml" ]; then
-  kubectl apply -n argocd -f ../argocd/argocd-ingress.yaml
-else
-  echo -e "${YELLOW}No argocd-ingress.yaml found, skipping ingress setup.${RESET}"
-fi
-
-echo -e "${CYAN}Bootstrapping Argo CD Application...${RESET}"
-if kubectl get app smart-home -n argocd >/dev/null 2>&1; then
-  echo -e "${YELLOW}Argo CD app 'smart-home' already exists. Skipping creation.${RESET}"
-else
-  kubectl apply -f ../argocd/app.yaml -n argocd
-  echo -e "${GREEN}Argo CD Application created.${RESET}"
-fi
-
-echo -e "\n${GREEN}*** Done! ***${RESET}\n"
+echo -e "\n${GREEN}*** Done! Argo CD is syncing your app manifests from GitHub. ***${RESET}\n"

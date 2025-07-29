@@ -77,10 +77,10 @@ metadata:
   labels:
     app.kubernetes.io/name: grafana-ingress
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
-    - http:
+    - host: grafana.local
+      http:
         paths:
           - pathType: Prefix
             path: /

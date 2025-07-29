@@ -20,14 +20,13 @@ metadata:
   namespace: smart-home
   labels:
     app.kubernetes.io/name: dashboard-ingress
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
-    - http:
+    - host: dashboard.local
+      http:
         paths:
           - pathType: Prefix
-            path: "/"
+            path: /
             backend:
               service:
                 name: dashboard-svc
