@@ -1,0 +1,62 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-cm
+  namespace: argocd
+data:
+  resource.customizations.health.apps_Deployment: |
+    hs = {}
+    if obj.status ~= nil then
+      if obj.status.readyReplicas ~= nil and obj.status.replicas ~= nil then
+        if obj.status.readyReplicas == obj.status.replicas then
+          hs.status = "Healthy"
+          hs.message = "All replicas are ready"
+          return hs
+        else
+          hs.status = "Progressing"
+          hs.message = "Waiting for all replicas to be ready"
+          return hs
+        end
+      end
+    end
+    hs.status = "Progressing"
+    hs.message = "No status available"
+    return hs
+
+  resource.customizations.health.apps_StatefulSet: |
+    hs = {}
+    if obj.status ~= nil then
+      if obj.status.readyReplicas ~= nil and obj.status.replicas ~= nil then
+        if obj.status.readyReplicas == obj.status.replicas then
+          hs.status = "Healthy"
+          hs.message = "All replicas are ready"
+          return hs
+        else
+          hs.status = "Progressing"
+          hs.message = "Waiting for all replicas to be ready"
+          return hs
+        end
+      end
+    end
+    hs.status = "Progressing"
+    hs.message = "No status available"
+    return hs
+
+  resource.customizations.health.apps_DaemonSet: |
+    hs = {}
+    if obj.status ~= nil then
+      if obj.status.numberReady ~= nil and obj.status.desiredNumberScheduled ~= nil then
+        if obj.status.numberReady == obj.status.desiredNumberScheduled then
+          hs.status = "Healthy"
+          hs.message = "All daemon pods are ready"
+          return hs
+        else
+          hs.status = "Progressing"
+          hs.message = "Waiting for all daemon pods to be ready"
+          return hs
+        end
+      end
+    end
+    hs.status = "Progressing"
+    hs.message = "No status available"
+    return hs

@@ -78,9 +78,35 @@ fi
 # ------------------ Argo CD App bootstrap ------------------
 echo -e "${CYAN}Bootstrapping Argo CD applications...${RESET}"
 
+echo -e "${CYAN}Applying Argo CD App: setup_app.yaml${RESET}"
+kubectl apply -n argocd -f "../argocd/setup_app.yaml"
+
+echo -e "${YELLOW}Waiting for MQTT broker pod in '$NAMESPACE' to be ready...${RESET}"
+sleep 3
+podsReady=$(kubectl wait --for=condition=Ready pods --all --namespace "$NAMESPACE" --timeout="${TIMEOUT}s")
+if [ $? -ne 0 ]; then
+  echo -e "${RED}Timeout or error waiting for pod to become ready:${RESET}"
+  echo "$podsReady"
+  exit 1
+else
+  echo -e "${GREEN}MQTT broker is ready. Proceeding...${RESET}"
+fi
+
+echo -e "${CYAN}Applying Argo CD App: backend_app.yaml${RESET}"
+kubectl apply -n argocd -f "../argocd/backend_app.yaml"
+
+echo -e "${YELLOW}Waiting for all backend pods in '$NAMESPACE' to be ready...${RESET}"
+sleep 3
+podsReady=$(kubectl wait --for=condition=Ready pods --all --namespace "$NAMESPACE" --timeout="${TIMEOUT}s")
+if [ $? -ne 0 ]; then
+  echo -e "${RED}Timeout or error waiting for pods to become ready:${RESET}"
+  echo "$podsReady"
+  exit 1
+else
+  echo -e "${GREEN}Backend is ready. Proceeding...${RESET}"
+fi
+
 ARGO_APPS=(
-  "setup_app.yaml"
-  "backend_app.yaml"
   "frontend_app.yaml"
   "simulator_app.yaml"
   "monitoring_app.yaml"
@@ -94,6 +120,24 @@ for app in "${ARGO_APPS[@]}"; do
     echo -e "${YELLOW}Skipping missing app file: $app${RESET}"
   fi
 done
+
+echo -e "${YELLOW}Waiting for the rest of the pods in '$NAMESPACE' to be ready...${RESET}"
+sleep 3
+deployReady=$(kubectl wait --namespace $NAMESPACE --for=condition=available deployment --all --timeout="${TIMEOUT}s" 2>&1)
+if [ $? -ne 0 ]; then
+  echo -e "${RED}Timeout or error waiting for deployments to become ready:${RESET}"
+  echo "$deployReady"
+  exit 1
+else
+  podsReady=$(kubectl wait --for=condition=Ready pods --all --namespace "$NAMESPACE" --timeout="${TIMEOUT}s")
+  if [ $? -ne 0 ]; then
+    echo -e "${RED}Timeout or error waiting for pods to become ready:${RESET}"
+    echo "$podsReady"
+    exit 1
+  else
+    echo -e "${GREEN}All pods in '$NAMESPACE' are ready. Proceeding...${RESET}"
+  fi
+fi
 
 # ------------------ DNS entries ------------------
 echo -e "${CYAN}Adding DNS names to hosts file...${RESET}"

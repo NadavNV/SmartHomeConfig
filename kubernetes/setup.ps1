@@ -4,6 +4,7 @@ param (
 
 $TIMEOUT = 120
 $ARGOCD_NAMESPACE = "argocd"
+$NAMESPACE = "smart-home"
 $HOSTS_PATH = "$env:WINDIR\System32\drivers\etc\hosts"
 
 if (-not $skip) {
@@ -73,10 +74,37 @@ Write-Host "Argo CD UI: https://argocd.local" -ForegroundColor Cyan
 # --- Bootstrap Argo CD applications ---
 Write-Host "Bootstrapping Argo CD applications..." -ForegroundColor Cyan
 
-# Apply all Argo CD App manifests
+Write-Host "Applying ArgoCD app: ../argocd/setup_app.yaml" -ForegroundColor Cyan
+kubectl apply -f "../argocd/setup_app.yaml" -n $ARGOCD_NAMESPACE
+
+Write-Host "Waiting for MQTT broker pod in '$NAMESPACE' to be ready..." -ForegroundColor Yellow
+Start-Sleep -Seconds 3
+$podsReady = kubectl wait --for=condition=Ready pods --all --namespace "$NAMESPACE" --timeout="${TIMEOUT}s"
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "Timeout or error waiting for pod to become ready:"
+    Write-Output $podsReady
+    exit 1
+}
+else {
+    Write-Host "MQTT broker is ready. Proceeding..." -ForegroundColor Green
+}
+
+Write-Host "Applying ArgoCD app: ../argocd/backend_app.yaml" -ForegroundColor Cyan
+kubectl apply -f "../argocd/backend_app.yaml" -n $ARGOCD_NAMESPACE
+
+Write-Host "Waiting for all backend pods in '$NAMESPACE' to be ready..." -ForegroundColor Yellow
+Start-Sleep -Seconds 3
+$podsReady = kubectl wait --for=condition=Ready pods --all --namespace "$NAMESPACE" --timeout="${TIMEOUT}s"
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "Timeout or error waiting for pods to become ready:"
+    Write-Output $podsReady
+    exit 1
+}
+else {
+    Write-Host "All backend pods are ready. Proceeding..." -ForegroundColor Green
+}
+
 $argocdApps = @(
-    "../argocd/setup_app.yaml",
-    "../argocd/backend_app.yaml",
     "../argocd/frontend_app.yaml",
     "../argocd/simulator_app.yaml",
     "../argocd/monitoring_app.yaml"
@@ -85,6 +113,25 @@ foreach ($app in $argocdApps) {
     Write-Host "Applying Argo CD app: $app" -ForegroundColor Cyan
     kubectl apply -f $app -n $ARGOCD_NAMESPACE
 }
+
+Write-Host "Waiting for the rest of the pods in '$NAMESPACE' to be ready..." -ForegroundColor Yellow
+Start-Sleep -Seconds 3
+$deployReady = kubectl wait --namespace $NAMESPACE --for=condition=available deployment --all --timeout="${TIMEOUT}s" 2>&1
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "Timeout or error waiting for deployment to become ready:"
+    Write-Output $deployReady
+    exit 1
+}
+$podsReady = kubectl wait --for=condition=Ready pods --all --namespace "$NAMESPACE" --timeout="${TIMEOUT}s"
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "Timeout or error waiting for pods readiness:"
+    Write-Output $podsReady
+    exit 1
+}
+else {
+    Write-Host "All pods in '$NAMESPACE' are ready." -ForegroundColor Green
+}
+
 
 # --- DNS entries for apps exposed via Ingress ---
 $entries = @(
