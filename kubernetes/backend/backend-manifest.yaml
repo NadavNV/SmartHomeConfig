@@ -29,18 +29,18 @@ spec:
             - name: REDIS_PASS
               valueFrom:
                 secretKeyRef:
-                  key: REDIS_PASS
-                  name: redis-secrets
+                  key: password
+                  name: redis-password
             - name: MONGO_USER
               valueFrom:
                 secretKeyRef:
-                  key: MONGO_USER
-                  name: mongo-secrets
+                  key: username
+                  name: mongo-credentials
             - name: MONGO_PASS
               valueFrom:
                 secretKeyRef:
-                  key: MONGO_PASS
-                  name: mongo-secrets
+                  key: password
+                  name: mongo-credentials
             - name: BROKER_HOST
               valueFrom:
                 configMapKeyRef:
@@ -51,6 +51,11 @@ spec:
                 configMapKeyRef:
                   name: mqtt-broker-cm
                   key: BROKER_PORT
+            - name: JWT_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: jwt-secret-key
+                  name: jwt-secret-key
           livenessProbe:
             httpGet:
               path: /healthy

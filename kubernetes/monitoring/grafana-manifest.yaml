@@ -19,15 +19,12 @@ spec:
             - containerPort: 3000
           env:
             - name: GF_SECURITY_ADMIN_USER
-              valueFrom:
-                secretKeyRef:
-                  name: grafana-admin-secret
-                  key: admin-user
+              value: "admin"
             - name: GF_SECURITY_ADMIN_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: grafana-admin-secret
-                  key: admin-password
+                  name: grafana-admin-password
+                  key: password
             - name: GF_DASHBOARDS_JSON_ENABLED
               value: "true"
           resources:
