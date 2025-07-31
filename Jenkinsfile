@@ -392,7 +392,7 @@ pipeline{
                                 retry(4){
                                     sh "docker push ${DOCKER_USERNAME}/${NGINX}:V${envMap.NGINX_TAG}"
                                 }
-                                sh "sed -i 's|image: ${DOCKER_USERNAME}/${NGINX}:.*|image: ${DOCKER_USERNAME}/${NGINX}:V${envMap.NGINX_TAG}|' SmartHomeConfig/kubernetes/06-backend-manifest.yaml"
+                                sh "sed -i 's|image: ${DOCKER_USERNAME}/${NGINX}:.*|image: ${DOCKER_USERNAME}/${NGINX}:V${envMap.NGINX_TAG}|' SmartHomeConfig/kubernetes/backend/backend-manifest.yaml"
                             } else {
                                 echo "NGINX isn't new, skipping deployment."
                             }
@@ -406,7 +406,7 @@ pipeline{
                                 retry(4){
                                     sh "docker push ${DOCKER_USERNAME}/${FLASK}:V${envMap.FLASK_TAG}"
                                 }
-                                sh "sed -i 's|image: ${DOCKER_USERNAME}/${FLASK}:.*|image: ${DOCKER_USERNAME}/${FLASK}:V${envMap.FLASK_TAG}|' SmartHomeConfig/kubernetes/06-backend-manifest.yaml"
+                                sh "sed -i 's|image: ${DOCKER_USERNAME}/${FLASK}:.*|image: ${DOCKER_USERNAME}/${FLASK}:V${envMap.FLASK_TAG}|' SmartHomeConfig/kubernetes/backend/backend-manifest.yaml"
                             } else {
                                 echo "Flask isn't new, skipping deployment."
                             }
@@ -425,7 +425,7 @@ pipeline{
                                 retry(4){
                                     sh "docker push ${DOCKER_USERNAME}/${FRONTEND}:V${envMap.FRONTEND_TAG}"
                                 }
-                                sh "sed -i 's|image: ${DOCKER_USERNAME}/${FRONTEND}:.*|image: ${DOCKER_USERNAME}/${FRONTEND}:V${envMap.FRONTEND_TAG}|' SmartHomeConfig/kubernetes/07-dashboard-deployment.yaml"
+                                sh "sed -i 's|image: ${DOCKER_USERNAME}/${FRONTEND}:.*|image: ${DOCKER_USERNAME}/${FRONTEND}:V${envMap.FRONTEND_TAG}|' SmartHomeConfig/kubernetes/frontend/dashboard-deployment.yaml"
                             } else {
                                 echo "Frontend isn't new, skipping deployment."
                             }
@@ -444,7 +444,7 @@ pipeline{
                                 retry(4){
                                     sh "docker push ${DOCKER_USERNAME}/${SIMULATOR}:V${envMap.SIMULATOR_TAG}"
                                 }
-                                sh "sed -i 's|image: ${DOCKER_USERNAME}/${SIMULATOR}:.*|image: ${DOCKER_USERNAME}/${SIMULATOR}:V${envMap.SIMULATOR_TAG}|' SmartHomeConfig/kubernetes/07-simulator-deployment.yaml"
+                                sh "sed -i 's|image: ${DOCKER_USERNAME}/${SIMULATOR}:.*|image: ${DOCKER_USERNAME}/${SIMULATOR}:V${envMap.SIMULATOR_TAG}|' SmartHomeConfig/kubernetes/simulator/simulator-deployment.yaml"
                             } else {
                                 echo "Simulator isn't new, skipping deployment."
                             }
@@ -463,7 +463,7 @@ pipeline{
                                 retry(4){
                                     sh "docker push ${DOCKER_USERNAME}/${GRAFANA}:V${envMap.GRAFANA_TAG}"
                                 }
-                                sh "sed -i 's|image: ${DOCKER_USERNAME}/${GRAFANA}:.*|image: ${DOCKER_USERNAME}/${GRAFANA}:V${envMap.GRAFANA_TAG}|' SmartHomeConfig/kubernetes/10-grafana-manifest.yaml"
+                                sh "sed -i 's|image: ${DOCKER_USERNAME}/${GRAFANA}:.*|image: ${DOCKER_USERNAME}/${GRAFANA}:V${envMap.GRAFANA_TAG}|' SmartHomeConfig/kubernetes/monitoring/grafana-manifest.yaml"
                             } else{
                                 echo "Grafana isn't new, skipping deployment."
                             }
