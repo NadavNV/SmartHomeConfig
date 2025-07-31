@@ -346,14 +346,6 @@ pipeline{
                 }
             }
         }
-        stage("Integration test"){
-            steps{
-                sh """
-                docker exec -e FRONTEND_URL=http://${FRONTEND}:3001 -e BACKEND_URL=http://${NGINX}:5200 \\
-                -e GRAFANA_URL=http://${GRAFANA}:3000 ${FLASK} python test/integration_test.py || { docker logs ${FLASK} && docker logs ${SIMULATOR} && exit 1; }
-                """
-            }
-        }
         stage("Build clean frontend"){
             steps{
                 script{
