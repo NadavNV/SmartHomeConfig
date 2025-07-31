@@ -25,13 +25,14 @@ pipeline{
                         dir('SmartHomeBackend'){
                             git branch: 'main', url: 'https://github.com/NadavNV/SmartHomeBackend'
                             sh "git submodule update --init --recursive"
-                            withCredentials([usernamePassword(credentialsId: 'redis-credentials', passwordVariable: 'REDIS_PASS', usernameVariable: 'REDIS_USER'), usernamePassword(credentialsId: 'mongo-credentials', passwordVariable: 'MONGO_PASS', usernameVariable: 'MONGO_USER')]) {
+                            withCredentials([usernamePassword(credentialsId: 'redis-credentials', passwordVariable: 'REDIS_PASS', usernameVariable: 'REDIS_USER'), usernamePassword(credentialsId: 'mongo-credentials', passwordVariable: 'MONGO_PASS', usernameVariable: 'MONGO_USER'), string(credentialsId: 'jwt-secret-key', variable: 'JWT_SECRET_KEY')]) {
                                 echo "====== Creating backend .env ======"
                                 sh '''
                                     echo "MONGO_USER=$MONGO_USER" > .env
                                     echo "MONGO_PASS=$MONGO_PASS" >> .env
                                     echo "REDIS_PASS=$REDIS_PASS" >> .env
                                     echo "BROKER_HOST=mqtt-broker" >> .env
+                                    echo "JWT_SECRET_KEY=$JWT_SECRET_KEY" >> .env
                                 '''
                             }
                         }
