@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: backend-flask-container
-          image: nadavnv/smart-home-backend-flask:V1.0.2
+          image: nadavnv/smart-home-backend-flask:V1.1.0
           resources:
             limits:
               cpu: 300m
@@ -69,7 +69,7 @@ spec:
             initialDelaySeconds: 10
             periodSeconds: 5
         - name: backend-nginx-container
-          image: nadavnv/smart-home-backend-nginx:V1.0.2
+          image: nadavnv/smart-home-backend-nginx:V1.1.0
           resources:
             limits:
               cpu: 300m
